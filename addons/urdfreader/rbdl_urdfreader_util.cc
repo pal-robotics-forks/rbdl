@@ -1,5 +1,5 @@
-#include "rbdl.h"
-#include "rbdl_utils.h"
+#include <rbdl/rbdl.h>
+#include <rbdl/rbdl_utils.h>
 #include "rbdl_urdfreader.h"
 
 #include <iostream>
@@ -44,7 +44,7 @@ int main (int argc, char *argv[]) {
 	}
 
 	RigidBodyDynamics::Model model;
-	model.Init();
+  //model.Init();
 
 	if (!RigidBodyDynamics::Addons::read_urdf_model(filename.c_str(), &model, verbose)) {
 		cerr << "Loading of urdf model failed!" << endl;

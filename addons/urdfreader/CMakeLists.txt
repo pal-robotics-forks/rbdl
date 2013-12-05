@@ -8,8 +8,8 @@ INCLUDE ( CMake/ros.cmake)
 INCLUDE ( CMake/pkg-config.cmake)
 
 ADD_ROSPACK_DEPENDENCY ("urdf")
-ADD_ROSPACK_DEPENDENCY ("urdf_interface")
-ADD_ROSPACK_DEPENDENCY ("urdf_parser")
+#ADD_ROSPACK_DEPENDENCY ("urdf_interface")
+#ADD_ROSPACK_DEPENDENCY ("urdf_parser")
 
 # We additionally link against urdf explicitly
 FIND_PACKAGE (URDF REQUIRED)
@@ -39,16 +39,16 @@ ADD_LIBRARY ( rbdl_urdfreader SHARED ${URDFREADER_SOURCES} )
 ADD_EXECUTABLE (rbdl_urdfreader_util rbdl_urdfreader_util.cc)
 
 ROSPACK_USE_DEPENDENCY (rbdl_urdfreader urdf)
-ROSPACK_USE_DEPENDENCY (rbdl_urdfreader urdf_interface)
+#ROSPACK_USE_DEPENDENCY (rbdl_urdfreader urdf_interface)
 
 ROSPACK_USE_DEPENDENCY (rbdl_urdfreader_util urdf)
-ROSPACK_USE_DEPENDENCY (rbdl_urdfreader_util urdf_interface)
+#ROSPACK_USE_DEPENDENCY (rbdl_urdfreader_util urdf_interface)
 
 IF (BUILD_STATIC)
 	ADD_LIBRARY ( rbdl_urdfreader-static STATIC ${URDFREADER_SOURCES} )
 
 	ROSPACK_USE_DEPENDENCY (rbdl_urdfreader-static urdf)
-	ROSPACK_USE_DEPENDENCY (rbdl_urdfreader-static urdf_interface)
+	#ROSPACK_USE_DEPENDENCY (rbdl_urdfreader-static urdf_interface)
 
   SET_TARGET_PROPERTIES ( rbdl_urdfreader-static PROPERTIES PREFIX "lib")
   SET_TARGET_PROPERTIES ( rbdl_urdfreader-static PROPERTIES OUTPUT_NAME "rbdl_urdfreader")

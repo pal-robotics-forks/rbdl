@@ -1,4 +1,4 @@
-#include "rbdl.h"
+#include <rbdl/rbdl.h>
 #include "rbdl_urdfreader.h"
 
 #include <assert.h>

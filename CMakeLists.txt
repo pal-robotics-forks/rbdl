@@ -1,6 +1,8 @@
-PROJECT (RBDL)
+PROJECT (rbdl)
 
 CMAKE_MINIMUM_REQUIRED(VERSION 2.6)
+
+find_package(catkin REQUIRED)
 
 LIST( APPEND CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/CMake )
 
@@ -36,7 +38,7 @@ OPTION (BUILD_TESTS "Build the test executables" OFF)
 OPTION (RBDL_ENABLE_LOGGING "Enable logging (warning: major impact on performance!)" OFF)
 OPTION (RBDL_USE_SIMPLE_MATH "Use slow math instead of the fast Eigen3 library (faster compilation)" OFF)
 OPTION (RBDL_STORE_VERSION "Enable storing of version information in the library (requires build from valid repository)" OFF)
-OPTION (BUILD_ADDON_URDFREADER "Build the (experimental) urdf reader" OFF)
+OPTION (BUILD_ADDON_URDFREADER "Build the (experimental) urdf reader" ON)
 OPTION (BUILD_ADDON_BENCHMARK "Build the benchmarking tool" OFF)
 OPTION (BUILD_ADDON_LUAMODEL "Build the lua model reader" OFF)
 
@@ -110,12 +112,12 @@ ENDIF (RBDL_STORE_VERSION)
 
 CONFIGURE_FILE (
 	"${CMAKE_CURRENT_SOURCE_DIR}/include/rbdl/rbdl_config.h.cmake" 
-	"${CMAKE_CURRENT_BINARY_DIR}/include/rbdl/rbdl_config.h"
+	"${CMAKE_CURRENT_SOURCE_DIR}/include/rbdl/rbdl_config.h"
 	)
 
 FILE ( GLOB headers 
 	${CMAKE_CURRENT_SOURCE_DIR}/include/rbdl/*.h
-	${CMAKE_CURRENT_BINARY_DIR}/include/rbdl//rbdl_config.h
+	${CMAKE_CURRENT_SOURCE_DIR}/include/rbdl/rbdl_config.h
 	)
 
 INSTALL ( FILES ${headers} DESTINATION include/rbdl )
@@ -126,4 +128,10 @@ IF (RBDL_USE_SIMPLE_MATH)
 		DESTINATION include/rbdl
 	)
 ENDIF (RBDL_USE_SIMPLE_MATH)
+
+catkin_package(
+  INCLUDE_DIRS include
+  LIBRARIES rbdl
+)
+
 
