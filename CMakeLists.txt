@@ -38,9 +38,6 @@ OPTION (BUILD_TESTS "Build the test executables" OFF)
 OPTION (RBDL_ENABLE_LOGGING "Enable logging (warning: major impact on performance!)" OFF)
 OPTION (RBDL_USE_SIMPLE_MATH "Use slow math instead of the fast Eigen3 library (faster compilation)" OFF)
 OPTION (RBDL_STORE_VERSION "Enable storing of version information in the library (requires build from valid repository)" OFF)
-OPTION (BUILD_ADDON_URDFREADER "Build the (experimental) urdf reader" ON)
-OPTION (BUILD_ADDON_BENCHMARK "Build the benchmarking tool" OFF)
-OPTION (BUILD_ADDON_LUAMODEL "Build the lua model reader" OFF)
 
 SET ( RBDL_SOURCES 
 	src/rbdl_version.cc
@@ -56,18 +53,6 @@ SET ( RBDL_SOURCES
 
 ADD_LIBRARY ( rbdl SHARED ${RBDL_SOURCES} )
 
-IF (BUILD_ADDON_URDFREADER)
-  ADD_SUBDIRECTORY ( addons/urdfreader )
-ENDIF (BUILD_ADDON_URDFREADER)
-
-IF (BUILD_ADDON_BENCHMARK)
-  ADD_SUBDIRECTORY ( addons/benchmark )
-ENDIF (BUILD_ADDON_BENCHMARK)
-
-IF (BUILD_ADDON_LUAMODEL)
-  ADD_SUBDIRECTORY ( addons/luamodel )
-ENDIF (BUILD_ADDON_LUAMODEL)
-
 IF (BUILD_TESTS)
 	ADD_SUBDIRECTORY ( vendor/UnitTest++ )
 	INCLUDE_DIRECTORIES ( vendor/UnitTest++/src )
@@ -78,12 +63,6 @@ IF (BUILD_STATIC)
   ADD_LIBRARY ( rbdl-static STATIC ${RBDL_SOURCES} )
   SET_TARGET_PROPERTIES ( rbdl-static PROPERTIES PREFIX "lib")
   SET_TARGET_PROPERTIES ( rbdl-static PROPERTIES OUTPUT_NAME "rbdl")
-
-	IF (BUILD_ADDON_LUAMODEL)
-		TARGET_LINK_LIBRARIES ( rbdl-static
-			rbdl_luamodel-static
-			)
-	ENDIF (BUILD_ADDON_LUAMODEL)
 
 	INSTALL (TARGETS rbdl-static
 	  LIBRARY DESTINATION lib
