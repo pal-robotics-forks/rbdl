@@ -141,6 +141,7 @@ unsigned int AddBodyMultiDofJoint (
 	else {
 		std::cerr << "Error: Invalid joint type: " << joint.mJointType << std::endl;
 		assert (0 && !"Invalid joint type!");
+                return -1;
 	}
 
 	Body null_body (0., Vector3d (0., 0., 0.), Vector3d (0., 0., 0.));
