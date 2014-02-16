@@ -135,6 +135,7 @@ void CalcPointJacobian (Model &model,
 		bool update_kinematics = true
 		);
 
+/// @todo: document
 void CalcPoseJacobian (Model &model,
 		const Math::VectorNd &Q,
 		unsigned int body_id,
@@ -142,7 +143,33 @@ void CalcPoseJacobian (Model &model,
 		Math::MatrixNd &G,
 		bool update_kinematics = true
 		);
-		
+
+/// @todo: document
+void CalcPointJacobianGlobalFrame (Model &model,
+		const Math::VectorNd &Q,
+		unsigned int body_id,
+		const Math::Vector3d &point_position,
+		Math::MatrixNd &G,
+		bool update_kinematics = true
+		);
+
+/// @todo: document, and the COM of each link has to be taken into account
+void CalcCOMJacobian(
+    Model &model,
+    const Math::VectorNd &Q,
+    Math::MatrixNd &COMJ,
+    bool update_kinematics = true
+    );
+
+
+/// @todo: document
+void CalcCOMJacobian_ineficient (
+    Model &model,
+    const Math::VectorNd &Q,
+    Math::MatrixNd &COMJ,
+    bool update_kinematics = true
+    );
+
 /** \brief Computes the velocity of a point on a body 
  *
  * \param model   rigid body model
@@ -162,7 +189,7 @@ Math::Vector3d CalcPointVelocity (
 		const Math::Vector3d &point_position,
 		bool update_kinematics = true
 		);
-
+/// @todo document
 Math::Vector3d CalcPointAngularVelocity (
     Model &model,
     const Math::VectorNd &Q,
