@@ -267,6 +267,7 @@ void CalcPointJacobian (
 			G(2, j - 1) = S_base[5];
 		}
 	}
+	
 	delete[] e;
 }
 
@@ -321,7 +322,7 @@ void CalcPoseJacobian (
 	for (j = 1; j < model.mBodies.size(); j++) {
 		if (e[j] == 1) {
 			SpatialVector S_base;
-			S_base = point_trans * spatial_inverse(model.X_base[j].toMatrix()) * model.S[j];
+			S_base =  spatial_inverse(model.X_base[j].toMatrix()) * model.S[j];
 
 			G(0, j - 1) = S_base[0];
 			G(1, j - 1) = S_base[1];
@@ -331,6 +332,10 @@ void CalcPoseJacobian (
 			G(5, j - 1) = S_base[5];
 		}
 	}
+	
+	//Optimized transformation of the spatial jacobian to be expressed in the coordinate frame of the tip the jacobian (Same as tranlation from the global coordinate
+	//frame to the tip
+	G = point_trans *G;
 	delete[] e;
 }
 
