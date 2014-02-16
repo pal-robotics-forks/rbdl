@@ -135,6 +135,14 @@ void CalcPointJacobian (Model &model,
 		bool update_kinematics = true
 		);
 
+void CalcPoseJacobian (Model &model,
+		const Math::VectorNd &Q,
+		unsigned int body_id,
+		const Math::Vector3d &point_position,
+		Math::MatrixNd &G,
+		bool update_kinematics = true
+		);
+		
 /** \brief Computes the velocity of a point on a body 
  *
  * \param model   rigid body model

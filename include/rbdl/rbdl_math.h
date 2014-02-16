@@ -24,10 +24,9 @@
 	typedef SimpleMath::Dynamic::Matrix<double> VectorN_t;
 
 #else
-	#define EIGEN_DEFAULT_TO_ROW_MAJOR
 
 	#include "Eigen/Dense"
-  #include "Eigen/StdVector"
+    #include "Eigen/StdVector"
 
 	#include "rbdl/rbdl_eigenmath.h"
 
