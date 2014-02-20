@@ -425,18 +425,13 @@ namespace RigidBodyDynamics {
     Eigen::MatrixXd jacobian_link(3, model.dof_count);
     for (unsigned int j = 1; j < model.mBodies.size(); ++j) {
 
-      double chain_mass = 0;
-      int body_id = j;
-      while(body_id > 0){
-        chain_mass += model.mBodies[body_id].mMass;
-        body_id = model.lambda[body_id];
-      }
+      double mass_link = model.mBodies[j].mMass;
       /// @todo: make optinional to not especify extra displacement of the tip
       CalcPointJacobian(model, Q, j,
-                        model.mBodies[body_id].mCenterOfMass, jacobian_link, false);
-
-      COMJ += (chain_mass/total_mass)*jacobian_link;
+                        model.mBodies[j].mCenterOfMass, jacobian_link, false);
+      COMJ += mass_link*jacobian_link;
     }
+    COMJ = COMJ/total_mass;
   }
 
   void CalcCOMJacobian (
@@ -504,9 +499,11 @@ namespace RigidBodyDynamics {
                   const VectorNd &QDot,
                   bool update_kinematics){
 
+    std::cerr<<"COM VELOCITY FUNCTION"<<std::endl;
+
     // update the Kinematics if necessary
     if (update_kinematics) {
-      UpdateKinematicsCustom (model, &Q, NULL, NULL);
+      UpdateKinematicsCustom (model, &Q, &QDot, NULL);
     }
     Eigen::Vector3d com_vel;
     com_vel.setZero();
@@ -516,7 +513,7 @@ namespace RigidBodyDynamics {
       int body_id = i;//rbdl_model_.GetBodyId(link_names_[i].c_str());
       Eigen::Vector3d link_com_vel;
       link_com_vel = CalcPointVelocity(model, Q, QDot,
-                                   body_id, model.mBodies[body_id].mCenterOfMass, false);
+                                   body_id, model.mBodies[body_id].mCenterOfMass);
 
       com_vel += model.mBodies[body_id].mMass*link_com_vel;
       total_mass +=  model.mBodies[body_id].mMass;
