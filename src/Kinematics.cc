@@ -475,8 +475,6 @@ namespace RigidBodyDynamics {
     }
   }
 
-
-
   Vector3d CalCOM(Model &model,
                   const VectorNd &Q,
                   bool update_kinematics){
@@ -499,6 +497,31 @@ namespace RigidBodyDynamics {
       total_mass +=  model.mBodies[body_id].mMass;
     }
     return  com/total_mass;
+  }
+
+  Vector3d CalCOMVelocity(Model &model,
+                  const VectorNd &Q,
+                  const VectorNd &QDot,
+                  bool update_kinematics){
+
+    // update the Kinematics if necessary
+    if (update_kinematics) {
+      UpdateKinematicsCustom (model, &Q, NULL, NULL);
+    }
+    Eigen::Vector3d com_vel;
+    com_vel.setZero();
+    double total_mass = 0;
+
+    for(unsigned int i=1; i<model.mBodies.size(); ++i){
+      int body_id = i;//rbdl_model_.GetBodyId(link_names_[i].c_str());
+      Eigen::Vector3d link_com_vel;
+      link_com_vel = CalcPointVelocity(model, Q, QDot,
+                                   body_id, model.mBodies[body_id].mCenterOfMass, false);
+
+      com_vel += model.mBodies[body_id].mMass*link_com_vel;
+      total_mass +=  model.mBodies[body_id].mMass;
+    }
+    return  com_vel/total_mass;
   }
 
   Vector3d CalcPointVelocity (

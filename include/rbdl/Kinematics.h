@@ -170,6 +170,17 @@ void CalcCOMJacobian_ineficient (
     bool update_kinematics = true
     );
 
+Math::Vector3d CalCOM(Model &model,
+                const Math::VectorNd &Q,
+                bool update_kinematics = true);
+
+
+Math::Vector3d CalCOMVelocity(Model &model,
+                const Math::VectorNd &Q,
+                const Math::VectorNd &QDot,
+                bool update_kinematics = true);
+
+
 /** \brief Computes the velocity of a point on a body 
  *
  * \param model   rigid body model
