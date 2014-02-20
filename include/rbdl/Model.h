@@ -364,7 +364,7 @@ struct Model {
 			if (iter->second == body_id)
 				return iter->first;
 
-			iter++;
+			++iter;
 		}
 
 		return "";

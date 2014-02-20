@@ -408,15 +408,15 @@ namespace RigidBodyDynamics {
     
     assert (COMJ.rows() == 3 && COMJ.cols() == model.dof_count );
 
+    // update the Kinematics if necessary
+    if (update_kinematics) {
+      UpdateKinematicsCustom (model, &Q, NULL, NULL);
+    }
+
     double total_mass = 0;
     for (unsigned int j = 1; j < model.mBodies.size(); j++) {
       double mass_link = model.mBodies[j].mMass;
       total_mass += mass_link;
-    }
-
-    // update the Kinematics if necessary
-    if (update_kinematics) {
-      UpdateKinematicsCustom (model, &Q, NULL, NULL);
     }
 
     COMJ.setZero();
@@ -432,8 +432,8 @@ namespace RigidBodyDynamics {
         body_id = model.lambda[body_id];
       }
       /// @todo: make optinional to not especify extra displacement of the tip
-      RigidBodyDynamics::CalcPointJacobian(model, Q, j,
-                                                      zero, jacobian_link, false);
+      CalcPointJacobian(model, Q, j,
+                        model.mBodies[body_id].mCenterOfMass, jacobian_link, false);
 
       COMJ += (chain_mass/total_mass)*jacobian_link;
     }
@@ -476,31 +476,30 @@ namespace RigidBodyDynamics {
   }
 
 
-  /*
-Vector3d CalCOM(Model &model,
-    const VectorNd &Q,
-    bool update_kinematics){
+
+  Vector3d CalCOM(Model &model,
+                  const VectorNd &Q,
+                  bool update_kinematics){
 
     // update the Kinematics if necessary
-  if (update_kinematics) {
-    UpdateKinematicsCustom (model, &Q, NULL, NULL);
-  }
-
-    com_.setZero();
-    total_mass_ = 0;
-
-    for(unsigned int i=1; i<rbdl_model_.mBodies.size(); ++i){
-      int body_id = i;//rbdl_model_.GetBodyId(link_names_[i].c_str());
-      eVector3 link_com = RigidBodyDynamics::CalcBodyToBaseCoordinates(rbdl_model_, joint_positions_, body_id, rbdl_model_.mBodies[body_id].mCenterOfMass, false);
-
-      com_ += rbdl_model_.mBodies[body_id].mMass*link_com;
-      total_mass_ +=  rbdl_model_.mBodies[body_id].mMass;
+    if (update_kinematics) {
+      UpdateKinematicsCustom (model, &Q, NULL, NULL);
     }
+    Eigen::Vector3d com;
+    com.setZero();
+    double total_mass = 0;
 
-    com_ = com_/total_mass_;
+    for(unsigned int i=1; i<model.mBodies.size(); ++i){
+      int body_id = i;//rbdl_model_.GetBodyId(link_names_[i].c_str());
+      Eigen::Vector3d link_com;
+      link_com = CalcBodyToBaseCoordinates(model, Q,
+                                           body_id, model.mBodies[body_id].mCenterOfMass, false);
 
+      com += model.mBodies[body_id].mMass*link_com;
+      total_mass +=  model.mBodies[body_id].mMass;
+    }
+    return  com/total_mass;
   }
-*/
 
   Vector3d CalcPointVelocity (
       Model &model,
