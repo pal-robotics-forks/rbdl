@@ -29,7 +29,7 @@ namespace RigidBodyDynamics {
  */
 struct Body {
 	Body() :
-		mMass (1.),
+    mMass (0.0),
 		mCenterOfMass (0., 0., 0.),
 		mInertia (Math::Matrix3d::Zero(3,3)),
 		mSpatialInertia (Math::SpatialMatrix::Zero(6,6))
