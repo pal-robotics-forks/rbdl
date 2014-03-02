@@ -194,6 +194,17 @@ Math::Vector3d CalCOMVelocity(Model &model,
                 const Math::VectorNd &QDot,
                 bool update_kinematics = true);
 
+Math::Vector3d CalCOMAcceleartion(Model &model,
+                const Math::VectorNd &Q,
+                const Math::VectorNd &QDot,
+                const Math::VectorNd &QDDot,
+                bool update_kinematics = true);
+
+Math::Vector3d CalCOMAccelerationBias(Model &model,
+                const Math::VectorNd &Q,
+                const Math::VectorNd &QDot,
+                bool update_kinematics = true);
+
 
 /** \brief Computes the velocity of a point on a body 
  *
@@ -267,7 +278,6 @@ Math::Vector3d CalcPointAccelerationBias (
     Model &model,
     const Math::VectorNd &Q,
     const Math::VectorNd &QDot,
-    const Math::VectorNd &QDDot,
     unsigned int body_id,
     const Math::Vector3d &point_position,
     bool update_kinematics = true

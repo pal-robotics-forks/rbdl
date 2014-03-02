@@ -49,13 +49,14 @@ namespace RigidBodyDynamics {
         model.X_base[i] = model.X_lambda[i] * model.X_base.at(lambda);
         model.v[i] = model.X_lambda[i].apply(model.v[lambda]) + v_J;
         model.c[i] = c_J + crossm(model.v[i],v_J);
+        model.a_bias[i] = model.X_lambda[i].apply(model.a_bias[lambda]) + model.c[i];
       }	else {
         model.X_base[i] = model.X_lambda[i];
         model.v[i] = v_J;
         model.c[i].setZero();
+        model.a_bias[i].setZero();
       }
       /// @todo optimize this, there are repeated computations
-      model.a_bias[i] = model.X_lambda[i].apply(model.a_bias[lambda]) + model.c[i];
       model.a[i] = model.X_lambda[i].apply(model.a[lambda]) + model.c[i];
       model.a[i] = model.a[i] + model.S[i] * QDDot[i - 1];
     }
@@ -109,9 +110,11 @@ namespace RigidBodyDynamics {
         if (lambda != 0) {
           model.v[i] = model.X_lambda[i].apply(model.v[lambda]) + v_J;
           model.c[i] = c_J + crossm(model.v[i],v_J);
+          model.a_bias[i] = model.X_lambda[i].apply(model.a_bias[lambda]) + model.c[i];
         }	else {
           model.v[i] = v_J;
           model.c[i].setZero();
+          model.a_bias[i].setZero();
         }
       }
     }
@@ -570,11 +573,9 @@ namespace RigidBodyDynamics {
   }
 
   Vector3d CalCOMVelocity(Model &model,
-                  const VectorNd &Q,
-                  const VectorNd &QDot,
-                  bool update_kinematics){
-
-    std::cerr<<"COM VELOCITY FUNCTION"<<std::endl;
+                          const VectorNd &Q,
+                          const VectorNd &QDot,
+                          bool update_kinematics){
 
     // update the Kinematics if necessary
     if (update_kinematics) {
@@ -588,12 +589,64 @@ namespace RigidBodyDynamics {
       int body_id = i;//rbdl_model_.GetBodyId(link_names_[i].c_str());
       Eigen::Vector3d link_com_vel;
       link_com_vel = CalcPointVelocity(model, Q, QDot,
-                                   body_id, model.mBodies[body_id].mCenterOfMass);
+                                       body_id, model.mBodies[body_id].mCenterOfMass);
 
       com_vel += model.mBodies[body_id].mMass*link_com_vel;
       total_mass +=  model.mBodies[body_id].mMass;
     }
     return  com_vel/total_mass;
+  }
+
+  Math::Vector3d CalCOMAcceleartion(Model &model,
+                                    const Math::VectorNd &Q,
+                                    const Math::VectorNd &QDot,
+                                    const Math::VectorNd &QDDot,
+                                    bool update_kinematics){
+
+    // update the Kinematics if necessary
+    if (update_kinematics) {
+      UpdateKinematics(model, Q, QDot, QDDot);
+    }
+    Eigen::Vector3d com_acc;
+    com_acc.setZero();
+    double total_mass = 0;
+
+    for(unsigned int i=1; i<model.mBodies.size(); ++i){
+      int body_id = i;
+      Eigen::Vector3d link_com_acc;
+      link_com_acc = CalcPointAcceleration(model, Q, QDot, QDDot,
+                                           body_id, model.mBodies[body_id].mCenterOfMass);
+
+      com_acc += model.mBodies[body_id].mMass*link_com_acc;
+      total_mass +=  model.mBodies[body_id].mMass;
+    }
+    return  com_acc/total_mass;
+
+  }
+
+  Math::Vector3d CalCOMAccelerationBias(Model &model,
+                                                const Math::VectorNd &Q,
+                                                const Math::VectorNd &QDot,
+                                                bool update_kinematics){
+
+    // update the Kinematics if necessary
+    if (update_kinematics) {
+      UpdateKinematicsCustom(model, &Q, &QDot, NULL);
+    }
+    Eigen::Vector3d com_acc_bias;
+    com_acc_bias.setZero();
+    double total_mass = 0;
+
+    for(unsigned int i=1; i<model.mBodies.size(); ++i){
+      int body_id = i;
+      Eigen::Vector3d link_com_acc_bias;
+      link_com_acc_bias = CalcPointAccelerationBias(model, Q, QDot,
+                                                    body_id, model.mBodies[body_id].mCenterOfMass);
+
+      com_acc_bias += model.mBodies[body_id].mMass*link_com_acc_bias;
+      total_mass +=  model.mBodies[body_id].mMass;
+    }
+    return  com_acc_bias/total_mass;
   }
 
   Vector3d CalcPointVelocity (
@@ -783,7 +836,6 @@ namespace RigidBodyDynamics {
       Model &model,
       const VectorNd &Q,
       const VectorNd &QDot,
-      const VectorNd &QDDot,
       unsigned int body_id,
       const Vector3d &point_position,
       bool update_kinematics
@@ -799,7 +851,7 @@ namespace RigidBodyDynamics {
 
 
     if (update_kinematics)
-      UpdateKinematics (model, Q, QDot, QDDot);
+      UpdateKinematicsCustom(model, &Q, &QDot, NULL);
 
     LOG << std::endl;
 
