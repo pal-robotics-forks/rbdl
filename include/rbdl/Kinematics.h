@@ -153,6 +153,20 @@ void CalcPointJacobianGlobalFrame (Model &model,
 		bool update_kinematics = true
 		);
 
+/* THIS DOES NOT WORK DO TO THAT SPATIAL ACCELERATIONS DO NOT MAP TO 3D ACCELERATIONS AS EASY AS SPATIAL VELOCITIES DO
+
+void CalcPoseJacobianDot (
+    Model &model,
+    const Math::VectorNd &Q,
+    const Math::VectorNd &QDot,
+    unsigned int body_id,
+    const Math::Vector3d &point_position,
+    Math::MatrixNd &G,
+    bool update_kinematics = true
+    );
+*/
+
+
 /// @todo: document, and the COM of each link has to be taken into account
 void CalcCOMJacobian(
     Model &model,
@@ -237,6 +251,7 @@ Math::Vector3d CalcPointAngularVelocity (
  * acceleration has to be added to the result.
  */
 
+/// @todo this two functions need heavy optimization
 Math::Vector3d CalcPointAcceleration (
 		Model &model,
 		const Math::VectorNd &Q,
@@ -246,6 +261,17 @@ Math::Vector3d CalcPointAcceleration (
 		const Math::Vector3d &point_position,
 		bool update_kinematics = true
 	);
+
+
+Math::Vector3d CalcPointAccelerationBias (
+    Model &model,
+    const Math::VectorNd &Q,
+    const Math::VectorNd &QDot,
+    const Math::VectorNd &QDDot,
+    unsigned int body_id,
+    const Math::Vector3d &point_position,
+    bool update_kinematics = true
+    );
 
 /** \brief Computes the inverse kinematics iteratively using a damped Levenberg-Marquardt method
  *

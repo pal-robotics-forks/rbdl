@@ -191,6 +191,8 @@ struct Model {
 	std::vector<Math::SpatialVector> v;
 	/// \brief The spatial acceleration of the bodies
 	std::vector<Math::SpatialVector> a;
+  /// \brief The spatial bias acceleration of the bodies
+  std::vector<Math::SpatialVector> a_bias;
 
 	////////////////////////////////////
 	// Joints

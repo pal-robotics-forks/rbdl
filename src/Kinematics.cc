@@ -54,7 +54,8 @@ namespace RigidBodyDynamics {
         model.v[i] = v_J;
         model.c[i].setZero();
       }
-
+      /// @todo optimize this, there are repeated computations
+      model.a_bias[i] = model.X_lambda[i].apply(model.a_bias[lambda]) + model.c[i];
       model.a[i] = model.X_lambda[i].apply(model.a[lambda]) + model.c[i];
       model.a[i] = model.a[i] + model.S[i] * QDDot[i - 1];
     }
@@ -399,6 +400,80 @@ namespace RigidBodyDynamics {
     delete[] e;
   }
 
+  /* THIS DOES NOT WORK DO TO THAT SPATIAL ACCELERATIONS DO NOT MAP TO 3D ACCELERATIONS AS EASY AS SPATIAL VELOCITIES DO
+  void CalcPoseJacobianDot (
+      Model &model,
+      const VectorNd &Q,
+      const VectorNd &QDot,
+      unsigned int body_id,
+      const Vector3d &point_position,
+      MatrixNd &G,
+      bool update_kinematics
+      ) {
+
+    // update the Kinematics if necessary
+    if (update_kinematics) {
+      UpdateKinematicsCustom (model, &Q, &QDot, NULL);
+    }
+
+    Vector3d point_base_pos = CalcBodyToBaseCoordinates (model, Q, body_id, point_position, false);
+    SpatialMatrix point_trans = Xtrans_mat (point_base_pos);
+
+    assert (G.rows() == 6 && G.cols() == model.dof_count );
+
+    G.setZero();
+
+    // we have to make sure that only the joints that contribute to the
+    // bodies motion also get non-zero columns in the jacobian.
+    // VectorNd e = VectorNd::Zero(Q.size() + 1);
+    char *e = new char[Q.size() + 1];
+    if (e == NULL) {
+      std::cerr << "Error: allocating memory." << std::endl;
+      abort();
+    }
+    memset (&e[0], 0, Q.size() + 1);
+
+    unsigned int reference_body_id = body_id;
+
+    if (model.IsFixedBodyId(body_id)) {
+      unsigned int fbody_id = body_id - model.fixed_body_discriminator;
+      reference_body_id = model.mFixedBodies[fbody_id].mMovableParent;
+    }
+
+    unsigned int j = reference_body_id;
+
+    // e[j] is set to 1 if joint j contributes to the jacobian that we are
+    // computing. For all other joints the column will be zero.
+    while (j != 0) {
+      e[j] = 1;
+      j = model.lambda[j];
+    }
+
+    for (j = 1; j < model.mBodies.size(); j++) {
+      if (e[j] == 1) {
+
+        /// @todo optimize this
+        SpatialVector body_global_velocity (spatial_inverse(model.X_base[j].toMatrix()) * model.v[j]);
+        SpatialVector S_dot_base;
+        S_dot_base =   crossm(body_global_velocity,  spatial_inverse(model.X_base[j].toMatrix()) * model.S[j] );
+        //S_dot_base =   crossm(body_global_velocity,  spatial_inverse(model.X_base[j].toMatrix()) * model.S[j] );
+
+        G(0, j - 1) = S_dot_base[0];
+        G(1, j - 1) = S_dot_base[1];
+        G(2, j - 1) = S_dot_base[2];
+        G(3, j - 1) = S_dot_base[3];
+        G(4, j - 1) = S_dot_base[4];
+        G(5, j - 1) = S_dot_base[5];
+      }
+    }
+
+    //Optimized transformation of the spatial jacobian to be expressed in the coordinate frame of the tip the jacobian (Same as tranlation from the global coordinate
+    //frame to the tip
+    G = point_trans *G;
+    delete[] e;
+  }
+*/
+
   void CalcCOMJacobian_ineficient (
       Model &model,
       const VectorNd &Q,
@@ -680,6 +755,7 @@ namespace RigidBodyDynamics {
     SpatialVector frame_acceleration =
         crossm( SpatialVector(0., 0., 0., p_v_i[3], p_v_i[4], p_v_i[5]), (body_global_velocity));
 
+    /// @todo all loggin statements should be removed, they are inneficient like this
     LOG << "v_i                = " << model.v[reference_body_id].transpose() << std::endl;
     LOG << "a_i                = " << model.a[reference_body_id].transpose() << std::endl;
     LOG << "p_X_i              = " << std::endl << p_X_i << std::endl;
@@ -687,6 +763,72 @@ namespace RigidBodyDynamics {
     LOG << "p_a_i              = " << p_a_i.transpose() << std::endl;
     LOG << "body_global_vel    = " << body_global_velocity.transpose() << std::endl;
     LOG << "frame_acceleration = " << frame_acceleration.transpose() << std::endl;
+
+    SpatialVector p_a_i_dash = p_a_i - frame_acceleration;
+
+    LOG << "point_acceleration = " <<	Vector3d (
+             p_a_i_dash[3],
+             p_a_i_dash[4],
+             p_a_i_dash[5]
+             ).transpose() << std::endl;
+
+    return Vector3d (
+          p_a_i_dash[3],
+          p_a_i_dash[4],
+          p_a_i_dash[5]
+          );
+  }
+
+  Vector3d CalcPointAccelerationBias (
+      Model &model,
+      const VectorNd &Q,
+      const VectorNd &QDot,
+      const VectorNd &QDDot,
+      unsigned int body_id,
+      const Vector3d &point_position,
+      bool update_kinematics
+      )
+  {
+    LOG << "-------- " << __func__ << " --------" << std::endl;
+
+    // Reset the velocity of the root body
+    /// @todo why are we reseting this?
+    model.v[0].setZero();
+    model.a[0].setZero();
+    model.a_bias[0].setZero();
+
+
+    if (update_kinematics)
+      UpdateKinematics (model, Q, QDot, QDDot);
+
+    LOG << std::endl;
+
+    unsigned int reference_body_id = body_id;
+    Vector3d reference_point = point_position;
+
+    if (model.IsFixedBodyId(body_id)) {
+      unsigned int fbody_id = body_id - model.fixed_body_discriminator;
+      reference_body_id = model.mFixedBodies[fbody_id].mMovableParent;
+      Vector3d base_coords = CalcBodyToBaseCoordinates (model, Q, body_id, point_position, false);
+      reference_point = CalcBaseToBodyCoordinates (model, Q, reference_body_id, base_coords, false);
+    }
+
+    SpatialVector body_global_velocity (spatial_inverse(model.X_base[reference_body_id].toMatrix()) * model.v[reference_body_id]);
+
+    LOG << " orientation " << std::endl << CalcBodyWorldOrientation (model, Q, reference_body_id, false) << std::endl;
+    LOG << " orientationT " << std::endl <<  CalcBodyWorldOrientation (model, Q, reference_body_id, false).transpose() << std::endl;
+
+    Matrix3d global_body_orientation_inv = CalcBodyWorldOrientation (model, Q, reference_body_id, false).transpose();
+
+    SpatialTransform p_X_i (global_body_orientation_inv, reference_point);
+
+    LOG << "p_X_i = " << std::endl << p_X_i << std::endl;
+
+    SpatialVector p_v_i = p_X_i.apply(model.v[reference_body_id]);
+    SpatialVector p_a_i = p_X_i.apply(model.a_bias[reference_body_id]);
+
+    SpatialVector frame_acceleration =
+        crossm( SpatialVector(0., 0., 0., p_v_i[3], p_v_i[4], p_v_i[5]), (body_global_velocity));
 
     SpatialVector p_a_i_dash = p_a_i - frame_acceleration;
 

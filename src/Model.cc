@@ -38,6 +38,8 @@ Model::Model() {
 	// state information
 	v.push_back(zero_spatial);
 	a.push_back(zero_spatial);
+  a_bias.push_back(zero_spatial);
+
 
 	// Joints
 	mJoints.push_back(root_joint);
@@ -241,6 +243,8 @@ unsigned int Model::AddBody (const unsigned int parent_id,
 	// state information
 	v.push_back(SpatialVector(0., 0., 0., 0., 0., 0.));
 	a.push_back(SpatialVector(0., 0., 0., 0., 0., 0.));
+  a_bias.push_back(SpatialVector(0., 0., 0., 0., 0., 0.));
+
 
 	// Joints
 	mJoints.push_back(joint);
