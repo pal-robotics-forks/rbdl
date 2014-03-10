@@ -352,6 +352,8 @@ struct Model {
 	 */
 	unsigned int GetBodyId (const char *body_name) const {
 		if (mBodyNameMap.count(body_name) == 0) {
+      /// @todo: find a better way to notify this error
+      std::cerr<<"GET BODY ID: ID does not exist: "<<body_name<<std::endl;
 			return std::numeric_limits<unsigned int>::max();
 		}
 

@@ -849,7 +849,6 @@ namespace RigidBodyDynamics {
     model.a[0].setZero();
     model.a_bias[0].setZero();
 
-
     if (update_kinematics)
       UpdateKinematicsCustom(model, &Q, &QDot, NULL);
 
@@ -895,6 +894,61 @@ namespace RigidBodyDynamics {
           p_a_i_dash[4],
           p_a_i_dash[5]
           );
+  }
+
+  Eigen::Matrix<double, 6, 1> CalcPoseAccelerationBias (
+      Model &model,
+      const VectorNd &Q,
+      const VectorNd &QDot,
+      unsigned int body_id,
+      const Vector3d &point_position,
+      bool update_kinematics
+      )
+  {
+    LOG << "-------- " << __func__ << " --------" << std::endl;
+
+    // Reset the velocity of the root body
+    /// @todo why are we reseting this?
+    model.v[0].setZero();
+    model.a[0].setZero();
+    model.a_bias[0].setZero();
+
+    if (update_kinematics)
+      UpdateKinematicsCustom(model, &Q, &QDot, NULL);
+
+    LOG << std::endl;
+
+    unsigned int reference_body_id = body_id;
+    Vector3d reference_point = point_position;
+
+    if (model.IsFixedBodyId(body_id)) {
+      unsigned int fbody_id = body_id - model.fixed_body_discriminator;
+      reference_body_id = model.mFixedBodies[fbody_id].mMovableParent;
+      Vector3d base_coords = CalcBodyToBaseCoordinates (model, Q, body_id, point_position, false);
+      reference_point = CalcBaseToBodyCoordinates (model, Q, reference_body_id, base_coords, false);
+    }
+
+    SpatialVector body_global_velocity (spatial_inverse(model.X_base[reference_body_id].toMatrix()) * model.v[reference_body_id]);
+
+    LOG << " orientation " << std::endl << CalcBodyWorldOrientation (model, Q, reference_body_id, false) << std::endl;
+    LOG << " orientationT " << std::endl <<  CalcBodyWorldOrientation (model, Q, reference_body_id, false).transpose() << std::endl;
+
+    Matrix3d global_body_orientation_inv = CalcBodyWorldOrientation (model, Q, reference_body_id, false).transpose();
+
+    SpatialTransform p_X_i (global_body_orientation_inv, reference_point);
+
+    LOG << "p_X_i = " << std::endl << p_X_i << std::endl;
+
+    SpatialVector p_v_i = p_X_i.apply(model.v[reference_body_id]);
+    SpatialVector p_a_i = p_X_i.apply(model.a_bias[reference_body_id]);
+
+    SpatialVector frame_acceleration =
+        crossm( SpatialVector(0., 0., 0., p_v_i[3], p_v_i[4], p_v_i[5]), (body_global_velocity));
+
+    SpatialVector p_a_i_dash = p_a_i - frame_acceleration;
+
+    Eigen::Matrix<double, 6, 1> res = p_a_i_dash;
+    return res;
   }
 
   bool InverseKinematics (

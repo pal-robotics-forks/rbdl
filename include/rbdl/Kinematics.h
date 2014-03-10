@@ -283,6 +283,18 @@ Math::Vector3d CalcPointAccelerationBias (
     bool update_kinematics = true
     );
 
+
+Eigen::Matrix<double, 6, 1> CalcPoseAccelerationBias (
+    Model &model,
+    const Math::VectorNd &Q,
+    const Math::VectorNd &QDot,
+    unsigned int body_id,
+    const Math::Vector3d &point_position,
+    bool update_kinematics = true
+    );
+
+
+
 /** \brief Computes the inverse kinematics iteratively using a damped Levenberg-Marquardt method
  *
  * \param model rigid body model
