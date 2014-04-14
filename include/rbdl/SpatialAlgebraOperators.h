@@ -118,6 +118,21 @@ struct SpatialTransform {
 				);
 	}
 
+  /** Same as X^-1 * v.
+   *
+   * \returns (E' * w, - E * rx(E'*w) + E'* v)
+   */
+
+  SpatialVector applyInverse (const SpatialVector &v_sp) {
+
+    SpatialVector res;
+
+    res.segment<3>(0) = E.transpose()*v_sp.segment<3>(0);
+    res.segment<3>(3) = E.transpose()*v_sp.segment<3>(3) + r.cross(E.transpose()*v_sp.segment<3>(0));
+
+    return res;
+  }
+
 	inline Matrix3d VectorCrossMatrix (const Vector3d &vector) {
 		return Matrix3d (
 				0., -vector[2], vector[1],

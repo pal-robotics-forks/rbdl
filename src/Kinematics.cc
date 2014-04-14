@@ -77,7 +77,7 @@ namespace RigidBodyDynamics {
     unsigned int i;
 
     if (Q) {
-      for (i = 1; i < model.mBodies.size(); i++) {
+      for (i = 1; i < model.mBodies.size(); ++i) {
         SpatialVector v_J;
         SpatialVector c_J;
         SpatialTransform X_J;

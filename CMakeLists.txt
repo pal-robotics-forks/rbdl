@@ -44,7 +44,8 @@ SET ( RBDL_SOURCES
 	src/rbdl_mathutils.cc
 	src/rbdl_utils.cc
 	src/Contacts.cc
-	src/Dynamics.cc
+  src/Energy.cc
+  src/Dynamics.cc
 	src/Logging.cc
 	src/Joint.cc
 	src/Model.cc

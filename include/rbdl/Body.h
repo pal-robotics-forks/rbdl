@@ -127,6 +127,7 @@ struct Body {
 			Math::Matrix3d mcc = mass * com_cross;
 			Math::Matrix3d mccT = mcc.transpose();
 
+      /// @todo: Isn't this the same as creating the spatial inertia using the constructor method?
 			mSpatialInertia.set (
 					inertia_C(0,0) + pa(0, 0), inertia_C(0,1) + pa(0, 1), inertia_C(0,2) + pa(0, 2), mcc(0, 0), mcc(0, 1), mcc(0, 2),
 					inertia_C(1,0) + pa(1, 0), inertia_C(1,1) + pa(1, 1), inertia_C(1,2) + pa(1, 2), mcc(1, 0), mcc(1, 1), mcc(1, 2),

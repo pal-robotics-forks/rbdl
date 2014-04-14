@@ -8,6 +8,8 @@
 #ifndef _RBDL_EIGENMATH_H
 #define _RBDL_EIGENMATH_H
 
+/// @todo what is the reason fo having this header? Can we just create typedfs?
+
 class Vector3_t : public Eigen::Vector3d
 {
 	public:
