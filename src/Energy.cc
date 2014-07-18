@@ -195,6 +195,37 @@ namespace RigidBodyDynamics {
     }
 
   }
+  
+  /**
+    Using a methodology similar to the COM of mass jacobian
+  */
+  void CCM_CCRBI_Jacobian_com(Model &model,
+                              const VectorNd &Q,
+                              const VectorNd &QDot,
+                              SpatialMatrix &I,
+                              MatrixNd &AG,
+                              SpatialVector &h,
+                              bool update_kinematics){
+    /// @todo: Reuse computations of the screws and think to formulate everything directly at the com coordinate frame
+    assert(AG.cols() == model.dof_count);
+    assert(AG.rows() == 6);
+    
+    // update the Kinematics if necessary
+    if (update_kinematics) {
+      UpdateKinematicsCustom (model, &Q, NULL, NULL);
+    }
+
+    Vector3d com = CalCOM(model, Q, false);
+
+    Eigen::MatrixXd jacobian_link(6, model.dof_count);
+    for (unsigned int i = 1; i < model.mBodies.size(); ++i) {
+      CalcPoseJacobian(model, Q, i, model.mBodies[i].mCenterOfMass, jacobian_link, false);
+      /// @todo is Ic initialized?
+      SpatialMatrix Icom = model.X_base[i].toMatrix().transpose()*model.mBodies[i].mSpatialInertia*model.X_base[i].toMatrix();//Inertia at the base mass frame
+      AG += Icom*jacobian_link;
+    }
+    AG = Xtrans (com).toMatrix().transpose()*AG; //Change to COM coordinates
+  }
 
   /*
   void systemMomentumMatrix(Model &model,
