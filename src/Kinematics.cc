@@ -589,7 +589,7 @@ namespace RigidBodyDynamics {
       int body_id = i;//rbdl_model_.GetBodyId(link_names_[i].c_str());
       Eigen::Vector3d link_com_vel;
       link_com_vel = CalcPointVelocity(model, Q, QDot,
-                                       body_id, model.mBodies[body_id].mCenterOfMass);
+                                       body_id, model.mBodies[body_id].mCenterOfMass, false);
 
       com_vel += model.mBodies[body_id].mMass*link_com_vel;
       total_mass +=  model.mBodies[body_id].mMass;
