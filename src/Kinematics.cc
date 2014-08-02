@@ -205,7 +205,7 @@ namespace RigidBodyDynamics {
 
     if (body_id >= model.fixed_body_discriminator) {
       unsigned int fbody_id = body_id - model.fixed_body_discriminator;
-      model.mFixedBodies[fbody_id].mBaseTransform = model.X_base[model.mFixedBodies[fbody_id].mMovableParent] * model.mFixedBodies[fbody_id].mParentTransform;
+      model.mFixedBodies[fbody_id].mBaseTransform = model.mFixedBodies[fbody_id].mParentTransform*model.X_base[model.mFixedBodies[fbody_id].mMovableParent];
 
       return model.mFixedBodies[fbody_id].mBaseTransform.E;
     }
