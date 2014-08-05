@@ -45,10 +45,7 @@ namespace RigidBodyDynamics {
 
   void CCM_CCRBI_Jacobian_com(Model &model,
                               const Math::VectorNd &Q,
-                              const Math::VectorNd &QDot,
-                              Math::SpatialMatrix &I,
                               Math::MatrixNd &AG,
-                              Math::SpatialVector &h,
                               bool update_kinematics = false);
 
 

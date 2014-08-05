@@ -201,15 +201,12 @@ namespace RigidBodyDynamics {
   */
   void CCM_CCRBI_Jacobian_com(Model &model,
                               const VectorNd &Q,
-                              const VectorNd &QDot,
-                              SpatialMatrix &I,
                               MatrixNd &AG,
-                              SpatialVector &h,
                               bool update_kinematics){
     /// @todo: Reuse computations of the screws and think to formulate everything directly at the com coordinate frame
     assert(AG.cols() == model.dof_count);
     assert(AG.rows() == 6);
-    
+    AG.setZero();
     // update the Kinematics if necessary
     if (update_kinematics) {
       UpdateKinematicsCustom (model, &Q, NULL, NULL);
