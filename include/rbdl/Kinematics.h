@@ -77,6 +77,18 @@ Math::Vector3d CalcBodyToBaseCoordinates (
 		const Math::Vector3d &body_point_position,
 		bool update_kinematics = true);
 
+/**
+ Calculate a jacobian with the body as root of the chain
+ */
+void CalcPoseJacobianBodyFrame (
+    Model &model,
+    const Math::VectorNd &Q,
+    unsigned int body_id,
+    const Math::Vector3d &point_position,
+    Math::MatrixNd &G,
+    bool update_kinematics = true
+    );
+
 /** \brief Returns the body coordinates of a point given in base coordinates.
  *
  * \param model the rigid body model

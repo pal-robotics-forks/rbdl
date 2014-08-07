@@ -403,6 +403,83 @@ namespace RigidBodyDynamics {
     delete[] e;
   }
 
+  void CalcPoseJacobianBodyFrame (
+      Model &model,
+      const VectorNd &Q,
+      unsigned int body_id,
+      const Vector3d &point_position,
+      MatrixNd &G,
+      bool update_kinematics
+      ) {
+    LOG << "-------- " << __func__ << " --------" << std::endl;
+
+    // update the Kinematics if necessary
+    if (update_kinematics) {
+      UpdateKinematicsCustom (model, &Q, NULL, NULL);
+    }
+
+    /// @todo This has to be finished if its desired to have a body jacobian offsetted by some amount
+    //Vector3d point_base_pos = CalcBaseToBodyCoordinates(model, Q, body_id, point_position, false);
+    Vector3d point_base_pos; point_base_pos.setZero();
+    SpatialMatrix point_trans = Xtrans_mat (-point_base_pos);
+
+    Eigen::Vector3d zero; zero.setZero();
+    Vector3d body_r = CalcBodyToBaseCoordinates(model, Q, body_id, zero, false);
+    Matrix3d body_E = CalcBodyWorldOrientation(model, Q, body_id, false);
+    SpatialTransform body_trans(body_E, body_r);
+
+    assert (G.rows() == 6 && G.cols() == model.dof_count );
+
+    G.setZero();
+
+    // we have to make sure that only the joints that contribute to the
+    // bodies motion also get non-zero columns in the jacobian.
+    // VectorNd e = VectorNd::Zero(Q.size() + 1);
+    char *e = new char[Q.size() + 1];
+    if (e == NULL) {
+      std::cerr << "Error: allocating memory." << std::endl;
+      abort();
+    }
+    memset (&e[0], 0, Q.size() + 1);
+
+    unsigned int reference_body_id = body_id;
+
+    if (model.IsFixedBodyId(body_id)) {
+      unsigned int fbody_id = body_id - model.fixed_body_discriminator;
+      reference_body_id = model.mFixedBodies[fbody_id].mMovableParent;
+    }
+
+    unsigned int j = reference_body_id;
+
+    // e[j] is set to 1 if joint j contributes to the jacobian that we are
+    // computing. For all other joints the column will be zero.
+    while (j != 0) {
+      e[j] = 1;
+      j = model.lambda[j];
+    }
+
+    for (j = 1; j < model.mBodies.size(); j++) {
+      if (e[j] == 1) {
+        SpatialVector S_base;
+        S_base =  spatial_inverse(model.X_base[j].toMatrix()) * model.S[j];
+
+        G(0, j - 1) = S_base[0];
+        G(1, j - 1) = S_base[1];
+        G(2, j - 1) = S_base[2];
+        G(3, j - 1) = S_base[3];
+        G(4, j - 1) = S_base[4];
+        G(5, j - 1) = S_base[5];
+      }
+    }
+
+    //Optimized transformation of the spatial jacobian to be expressed in the coordinate frame of the tip the jacobian (Same as tranlation from the global coordinate
+    //frame to the tip
+    G = point_trans*(body_trans.toMatrix())*G;
+    //G = point_trans*(model.X_base[body_id].toMatrix())*G;
+
+    delete[] e;
+  }
+
   /* THIS DOES NOT WORK DO TO THAT SPATIAL ACCELERATIONS DO NOT MAP TO 3D ACCELERATIONS AS EASY AS SPATIAL VELOCITIES DO
   void CalcPoseJacobianDot (
       Model &model,
