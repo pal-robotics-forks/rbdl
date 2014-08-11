@@ -147,6 +147,16 @@ void CalcPointJacobian (Model &model,
 		bool update_kinematics = true
 		);
 
+/// @todo document
+void CalcOrientationJacobian (Model &model,
+    const Math::VectorNd &Q,
+    unsigned int body_id,
+    const Math::Vector3d &point_position,
+    Math::MatrixNd &G,
+    bool update_kinematics = true
+    );
+
+
 /// @todo: document
 void CalcPoseJacobian (Model &model,
 		const Math::VectorNd &Q,
