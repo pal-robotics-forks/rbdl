@@ -227,6 +227,9 @@ struct Model {
 	/// \brief The spatial inertia of body i (used only in CompositeRigidBodyAlgorithm())
 	std::vector<Math::SpatialRigidBodyInertia> Ic;
 
+  /// \brief The acumulated center of mass position and value computed recursively in the model for COM jacobian
+  std::vector<Math::SpatialMatrix> acumulated_mass;
+
 	////////////////////////////////////
 	// Bodies
 

@@ -652,17 +652,17 @@ namespace RigidBodyDynamics {
 
   // We have to acumulate the spatial transforms, it seems that the cross product of acumulationg the
   // com displacements is a wrong assumption
-  void CalcAcumulatedMass(Model &model, const VectorNd &Q, std::vector<SpatialMatrix> &acumulated_mass){
-    assert(acumulated_mass.size() == model.mBodies.size());
+  void CalcAcumulatedMass(Model &model, const VectorNd &Q){
+    assert(model.acumulated_mass.size() == model.mBodies.size());
 
     for(unsigned int i = 1; i<model.mBodies.size(); ++i){
       Vector3d comi = CalcBodyToBaseCoordinates(model, Q, i, model.mBodies[i].mCenterOfMass, false);
-      acumulated_mass[i] = model.mBodies[i].mMass*Xtrans_mat(comi);
+      model.acumulated_mass[i] = model.mBodies[i].mMass*Xtrans_mat(comi);
     }
 
     for (unsigned int i = model.mBodies.size() - 1; i > 0; i--) {
       unsigned int lambda = model.lambda[i];
-      acumulated_mass[lambda] += acumulated_mass[i];
+      model.acumulated_mass[lambda] += model.acumulated_mass[i];
     }
   }
 
@@ -691,13 +691,12 @@ namespace RigidBodyDynamics {
       total_mass += mass_link;
     }
 
-    std::vector<SpatialMatrix> acumulated_mas(model.mBodies.size());
-    CalcAcumulatedMass(model, Q, acumulated_mas);
+    CalcAcumulatedMass(model, Q);
 
     for (unsigned int j = 1; j < model.mBodies.size(); j++) {
       SpatialVector S_base;
 
-      S_base =  acumulated_mas[j]*spatial_inverse(model.X_base[j].toMatrix()) * model.S[j];
+      S_base =  model.acumulated_mass[j]*spatial_inverse(model.X_base[j].toMatrix()) * model.S[j];
 
       //In the spactial vector angular comes first then linear part
       COMJ(0, j - 1) = S_base[3];

@@ -26,6 +26,7 @@ Model::Model() {
 
 	Vector3d zero_position (0., 0., 0.);
 	SpatialVector zero_spatial (0., 0., 0., 0., 0., 0.);
+  SpatialMatrix zero_spatial_matrix; zero_spatial_matrix.setZero();
 
 	// structural information
 	lambda.push_back(0.);
@@ -39,7 +40,7 @@ Model::Model() {
 	v.push_back(zero_spatial);
 	a.push_back(zero_spatial);
   a_bias.push_back(zero_spatial);
-
+  acumulated_mass.push_back(zero_spatial_matrix);
 
 	// Joints
 	mJoints.push_back(root_joint);
@@ -244,6 +245,8 @@ unsigned int Model::AddBody (const unsigned int parent_id,
 	v.push_back(SpatialVector(0., 0., 0., 0., 0., 0.));
 	a.push_back(SpatialVector(0., 0., 0., 0., 0., 0.));
   a_bias.push_back(SpatialVector(0., 0., 0., 0., 0., 0.));
+  SpatialMatrix zero_spatial_matrix; zero_spatial_matrix.setZero();
+  acumulated_mass.push_back(zero_spatial_matrix);
 
 
 	// Joints
