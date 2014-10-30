@@ -44,8 +44,8 @@ SET ( RBDL_SOURCES
 	src/rbdl_mathutils.cc
 	src/rbdl_utils.cc
 	src/Contacts.cc
-  src/Energy.cc
-  src/Dynamics.cc
+        src/Energy.cc
+        src/Dynamics.cc
 	src/Logging.cc
 	src/Joint.cc
 	src/Model.cc
@@ -54,11 +54,11 @@ SET ( RBDL_SOURCES
 
 ADD_LIBRARY ( rbdl SHARED ${RBDL_SOURCES} )
 
-IF (BUILD_TESTS)
+#IF (BUILD_TESTS)
 	ADD_SUBDIRECTORY ( vendor/UnitTest++ )
 	INCLUDE_DIRECTORIES ( vendor/UnitTest++/src )
- ADD_SUBDIRECTORY ( tests )
-ENDIF (BUILD_TESTS)
+        ADD_SUBDIRECTORY ( tests )
+#ENDIF (BUILD_TESTS)
 
 IF (BUILD_STATIC)
   ADD_LIBRARY ( rbdl-static STATIC ${RBDL_SOURCES} )

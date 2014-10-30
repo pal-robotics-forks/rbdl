@@ -650,14 +650,40 @@ namespace RigidBodyDynamics {
     COMJ = COMJ/total_mass;
   }
 
+  // We have to acumulate the spatial transforms, it seems that the cross product of acumulationg the
+  // com displacements is a wrong assumption
+  void CalcAcumulatedMass(Model &model, const VectorNd &Q, std::vector<SpatialMatrix> &acumulated_mass){
+    assert(acumulated_mass.size() == model.mBodies.size());
+
+    for(unsigned int i = 1; i<model.mBodies.size(); ++i){
+      Vector3d comi = CalcBodyToBaseCoordinates(model, Q, i, model.mBodies[i].mCenterOfMass, false);
+      acumulated_mass[i] = model.mBodies[i].mMass*Xtrans_mat(comi);
+    }
+
+    for (unsigned int i = model.mBodies.size() - 1; i > 0; i--) {
+      unsigned int lambda = model.lambda[i];
+      acumulated_mass[lambda] += acumulated_mass[i];
+    }
+  }
+
+
   void CalcCOMJacobian (
       Model &model,
       const VectorNd &Q,
       MatrixNd &COMJ,
       bool update_kinematics
-      ) {
+      ){
 
     assert (COMJ.rows() == 3 && COMJ.cols() == model.dof_count );
+
+    COMJ.setZero();
+    Vector3d zero;
+    zero.setZero();
+
+    // update the Kinematics if necessary
+    if (update_kinematics) {
+      UpdateKinematicsCustom (model, &Q, NULL, NULL);
+    }
 
     double total_mass = 0;
     for (unsigned int j = 1; j < model.mBodies.size(); j++) {
@@ -665,24 +691,22 @@ namespace RigidBodyDynamics {
       total_mass += mass_link;
     }
 
-    // update the Kinematics if necessary
-    if (update_kinematics) {
-      UpdateKinematicsCustom (model, &Q, NULL, NULL);
-    }
+    std::vector<SpatialMatrix> acumulated_mas(model.mBodies.size());
+    CalcAcumulatedMass(model, Q, acumulated_mas);
 
-    COMJ.setZero();
-    Vector3d zero;
-    zero.setZero();
     for (unsigned int j = 1; j < model.mBodies.size(); j++) {
       SpatialVector S_base;
-      double mass_link = model.mBodies[j].mMass;
-      S_base =  (mass_link/total_mass)*spatial_inverse(model.X_base[j].toMatrix()) * model.S[j];
+
+      S_base =  acumulated_mas[j]*spatial_inverse(model.X_base[j].toMatrix()) * model.S[j];
 
       //In the spactial vector angular comes first then linear part
       COMJ(0, j - 1) = S_base[3];
       COMJ(1, j - 1) = S_base[4];
       COMJ(2, j - 1) = S_base[5];
     }
+
+    COMJ = COMJ/total_mass;
+
   }
 
   Vector3d CalCOM(Model &model,

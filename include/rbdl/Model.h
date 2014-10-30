@@ -243,7 +243,7 @@ struct Model {
 	 * Bodies with id 1 .. (fixed_body_discriminator - 1) are moving bodies
 	 * while bodies with id fixed_body_discriminator .. max (unsigned int)
 	 * are fixed to a moving body. The value of max(unsigned int) is
-	 * determined via std::numeric_limits<unsigned int>::max() and the
+w	 * determined via std::numeric_limits<unsigned int>::max() and the
 	 * default value of fixed_body_discriminator is max (unsigned int) / 2.
 	 * 
 	 * On normal systems max (unsigned int) is 4294967294 which means there
@@ -337,7 +337,7 @@ struct Model {
 	 *  \returns id of the body with 6 DoF
 	 */
 	unsigned int SetFloatingBaseBody (
-      const Body &body, std::string base_link_name
+      const Body &body, std::string base_link_name = "base_link"
 			);
 
 	/** \brief Returns the id of a body that was passed to AddBody()
