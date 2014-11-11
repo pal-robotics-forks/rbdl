@@ -25,6 +25,10 @@ Stefan Kohlbrecher.
 
   <buildtool_depend>catkin</buildtool_depend>
 
+  <build_depend>urdf</build_depend>
   <build_depend>eigen</build_depend>
+
+  <run_depend>urdf</run_depend>
+
 
 </package>

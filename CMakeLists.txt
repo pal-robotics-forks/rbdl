@@ -2,7 +2,7 @@ PROJECT (rbdl)
 
 CMAKE_MINIMUM_REQUIRED(VERSION 2.6)
 
-find_package(catkin REQUIRED)
+find_package(catkin REQUIRED COMPONENTS urdf)
 
 LIST( APPEND CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/CMake )
 
@@ -111,7 +111,9 @@ ENDIF (RBDL_USE_SIMPLE_MATH)
 
 catkin_package(
   INCLUDE_DIRS include
-  LIBRARIES rbdl
+  LIBRARIES rbdl RBDL_URDFParser
 )
 
+add_library(RBDL_URDFParser addons/urdfreader/RBDL_URDFParser.cpp)
+target_link_libraries(RBDL_URDFParser ${catkin_LIBRARIES})
 

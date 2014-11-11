@@ -693,6 +693,15 @@ namespace RigidBodyDynamics {
 
     CalcAcumulatedMass(model, Q);
 
+   
+    //Compute the total mass in each link of the acumulated subtree links
+    
+    
+    //Compute all the screws of the system
+    
+    
+    //Combine the screws 
+   
     for (unsigned int j = 1; j < model.mBodies.size(); j++) {
       SpatialVector S_base;
 

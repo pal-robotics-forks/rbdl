@@ -15,7 +15,7 @@
 #include <tf_conversions/tf_kdl.h>
 
 #include <sensor_msgs/JointState.h>
-#include <rbdl_dynamics/rbdlUrdfParser.h>
+#include <rbdl/addons/rbdlUrdfParser.h>
 
 using namespace std;
 using namespace RigidBodyDynamics;
