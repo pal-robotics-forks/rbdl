@@ -685,6 +685,7 @@ RigidBodyDynamics::Model getSubTree(RigidBodyDynamics::Model &rbdl_model, std::v
 }
 
 /* Function to publish the poses of all the links inside the model */
+/*
 void publish_link_poses(RigidBodyDynamics::Model &model){
    ros::NodeHandle n;
   static tf::TransformBroadcaster br;
@@ -749,4 +750,4 @@ void publish_link_com_poses(RigidBodyDynamics::Model &model){
 
   }
 }
-
+*/

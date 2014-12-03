@@ -55,8 +55,8 @@ bool parseUrdfFromFile(RigidBodyDynamics::Model &rbdl_model, std::vector<std::st
 RigidBodyDynamics::Model getSubTree(RigidBodyDynamics::Model &rbdl_model, std::vector<std::string> tips, std::string root);
 
 /* Publish the internal kinematic state of the robot */
-void publish_link_poses(RigidBodyDynamics::Model &model);
+//void publish_link_poses(RigidBodyDynamics::Model &model);
 
 /* Publish the internal COM kinematic state of the robot */
-void publish_link_com_poses(RigidBodyDynamics::Model &model);
+//void publish_link_com_poses(RigidBodyDynamics::Model &model);
 
