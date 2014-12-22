@@ -13,7 +13,7 @@ bool parseUrdfParamServerParameters(RigidBodyDynamics::Model &rbdl_model, bool f
 /**
   Parse rbdl model from param server, only getting the branches of the tree that have their tips listed in the vector tips
 */
-bool parseUrdfParamServerParameters(RigidBodyDynamics::Model &rbdl_model, std::vector<std::string> tips, bool floating_base);
+bool parseUrdfParamServerParameters(RigidBodyDynamics::Model &rbdl_model, const std::vector<std::string> &tips, bool floating_base);
 
 /**
   Parse rbdl model from param server with aditional parameters
@@ -34,7 +34,7 @@ bool parseUrdfParamServerParameters(RigidBodyDynamics::Model &rbdl_model, std::v
                                     std::vector<double> &damping, std::vector<double> &friction,
                                     std::vector<double> &max_effort,
                                     bool floating_base,
-                                    std::vector<std::string> tip_links);
+                                    const std::vector<std::string> &tip_links);
 
 /**
   Parse rbdl model from file
@@ -52,7 +52,7 @@ bool parseUrdfFromFile(RigidBodyDynamics::Model &rbdl_model, std::vector<std::st
                                     std::string file_path);
 
 /* Return a subtree that includes specified root, and the specified tips */
-RigidBodyDynamics::Model getSubTree(RigidBodyDynamics::Model &rbdl_model, std::vector<std::string> tips, std::string root);
+RigidBodyDynamics::Model getSubTree(RigidBodyDynamics::Model &rbdl_model, const std::vector<std::string> &tips, std::string root);
 
 /* Publish the internal kinematic state of the robot */
 void publish_link_poses(RigidBodyDynamics::Model &model);
