@@ -71,11 +71,6 @@ IF (BUILD_STATIC)
 	)
 ENDIF (BUILD_STATIC)
 
-# Installing
-INSTALL (TARGETS rbdl
-	LIBRARY DESTINATION lib
-	ARCHIVE DESTINATION lib
-	)
 
 IF (RBDL_STORE_VERSION)
 	# Set versioning information that can be queried during runtime
@@ -116,4 +111,11 @@ catkin_package(
 
 add_library(RBDL_URDFParser addons/urdfreader/RBDL_URDFParser.cpp)
 target_link_libraries(RBDL_URDFParser ${catkin_LIBRARIES})
+
+
+# Installing
+INSTALL (TARGETS rbdl RBDL_URDFParser
+	LIBRARY DESTINATION lib
+	ARCHIVE DESTINATION lib
+	)
 
