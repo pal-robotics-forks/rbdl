@@ -14,9 +14,9 @@
 #include <tf/transform_broadcaster.h>
 #include <tf/tf.h>
 #include <tf_conversions/tf_kdl.h>
+#include <sensor_msgs/JointState.h>
 */
 
-#include <sensor_msgs/JointState.h>
 #include <rbdl/addons/rbdlUrdfParser.h>
 
 using namespace std;
