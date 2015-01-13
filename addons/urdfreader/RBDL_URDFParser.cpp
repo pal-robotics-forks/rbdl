@@ -59,7 +59,6 @@ void constructRBDLfromURDF(Model &rbdl_model, LinkPtr urdf_link, int parent_id, 
     }
     else if (urdf_joint->type == urdf::Joint::PRISMATIC) {
       rbdl_joint = Joint (SpatialVector (0., 0., 0., urdf_joint->axis.x, urdf_joint->axis.y, urdf_joint->axis.z));
-      //rbdl_joint = Joint (JointTypeFixed);
     }
     else if (urdf_joint->type == urdf::Joint::FIXED) {
       rbdl_joint = Joint (JointTypeFixed);
@@ -174,7 +173,7 @@ void constructRBDLfromURDF(Model &rbdl_model, LinkPtr urdf_link, int parent_id, 
 /*This function will be called recursively adding the Links from the urdf to rbdl, But only with the tips that are specified inside
   the tips vectors*/
 
-void constructRBDLfromURDF(Model &rbdl_model, LinkPtr urdf_link, int parent_id, std::vector<std::string> tips,
+void constructRBDLfromURDF(Model &rbdl_model, LinkPtr urdf_link, int parent_id, const std::vector<std::string> &tips,
                            bool floating_base){
 
   int new_id = 0;
@@ -184,11 +183,9 @@ void constructRBDLfromURDF(Model &rbdl_model, LinkPtr urdf_link, int parent_id, 
     Joint rbdl_joint;
     if (urdf_joint->type == urdf::Joint::REVOLUTE || urdf_joint->type == urdf::Joint::CONTINUOUS) {
       rbdl_joint = Joint (SpatialVector (urdf_joint->axis.x, urdf_joint->axis.y, urdf_joint->axis.z, 0., 0., 0.));
-
     }
     else if (urdf_joint->type == urdf::Joint::PRISMATIC) {
-      //	rbdl_joint = Joint (SpatialVector (0., 0., 0., urdf_joint->axis.x, urdf_joint->axis.y, urdf_joint->axis.z));
-      rbdl_joint = Joint (JointTypeFixed);
+      rbdl_joint = Joint (SpatialVector (0., 0., 0., urdf_joint->axis.x, urdf_joint->axis.y, urdf_joint->axis.z));
     }
     else if (urdf_joint->type == urdf::Joint::FIXED) {
       rbdl_joint = Joint (JointTypeFixed);
@@ -319,7 +316,7 @@ void constructRBDLfromURDF(Model &rbdl_model, LinkPtr urdf_link, int parent_id, 
 
 
 // WTF Happened here, that in was not found in the .so when linked?
-bool parseUrdf(urdf::Model &urdf_model, Model &rbdl_model, std::vector<std::string> tips, bool floating_base) {
+bool parseUrdf(urdf::Model &urdf_model, Model &rbdl_model, const std::vector<std::string> &tips, bool floating_base) {
 
   boost::shared_ptr<urdf::Link> root(boost::const_pointer_cast<urdf::Link>(urdf_model.getRoot()));
   constructRBDLfromURDF(rbdl_model, root, 0, tips, floating_base);
@@ -383,7 +380,7 @@ bool parseUrdfParamServerParameters(RigidBodyDynamics::Model &rbdl_model, bool f
   return res;
 }
 
-bool parseUrdfParamServerParameters(RigidBodyDynamics::Model &rbdl_model, std::vector<std::string> tips, bool floating_base){
+bool parseUrdfParamServerParameters(RigidBodyDynamics::Model &rbdl_model, const std::vector<std::string> &tips, bool floating_base){
   ros::NodeHandle n;
   std::string urdf_name, full_urdf_xml;
 
@@ -499,7 +496,7 @@ bool parseUrdfParamServerParameters(RigidBodyDynamics::Model &rbdl_model, std::v
                                     std::vector<double> &damping, std::vector<double> &friction,
                                     std::vector<double> &max_effort,
                                     bool floating_base,
-                                    std::vector<std::string> tip_links){
+                                    const std::vector<string> &tip_links){
 
   ros::NodeHandle n;
   std::string urdf_name, full_urdf_xml;
@@ -678,7 +675,7 @@ bool parseUrdfFromFile(RigidBodyDynamics::Model &rbdl_model, std::vector<std::st
 }
 
 
-RigidBodyDynamics::Model getSubTree(RigidBodyDynamics::Model &rbdl_model, std::vector<std::string> tips, std::string root){
+RigidBodyDynamics::Model getSubTree(RigidBodyDynamics::Model &rbdl_model, const std::vector<string> &tips, std::string root){
   RigidBodyDynamics::Model subtree;
 
   ROS_ERROR_STREAM("not implemented");
