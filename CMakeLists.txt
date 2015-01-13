@@ -96,7 +96,7 @@ ENDIF (RBDL_USE_SIMPLE_MATH)
 catkin_package(
   INCLUDE_DIRS include
   LIBRARIES rbdl RBDL_URDFParser
-  DEPENDS eigen
+  DEPENDS Eigen
 )
 
 add_library(RBDL_URDFParser addons/urdfreader/RBDL_URDFParser.cpp)
