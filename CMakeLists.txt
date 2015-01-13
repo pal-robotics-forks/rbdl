@@ -25,7 +25,6 @@ SET (CMAKE_INSTALL_RPATH_USE_LINK_PATH TRUE)
 OPTION (BUILD_STATIC "Build the statically linked library" OFF)
 OPTION (BUILD_TESTS "Build the test executables" OFF)
 OPTION (RBDL_ENABLE_LOGGING "Enable logging (warning: major impact on performance!)" OFF)
-OPTION (RBDL_USE_SIMPLE_MATH "Use slow math instead of the fast Eigen3 library (faster compilation)" OFF)
 OPTION (RBDL_STORE_VERSION "Enable storing of version information in the library (requires build from valid repository)" OFF)
 
 SET ( RBDL_SOURCES 
@@ -85,13 +84,6 @@ FILE ( GLOB headers
 	)
 
 INSTALL ( FILES ${headers} DESTINATION include/rbdl )
-
-# Setup of SimpleMath install settings
-IF (RBDL_USE_SIMPLE_MATH)
-	INSTALL ( DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/include/rbdl/SimpleMath"
-		DESTINATION include/rbdl
-	)
-ENDIF (RBDL_USE_SIMPLE_MATH)
 
 catkin_package(
   INCLUDE_DIRS include
