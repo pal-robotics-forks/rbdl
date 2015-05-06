@@ -40,11 +40,11 @@ enum JointType {
  */
 struct Joint {
 	Joint() :
-		mJointAxes (NULL),
+        mJointAxes (NULL),
 		mJointType (JointTypeUndefined),
 		mDoFCount (0) {};
 	Joint (JointType type) :
-		mJointAxes (NULL),
+        mJointAxes (NULL),
 		mJointType (type),
 	  mDoFCount (0) {
 			if (type != JointTypeFixed) {
@@ -56,7 +56,7 @@ struct Joint {
 	Joint (const Joint &joint) :
 		mJointType (joint.mJointType),
 		mDoFCount (joint.mDoFCount) {
-			mJointAxes = new Math::SpatialVector[mDoFCount];
+            mJointAxes = new Math::SpatialVector[mDoFCount];
 
 			for (unsigned int i = 0; i < mDoFCount; i++)
 				mJointAxes[i] = joint.mJointAxes[i];
@@ -70,7 +70,7 @@ struct Joint {
 			mJointType = joint.mJointType;
 			mDoFCount = joint.mDoFCount;
 
-			mJointAxes = new Math::SpatialVector[mDoFCount];
+            mJointAxes = new Math::SpatialVector[mDoFCount];
 
 			for (unsigned int i = 0; i < mDoFCount; i++)
 				mJointAxes[i] = joint.mJointAxes[i];
@@ -99,7 +99,7 @@ struct Joint {
 			const Math::Vector3d &joint_axis
 			) {
 		mDoFCount = 1;
-		mJointAxes = new Math::SpatialVector[mDoFCount];
+        mJointAxes = new Math::SpatialVector[mDoFCount];
 
 		// Some assertions, as we concentrate on simple cases
 	
@@ -145,7 +145,7 @@ struct Joint {
 		mJointType = JointType1DoF;
 		mDoFCount = 1;
 
-		mJointAxes = new Math::SpatialVector[mDoFCount];
+        mJointAxes = new Math::SpatialVector[mDoFCount];
 		mJointAxes[0] = axis_0;
 
 		validate_spatial_axis (mJointAxes[0]);
@@ -168,7 +168,7 @@ struct Joint {
 		mJointType = JointType2DoF;
 		mDoFCount = 2;
 
-		mJointAxes = new Math::SpatialVector[mDoFCount];
+        mJointAxes = new Math::SpatialVector[mDoFCount];
 		mJointAxes[0] = axis_0;
 		mJointAxes[1] = axis_1;
 
@@ -195,7 +195,7 @@ struct Joint {
 		mJointType = JointType3DoF;
 		mDoFCount = 3;
 
-		mJointAxes = new Math::SpatialVector[mDoFCount];
+        mJointAxes = new Math::SpatialVector[mDoFCount];
 
 		mJointAxes[0] = axis_0;
 		mJointAxes[1] = axis_1;
@@ -227,7 +227,7 @@ struct Joint {
 		mJointType = JointType4DoF;
 		mDoFCount = 4;
 
-		mJointAxes = new Math::SpatialVector[mDoFCount];
+        mJointAxes = new Math::SpatialVector[mDoFCount];
 
 		mJointAxes[0] = axis_0;
 		mJointAxes[1] = axis_1;
@@ -263,7 +263,7 @@ struct Joint {
 		mJointType = JointType5DoF;
 		mDoFCount = 5;
 
-		mJointAxes = new Math::SpatialVector[mDoFCount];
+        mJointAxes = new Math::SpatialVector[mDoFCount];
 
 		mJointAxes[0] = axis_0;
 		mJointAxes[1] = axis_1;
@@ -303,7 +303,7 @@ struct Joint {
 		mJointType = JointType6DoF;
 		mDoFCount = 6;
 
-		mJointAxes = new Math::SpatialVector[mDoFCount];
+        mJointAxes = new Math::SpatialVector[mDoFCount];
 
 		mJointAxes[0] = axis_0;
 		mJointAxes[1] = axis_1;
@@ -346,7 +346,7 @@ struct Joint {
 	}
 
 	/// \brief The spatial axis of the joint
-	Math::SpatialVector* mJointAxes;
+    Math::SpatialVector* mJointAxes;
 	/// \brief Type of joint (rotational or prismatic)
 	JointType mJointType;
 	unsigned int mDoFCount;
