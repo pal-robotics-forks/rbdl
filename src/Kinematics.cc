@@ -464,6 +464,67 @@ namespace RigidBodyDynamics {
     delete[] e;
   }
 
+  void CalcPoseJacobianGlobalFrame (
+      Model &model,
+      const VectorNd &Q,
+      unsigned int body_id,
+      MatrixNd &G,
+      bool update_kinematics
+      ) {
+    LOG << "-------- " << __func__ << " --------" << std::endl;
+
+    // update the Kinematics if necessary
+    if (update_kinematics) {
+      UpdateKinematicsCustom (model, &Q, NULL, NULL);
+    }
+
+    assert (G.rows() == 6 && G.cols() == model.dof_count );
+
+    G.setZero();
+
+    // we have to make sure that only the joints that contribute to the
+    // bodies motion also get non-zero columns in the jacobian.
+    // VectorNd e = VectorNd::Zero(Q.size() + 1);
+    char *e = new char[Q.size() + 1];
+    if (e == NULL) {
+      std::cerr << "Error: allocating memory." << std::endl;
+      abort();
+    }
+    memset (&e[0], 0, Q.size() + 1);
+
+    unsigned int reference_body_id = body_id;
+
+    if (model.IsFixedBodyId(body_id)) {
+      unsigned int fbody_id = body_id - model.fixed_body_discriminator;
+      reference_body_id = model.mFixedBodies[fbody_id].mMovableParent;
+    }
+
+    unsigned int j = reference_body_id;
+
+    // e[j] is set to 1 if joint j contributes to the jacobian that we are
+    // computing. For all other joints the column will be zero.
+    while (j != 0) {
+      e[j] = 1;
+      j = model.lambda[j];
+    }
+
+    for (j = 1; j < model.mBodies.size(); j++) {
+      if (e[j] == 1) {
+        SpatialVector S_base;
+        S_base =  spatial_inverse(model.X_base[j].toMatrix()) * model.S[j];
+
+        G(0, j - 1) = S_base[0];
+        G(1, j - 1) = S_base[1];
+        G(2, j - 1) = S_base[2];
+        G(3, j - 1) = S_base[3];
+        G(4, j - 1) = S_base[4];
+        G(5, j - 1) = S_base[5];
+      }
+    }
+
+    delete[] e;
+  }
+
   void CalcPoseJacobianBodyFrame (
       Model &model,
       const VectorNd &Q,
@@ -784,7 +845,7 @@ namespace RigidBodyDynamics {
       int body_id = i;
       Eigen::Vector3d link_com_acc;
       link_com_acc = CalcPointAcceleration(model, Q, QDot, QDDot,
-                                           body_id, model.mBodies[body_id].mCenterOfMass);
+                                           body_id, model.mBodies[body_id].mCenterOfMass, false);
 
       com_acc += model.mBodies[body_id].mMass*link_com_acc;
       total_mass +=  model.mBodies[body_id].mMass;
@@ -810,7 +871,7 @@ namespace RigidBodyDynamics {
       int body_id = i;
       Eigen::Vector3d link_com_acc_bias;
       link_com_acc_bias = CalcPointAccelerationBias(model, Q, QDot,
-                                                    body_id, model.mBodies[body_id].mCenterOfMass);
+                                                    body_id, model.mBodies[body_id].mCenterOfMass, false);
 
       com_acc_bias += model.mBodies[body_id].mMass*link_com_acc_bias;
       total_mass +=  model.mBodies[body_id].mMass;
@@ -826,10 +887,6 @@ namespace RigidBodyDynamics {
       const Vector3d &point_position,
       bool update_kinematics
       ) {
-    LOG << "-------- " << __func__ << " --------" << std::endl;
-    assert (model.IsBodyId(body_id));
-    assert (model.mBodies.size() == Q.size() + 1);
-    assert (model.mBodies.size() == QDot.size() + 1);
 
     // Reset the velocity of the root body
     model.v[0].setZero();
@@ -848,23 +905,9 @@ namespace RigidBodyDynamics {
       reference_body_id = model.mFixedBodies[fbody_id].mMovableParent;
     }
 
-    LOG << "body_index     = " << body_id << std::endl;
-    LOG << "point_pos      = " << point_position.transpose() << std::endl;
-    //	LOG << "global_velo    = " << global_velocities.at(body_id) << std::endl;
-    LOG << "body_transf    = " << std::endl << model.X_base[reference_body_id].toMatrix() << std::endl;
-    LOG << "point_abs_ps   = " << point_abs_pos.transpose() << std::endl;
-    LOG << "X   = " << std::endl << Xtrans_mat (point_abs_pos) * spatial_inverse(model.X_base[reference_body_id].toMatrix()) << std::endl;
-    LOG << "v   = " << model.v[reference_body_id].transpose() << std::endl;
-
     // Now we can compute the spatial velocity at the given point
     //	SpatialVector body_global_velocity (global_velocities.at(body_id));
     SpatialVector point_spatial_velocity = Xtrans_mat (point_abs_pos) * spatial_inverse(model.X_base[reference_body_id].toMatrix()) * model.v[reference_body_id];
-
-    LOG << "point_velocity = " <<	Vector3d (
-             point_spatial_velocity[3],
-             point_spatial_velocity[4],
-             point_spatial_velocity[5]
-             ) << std::endl;
 
     return Vector3d (
           point_spatial_velocity[3],
@@ -1065,7 +1108,7 @@ namespace RigidBodyDynamics {
           );
   }
 
-  Eigen::Matrix<double, 6, 1> CalcPoseAccelerationBias (
+  SpatialVector CalcPoseAccelerationBias (
       Model &model,
       const VectorNd &Q,
       const VectorNd &QDot,
@@ -1099,14 +1142,9 @@ namespace RigidBodyDynamics {
 
     SpatialVector body_global_velocity (spatial_inverse(model.X_base[reference_body_id].toMatrix()) * model.v[reference_body_id]);
 
-    LOG << " orientation " << std::endl << CalcBodyWorldOrientation (model, Q, reference_body_id, false) << std::endl;
-    LOG << " orientationT " << std::endl <<  CalcBodyWorldOrientation (model, Q, reference_body_id, false).transpose() << std::endl;
-
     Matrix3d global_body_orientation_inv = CalcBodyWorldOrientation (model, Q, reference_body_id, false).transpose();
 
     SpatialTransform p_X_i (global_body_orientation_inv, reference_point);
-
-    LOG << "p_X_i = " << std::endl << p_X_i << std::endl;
 
     SpatialVector p_v_i = p_X_i.apply(model.v[reference_body_id]);
     SpatialVector p_a_i = p_X_i.apply(model.a_bias[reference_body_id]);
@@ -1118,6 +1156,47 @@ namespace RigidBodyDynamics {
 
     Eigen::Matrix<double, 6, 1> res = p_a_i_dash;
     return res;
+  }
+
+  SpatialVector CalcPoseAccelerationBiasGlobalFrame (
+      Model &model,
+      const VectorNd &Q,
+      const VectorNd &QDot,
+      unsigned int body_id,
+      const Vector3d &point_position,
+      bool update_kinematics
+      )
+  {
+    LOG << "-------- " << __func__ << " --------" << std::endl;
+
+    // Reset the velocity of the root body
+    /// @todo why are we reseting this?
+    model.v[0].setZero();
+    model.a[0].setZero();
+    model.a_bias[0].setZero();
+
+    if (update_kinematics)
+      UpdateKinematicsCustom(model, &Q, &QDot, NULL);
+
+    LOG << std::endl;
+
+    unsigned int reference_body_id = body_id;
+    Vector3d reference_point = point_position;
+
+    if (model.IsFixedBodyId(body_id)) {
+      unsigned int fbody_id = body_id - model.fixed_body_discriminator;
+      reference_body_id = model.mFixedBodies[fbody_id].mMovableParent;
+      Vector3d base_coords = CalcBodyToBaseCoordinates (model, Q, body_id, point_position, false);
+      reference_point = CalcBaseToBodyCoordinates (model, Q, reference_body_id, base_coords, false);
+    }
+
+    Matrix3d global_body_orientation_inv = CalcBodyWorldOrientation (model, Q, reference_body_id, false).transpose();
+
+    SpatialTransform p_X_i (global_body_orientation_inv, reference_point);
+
+    SpatialVector p_a_i = p_X_i.apply(model.a_bias[reference_body_id]);
+
+    return p_a_i;
   }
 
   bool InverseKinematics (

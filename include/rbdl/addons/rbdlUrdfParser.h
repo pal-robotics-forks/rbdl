@@ -10,6 +10,8 @@
 */
 bool parseUrdfParamServerParameters(RigidBodyDynamics::Model &rbdl_model, bool floating_base);
 
+bool parseUrdfString(RigidBodyDynamics::Model &rbdl_model, bool floating_base, const std::string &robot_description);
+
 /**
   Parse rbdl model from param server, only getting the branches of the tree that have their tips listed in the vector tips
 */

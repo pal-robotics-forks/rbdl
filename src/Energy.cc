@@ -16,10 +16,9 @@ namespace RigidBodyDynamics {
 
   using namespace Math;
   
-  SpatialVector CalcEnergy_ineficient (
-      Model &model,
-      const VectorNd &Q,
-      const VectorNd &QDot,
+  Math::SpatialVector CalcEnergy_ineficient(Model &model,
+      const Math::VectorNd &Q,
+      const Math::VectorNd &QDot,
       bool update_kinematics,
       unsigned int method
       ) {

@@ -166,6 +166,13 @@ void CalcPoseJacobian (Model &model,
 		bool update_kinematics = true
 		);
 
+void CalcPoseJacobianGlobalFrame (Model &model,
+    const Math::VectorNd &Q,
+    unsigned int body_id,
+    Math::MatrixNd &G,
+    bool update_kinematics = true
+    );
+
 /// @todo: document
 void CalcPointJacobianGlobalFrame (Model &model,
 		const Math::VectorNd &Q,
@@ -306,7 +313,7 @@ Math::Vector3d CalcPointAccelerationBias (
     );
 
 
-Eigen::Matrix<double, 6, 1> CalcPoseAccelerationBias (
+Math::SpatialVector CalcPoseAccelerationBias (
     Model &model,
     const Math::VectorNd &Q,
     const Math::VectorNd &QDot,
@@ -315,6 +322,15 @@ Eigen::Matrix<double, 6, 1> CalcPoseAccelerationBias (
     bool update_kinematics = true
     );
 
+
+Math::SpatialVector CalcPoseAccelerationBiasGlobalFrame (
+    Model &model,
+    const Math::VectorNd &Q,
+    const Math::VectorNd &QDot,
+    unsigned int body_id,
+    const Math::Vector3d &point_position,
+    bool update_kinematics = true
+    );
 
 
 /** \brief Computes the inverse kinematics iteratively using a damped Levenberg-Marquardt method

@@ -364,7 +364,6 @@ bool parseUrdfParamServerParameters(RigidBodyDynamics::Model &rbdl_model, bool f
   ros::NodeHandle n;
   std::string urdf_name, full_urdf_xml;
 
-  ROS_INFO_STREAM("parsing urdf into rbdl from param server");
 
   n.param("urdf_xml_model",urdf_name,std::string("robot_description"));
   n.searchParam(urdf_name,full_urdf_xml);
@@ -375,7 +374,19 @@ bool parseUrdfParamServerParameters(RigidBodyDynamics::Model &rbdl_model, bool f
     return false;
   }
 
-  ROS_INFO("Successfully parsed urdf file");
+  bool res = parseUrdf(urdf_model, rbdl_model, floating_base);
+  return res;
+}
+
+bool parseUrdfString(RigidBodyDynamics::Model &rbdl_model, bool floating_base, const std::string &robot_description){
+
+  urdf::Model urdf_model;
+
+  if (!urdf_model.initString(robot_description)){
+    ROS_ERROR("Failed to parse urdf file");
+    return false;
+  }
+
   bool res = parseUrdf(urdf_model, rbdl_model, floating_base);
   return res;
 }

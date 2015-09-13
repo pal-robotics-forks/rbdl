@@ -19,13 +19,13 @@ class _NoLogging;
  * \warning Logging has a huge impact on performance.
  */
 
-#ifndef RBDL_ENABLE_LOGGING
+//#ifndef RBDL_ENABLE_LOGGING
 	#define LOG if (false) LogOutput 
 	#define SUPPRESS_LOGGING ;
-#else
-	#define LOG LogOutput
-	#define SUPPRESS_LOGGING _NoLogging _nolog
-#endif
+//#else
+//	#define LOG LogOutput
+//	#define SUPPRESS_LOGGING _NoLogging _nolog
+//#endif
 
 extern std::ostringstream LogOutput;
 void ClearLogOutput ();

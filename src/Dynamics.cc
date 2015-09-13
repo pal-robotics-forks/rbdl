@@ -32,16 +32,16 @@ void ForwardDynamics (
 		VectorNd &QDDot,
 		std::vector<SpatialVector> *f_ext
 		) {
-	LOG << "-------- " << __func__ << " --------" << std::endl;
+  LOG << "-------- " << __func__ << " --------" << std::endl;
 
 	SpatialVector spatial_gravity (0., 0., 0., model.gravity[0], model.gravity[1], model.gravity[2]);
 
 	unsigned int i = 0;
 
-	LOG << "Q          = " << Q.transpose() << std::endl;
-	LOG << "QDot       = " << QDot.transpose() << std::endl;
-	LOG << "Tau        = " << Tau.transpose() << std::endl;
-	LOG << "---" << std::endl;
+  LOG << "Q          = " << Q.transpose() << std::endl;
+  LOG << "QDot       = " << QDot.transpose() << std::endl;
+  LOG << "Tau        = " << Tau.transpose() << std::endl;
+  LOG << "---" << std::endl;
 
 	// Reset the velocity of the root body
 	model.v[0].setZero();
@@ -53,7 +53,7 @@ void ForwardDynamics (
 		unsigned int lambda = model.lambda[i];
 
 		jcalc (model, i, X_J, model.S[i], v_J, c_J, Q[i - 1], QDot[i - 1]);
-		LOG << "X_T (" << i << "):" << std::endl << model.X_T[i] << std::endl;
+    LOG << "X_T (" << i << "):" << std::endl << model.X_T[i] << std::endl;
 
 		model.X_lambda[i] = X_J * model.X_T[i];
 
@@ -65,12 +65,12 @@ void ForwardDynamics (
 		model.v[i] = model.X_lambda[i].apply( model.v.at(lambda)) + v_J;
 
 		/*
-		LOG << "X_J (" << i << "):" << std::endl << X_J << std::endl;
-		LOG << "v_J (" << i << "):" << std::endl << v_J << std::endl;
-		LOG << "v_lambda" << i << ":" << std::endl << model.v.at(lambda) << std::endl;
-		LOG << "X_base (" << i << "):" << std::endl << model.X_base[i] << std::endl;
-		LOG << "X_lambda (" << i << "):" << std::endl << model.X_lambda[i] << std::endl;
-		LOG << "SpatialVelocity (" << i << "): " << model.v[i] << std::endl;
+    LOG << "X_J (" << i << "):" << std::endl << X_J << std::endl;
+    LOG << "v_J (" << i << "):" << std::endl << v_J << std::endl;
+    LOG << "v_lambda" << i << ":" << std::endl << model.v.at(lambda) << std::endl;
+    LOG << "X_base (" << i << "):" << std::endl << model.X_base[i] << std::endl;
+    LOG << "X_lambda (" << i << "):" << std::endl << model.X_lambda[i] << std::endl;
+    LOG << "SpatialVelocity (" << i << "): " << model.v[i] << std::endl;
 		*/
 
 		model.c[i] = c_J + crossm(model.v[i],v_J);
@@ -80,40 +80,40 @@ void ForwardDynamics (
 
     /// @todo what if the external force is acting on a fixed body?
 		if (f_ext != NULL && (*f_ext)[i] != SpatialVectorZero) {
-			LOG << "External force (" << i << ") = " << model.X_base[i].toMatrixAdjoint() * (*f_ext)[i] << std::endl;
+      LOG << "External force (" << i << ") = " << model.X_base[i].toMatrixAdjoint() * (*f_ext)[i] << std::endl;
 			model.pA[i] -= model.X_base[i].toMatrixAdjoint() * (*f_ext)[i];
 		}
 	}
 
 // ClearLogOutput();
 
-	LOG << "--- first loop ---" << std::endl;
+  LOG << "--- first loop ---" << std::endl;
 
 	for (i = 1; i < model.mBodies.size(); i++) {
-		LOG << "X_base[" << i << "] = " << model.X_base[i] << std::endl;
+    LOG << "X_base[" << i << "] = " << model.X_base[i] << std::endl;
 	}
 
 	for (i = 1; i < model.mBodies.size(); i++) {
-		LOG << "X_lambda[" << i << "] = " << model.X_lambda[i] << std::endl;
+    LOG << "X_lambda[" << i << "] = " << model.X_lambda[i] << std::endl;
 	}
 
 	for (i = 1; i < model.mBodies.size(); i++) {
-		LOG << "Xup[" << i << "] = " << model.X_lambda[i] << std::endl;
+    LOG << "Xup[" << i << "] = " << model.X_lambda[i] << std::endl;
 	}
 
 	for (i = 1; i < model.mBodies.size(); i++) {
-		LOG << "v[" << i << "]   = " << model.v[i].transpose() << std::endl;
+    LOG << "v[" << i << "]   = " << model.v[i].transpose() << std::endl;
 	}
 
 	for (i = 1; i < model.mBodies.size(); i++) {
-		LOG << "IA[" << i << "]  = " << model.IA[i] << std::endl;
+    LOG << "IA[" << i << "]  = " << model.IA[i] << std::endl;
 	}
 
 	for (i = 1; i < model.mBodies.size(); i++) {
-		LOG << "pA[" << i << "]  = " << model.pA[i].transpose() << std::endl;
+    LOG << "pA[" << i << "]  = " << model.pA[i].transpose() << std::endl;
 	}
 
-	LOG << std::endl;
+  LOG << std::endl;
 
 	for (i = model.mBodies.size() - 1; i > 0; i--) {
 		model.U[i] = model.IA[i] * model.S[i];
@@ -136,30 +136,30 @@ void ForwardDynamics (
 
 //	ClearLogOutput();
 
-	LOG << "--- second loop ---" << std::endl;
+  LOG << "--- second loop ---" << std::endl;
 
 	for (i = 1; i < model.mBodies.size(); i++) {
-		LOG << "U[" << i << "]   = " << model.U[i].transpose() << std::endl;
+    LOG << "U[" << i << "]   = " << model.U[i].transpose() << std::endl;
 	}
 
 	for (i = 1; i < model.mBodies.size(); i++) {
-		LOG << "d[" << i << "]   = " << model.d[i] << std::endl;
+    LOG << "d[" << i << "]   = " << model.d[i] << std::endl;
 	}
 
 	for (i = 1; i < model.mBodies.size(); i++) {
-		LOG << "u[" << i << "]   = " << model.u[i] << std::endl;
+    LOG << "u[" << i << "]   = " << model.u[i] << std::endl;
 	}
 
 	for (i = 1; i < model.mBodies.size(); i++) {
-		LOG << "IA[" << i << "]  = " << model.IA[i] << std::endl;
+    LOG << "IA[" << i << "]  = " << model.IA[i] << std::endl;
 	}
 	for (i = 1; i < model.mBodies.size(); i++) {
-		LOG << "pA[" << i << "]  = " << model.pA[i].transpose() << std::endl;
+    LOG << "pA[" << i << "]  = " << model.pA[i].transpose() << std::endl;
 	}
 
-	LOG << std::endl << "--- third loop ---" << std::endl;
+  LOG << std::endl << "--- third loop ---" << std::endl;
 
-	LOG << "spatial gravity = " << spatial_gravity.transpose() << std::endl;
+  LOG << "spatial gravity = " << spatial_gravity.transpose() << std::endl;
 
 	model.a[0] = spatial_gravity * -1.;
 
@@ -174,16 +174,16 @@ void ForwardDynamics (
 	}
 
 	for (i = 1; i < model.mBodies.size(); i++) {
-		LOG << "c[" << i << "] = " << model.c[i].transpose() << std::endl;
+    LOG << "c[" << i << "] = " << model.c[i].transpose() << std::endl;
 	}
 
-	LOG << std::endl;
+  LOG << std::endl;
 
 	for (i = 0; i < model.mBodies.size(); i++) {
-		LOG << "a[" << i << "] = " << model.a[i].transpose() << std::endl;
+    LOG << "a[" << i << "] = " << model.a[i].transpose() << std::endl;
 	}
 
-	LOG << "QDDot = " << QDDot.transpose() << std::endl;
+  LOG << "QDDot = " << QDDot.transpose() << std::endl;
 }
 
 void ForwardDynamicsLagrangian (
@@ -195,7 +195,7 @@ void ForwardDynamicsLagrangian (
 		Math::LinearSolver linear_solver,
 		std::vector<SpatialVector> *f_ext
 		) {
-	LOG << "-------- " << __func__ << " --------" << std::endl;
+  LOG << "-------- " << __func__ << " --------" << std::endl;
 
 	MatrixNd H = MatrixNd::Zero(model.dof_count, model.dof_count);
 	VectorNd C = VectorNd::Zero(model.dof_count);
@@ -207,8 +207,8 @@ void ForwardDynamicsLagrangian (
 	InverseDynamics (model, Q, QDot, QDDot, C, f_ext);
 	CompositeRigidBodyAlgorithm (model, Q, H, false);
 
-	LOG << "A = " << std::endl << H << std::endl;
-	LOG << "b = " << std::endl << C * -1. + Tau << std::endl;
+  LOG << "A = " << std::endl << H << std::endl;
+  LOG << "b = " << std::endl << C * -1. + Tau << std::endl;
 
 #ifndef RBDL_USE_SIMPLE_MATH
 	switch (linear_solver) {
@@ -219,7 +219,7 @@ void ForwardDynamicsLagrangian (
 			QDDot = H.colPivHouseholderQr().solve (C * -1. + Tau);
 			break;
 		default:
-			LOG << "Error: Invalid linear solver: " << linear_solver << std::endl;
+      LOG << "Error: Invalid linear solver: " << linear_solver << std::endl;
 			assert (0);
 			break;
 	}
@@ -228,7 +228,7 @@ void ForwardDynamicsLagrangian (
 	assert (solve_successful);
 #endif
 
-	LOG << "x = " << QDDot << std::endl;
+  LOG << "x = " << QDDot << std::endl;
 }
 
 void InverseDynamics (
@@ -239,7 +239,7 @@ void InverseDynamics (
 		VectorNd &Tau,
 		std::vector<SpatialVector> *f_ext
 		) {
-	LOG << "-------- " << __func__ << " --------" << std::endl;
+  LOG << "-------- " << __func__ << " --------" << std::endl;
 
 	SpatialVector spatial_gravity (0., 0., 0., model.gravity[0], model.gravity[1], model.gravity[2]);
 
@@ -275,18 +275,18 @@ void InverseDynamics (
 			model.f[i] -= model.X_base[i].toMatrixAdjoint() * (*f_ext)[i];
 	}
 
-	LOG << "-- first loop --" << std::endl;
+  LOG << "-- first loop --" << std::endl;
 	for (i = 0; i < model.mBodies.size(); i++) {
-		LOG << "X_base[" << i << "] = " << std::endl << model.X_base[i] << std::endl;
+    LOG << "X_base[" << i << "] = " << std::endl << model.X_base[i] << std::endl;
 	}
 	for (i = 0; i < model.mBodies.size(); i++) {
-		LOG << "v[" << i << "] = " << model.v[i].transpose() << std::endl;
+    LOG << "v[" << i << "] = " << model.v[i].transpose() << std::endl;
 	}
 	for (i = 0; i < model.mBodies.size(); i++) {
-		LOG << "a[" << i << "] = " << model.a[i].transpose() << std::endl;
+    LOG << "a[" << i << "] = " << model.a[i].transpose() << std::endl;
 	}
 	for (i = 0; i < model.mBodies.size(); i++) {
-		LOG << "f[" << i << "] = " << model.f[i].transpose() << std::endl;
+    LOG << "f[" << i << "] = " << model.f[i].transpose() << std::endl;
 	}
 
 	for (i = model.mBodies.size() - 1; i > 0; i--) {
@@ -299,18 +299,18 @@ void InverseDynamics (
 		}
 	}
 
-	LOG << "-- second loop" << std::endl;
-	LOG << "Tau = " << Tau.transpose() << std::endl;
+  LOG << "-- second loop" << std::endl;
+  LOG << "Tau = " << Tau.transpose() << std::endl;
 	for (i = 0; i < model.mBodies.size(); i++) {
-		LOG << "f[" << i << "] = " << model.f[i].transpose() << std::endl;
+    LOG << "f[" << i << "] = " << model.f[i].transpose() << std::endl;
 	}
 	for (i = 0; i < model.mBodies.size(); i++) {
-		LOG << "S[" << i << "] = " << model.S[i].transpose() << std::endl;
+    LOG << "S[" << i << "] = " << model.S[i].transpose() << std::endl;
 	}
 }
 
 void CompositeRigidBodyAlgorithm (Model& model, const VectorNd &Q, MatrixNd &H, bool update_kinematics) {
-	LOG << "-------- " << __func__ << " --------" << std::endl;
+  LOG << "-------- " << __func__ << " --------" << std::endl;
 
 	assert (H.rows() == model.dof_count && H.cols() == model.dof_count);
 

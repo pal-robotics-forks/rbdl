@@ -1,6 +1,7 @@
 cmake_minimum_required(VERSION 2.8.3)
 PROJECT (rbdl)
 # Find and use the system's Eigen3 library
+find_package(cmake_modules REQUIRED)
 find_package(Eigen REQUIRED)
 
 find_package(catkin REQUIRED COMPONENTS urdf)
@@ -92,8 +93,10 @@ catkin_package(
 )
 
 add_library(RBDL_URDFParser addons/urdfreader/RBDL_URDFParser.cpp)
-target_link_libraries(RBDL_URDFParser ${catkin_LIBRARIES})
+target_link_libraries(RBDL_URDFParser ${catkin_LIBRARIES} rbdl)
 
+add_executable(example examples/simple/example.cc)
+target_link_libraries(example ${catkin_LIBRARIES} rbdl)
 
 # Installing
 INSTALL (TARGETS rbdl RBDL_URDFParser

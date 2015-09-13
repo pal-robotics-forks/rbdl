@@ -11,7 +11,7 @@
 #define RBDL_API_VERSION 0x020000
 
 /* #undef RBDL_USE_SIMPLE_MATH */
-/* #undef RBDL_ENABLE_LOGGING */
+#define RBDL_ENABLE_LOGGING
 #define RBDL_BUILD_REVISION "unknown"
 #define RBDL_BUILD_TYPE "unknown"
 #define RBDL_BUILD_BRANCH "unknown"
