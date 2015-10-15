@@ -6,6 +6,12 @@ find_package(Eigen REQUIRED)
 
 find_package(catkin REQUIRED COMPONENTS urdf)
 
+catkin_package(
+  INCLUDE_DIRS include
+  LIBRARIES rbdl RBDL_URDFParser
+  DEPENDS Eigen
+)
+
 INCLUDE_DIRECTORIES (
         include
         ${catkin_INCLUDE_DIRS}
@@ -85,12 +91,6 @@ FILE ( GLOB headers
 	)
 
 INSTALL ( FILES ${headers} DESTINATION include/rbdl )
-
-catkin_package(
-  INCLUDE_DIRS include
-  LIBRARIES rbdl RBDL_URDFParser
-  DEPENDS Eigen
-)
 
 add_library(RBDL_URDFParser addons/urdfreader/RBDL_URDFParser.cpp)
 target_link_libraries(RBDL_URDFParser ${catkin_LIBRARIES} rbdl)
