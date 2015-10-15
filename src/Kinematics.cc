@@ -81,7 +81,6 @@ namespace RigidBodyDynamics {
         SpatialVector v_J;
         SpatialVector c_J;
         SpatialTransform X_J;
-        Joint joint = model.mJoints[i];
         unsigned int lambda = model.lambda[i];
 
         jcalc (model, i, X_J, model.S[i], v_J, c_J, (*Q)[i - 1], 0.);
@@ -102,7 +101,6 @@ namespace RigidBodyDynamics {
         SpatialVector v_J;
         SpatialVector c_J;
         SpatialTransform X_J;
-        Joint joint = model.mJoints[i];
         unsigned int lambda = model.lambda[i];
 
         jcalc (model, i, X_J, model.S[i], v_J, c_J, (*Q)[i - 1], (*QDot)[i - 1]);
