@@ -327,7 +327,7 @@ struct Joint {
 	 */
 	bool validate_spatial_axis (Math::SpatialVector &axis) {
 		if (fabs(axis.norm() - 1.0) > 1.0e-8) {
-			std::cerr << "Warning: joint axis is not unit!" << std::endl;
+			std::cerr << "Warning: joint axis is not unit!, norm is: " <<axis.norm()<< std::endl;
 		}
 
 		bool axis_rotational = false;

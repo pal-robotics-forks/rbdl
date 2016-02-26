@@ -343,6 +343,10 @@ w	 * determined via std::numeric_limits<unsigned int>::max() and the
       const Body &body, std::string base_link_name = "base_link"
 			);
 
+  unsigned int SetPlanarFloatingBaseBody (
+      const Body &body, std::string base_link_name = "base_link");
+
+
 	/** \brief Returns the id of a body that was passed to AddBody()
 	 *
 	 * Bodies can be given a human readable name. This function allows to
@@ -356,7 +360,8 @@ w	 * determined via std::numeric_limits<unsigned int>::max() and the
 	unsigned int GetBodyId (const char *body_name) const {
 		if (mBodyNameMap.count(body_name) == 0) {
       /// @todo: find a better way to notify this error
-      std::cerr<<"GET BODY ID: ID does not exist: "<<body_name<<std::endl;
+            std::cerr<<"GET BODY ID: ID does not exist: "<<body_name<<std::endl;
+            assert(mBodyNameMap.count(body_name) == 0);
 			return std::numeric_limits<unsigned int>::max();
 		}
 

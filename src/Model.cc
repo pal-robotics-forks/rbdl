@@ -301,19 +301,38 @@ unsigned int Model::SetFloatingBaseBody (const Body &body, std::string base_link
 
 	// Add five zero weight bodies and append the given body last. Order of
 	// the degrees of freedom is:
-	// 		tx ty tz rz ry rx
+  // 		tx ty tz rx ry rz
 	//
 
 	Joint floating_base_joint (
 			SpatialVector (0., 0., 0., 1., 0., 0.),
 			SpatialVector (0., 0., 0., 0., 1., 0.),
 			SpatialVector (0., 0., 0., 0., 0., 1.),
-			SpatialVector (0., 0., 1., 0., 0., 0.),
+      SpatialVector (1., 0., 0., 0., 0., 0.),
 			SpatialVector (0., 1., 0., 0., 0., 0.),
-			SpatialVector (1., 0., 0., 0., 0., 0.)
+      SpatialVector (0., 0., 1., 0., 0., 0.)
 			);
 
   unsigned int body_id = this->AddBody (0, Xtrans (Vector3d (0., 0., 0.)), floating_base_joint, body, base_link_name);
 
 	return body_id;
+}
+
+unsigned int Model::SetPlanarFloatingBaseBody (const Body &body, std::string base_link_name) {
+  assert (lambda.size() > 0);
+
+  // Add five zero weight bodies and append the given body last. Order of
+  // the degrees of freedom is:
+  // 		tx ty  rz
+  //
+
+  Joint floating_base_joint (
+      SpatialVector (0., 0., 0., 1., 0., 0.),
+      SpatialVector (0., 0., 0., 0., 1., 0.),
+      SpatialVector (0., 0., 1., 0., 0., 0.)
+      );
+
+  unsigned int body_id = this->AddBody (0, Xtrans (Vector3d (0., 0., 0.)), floating_base_joint, body, base_link_name);
+
+  return body_id;
 }
