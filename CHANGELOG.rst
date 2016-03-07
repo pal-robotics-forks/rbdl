@@ -2,8 +2,8 @@
 Changelog for package rbdl
 ^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Forthcoming
------------
+0.0.2 (2016-03-07)
+------------------
 * Added 2d floating base support
 * Changed catkin package order in CMakeLists
 * Aded various fixes and removed logging
