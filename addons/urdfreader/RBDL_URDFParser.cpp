@@ -9,14 +9,6 @@
 #include <urdf_model/link.h>
 #include <urdf/model.h>
 
-/*
-#include <tf/transform_listener.h>
-#include <tf/transform_broadcaster.h>
-#include <tf/tf.h>
-#include <tf_conversions/tf_kdl.h>
-#include <sensor_msgs/JointState.h>
-*/
-
 #include <rbdl/addons/rbdlUrdfParser.h>
 
 using namespace std;
@@ -44,6 +36,7 @@ bool isLinkInUrdfModel(LinkPtr link, std::string tip){
     }
   }
 }
+
 
 /*This function will be called recursively adding the Links from the urdf to rbdl */
 void constructRBDLfromURDF(Model &rbdl_model, LinkPtr urdf_link, int parent_id,
@@ -818,3 +811,4 @@ void publish_link_com_poses(RigidBodyDynamics::Model &model){
   }
 }
 */
+

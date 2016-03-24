@@ -1,8 +1,11 @@
+#ifndef _RBDL_PARSER_
+#define _RBDL_PARSER_
+
 //Rbdl stuff
 #include <rbdl/rbdl.h>
 #include <vector>
 
-//THIS FUCKS UP THE LINKING
+//THIS GIVES PROBLEMS UP THE LINKING
 //bool parseUrdf(urdf::Model &urdf_model, Model &rbdl_model);
 
 /**
@@ -77,3 +80,5 @@ RigidBodyDynamics::Model getSubTree(RigidBodyDynamics::Model &rbdl_model,
 /* Publish the internal COM kinematic state of the robot */
 //void publish_link_com_poses(RigidBodyDynamics::Model &model);
 
+
+#endif

@@ -16,6 +16,53 @@ namespace RigidBodyDynamics {
 
   using namespace Math;
   
+  double CalcTotalMass(Model &model){
+    double totalMass = 0.;
+    for(size_t i=0; i<model.mBodies.size(); ++i){
+      totalMass += model.mBodies[i].mMass;
+    }
+    return totalMass;
+  }
+
+  Math::SpatialVector CalcMoment(
+      Model &model,
+      const Math::VectorNd &Q,
+      const Math::VectorNd &QDot,
+      bool update_kinematics) {
+    
+    if (update_kinematics) {
+      UpdateKinematicsCustom(model, &Q, &QDot, NULL);
+    }
+
+    Math::SpatialVector spatial_moment;
+    spatial_moment.setZero();
+
+    for(unsigned int i=1; i<model.mBodies.size(); ++i){
+      unsigned int body_id = i;//rbdl_model_.GetBodyId(link_names_[i].c_str());
+
+        /// X'*I*X*(X^-1*v)
+        spatial_moment += model.X_base[body_id].toMatrix().transpose()*
+            model.mBodies[body_id].mSpatialInertia*
+            model.X_base[body_id].toMatrix()*
+            model.X_base[body_id].toMatrix().inverse()*model.v[body_id];
+
+    }
+    
+    return spatial_moment;
+  }
+  
+  Math::SpatialVector CalcMomentCOM (
+      Model &model,
+      const Math::VectorNd &Q,
+      const Math::VectorNd &QDot,
+      bool update_kinematics
+      ){
+
+     Math::Vector3d com = CalCOM(model, Q, update_kinematics);
+     //return  Math::Xtrans(com).applyAdjoint(CalcMoment(model, Q, QDot, update_kinematics));
+     return  Math::Xtrans(com).toMatrix().transpose()*CalcMoment(model, Q, QDot, update_kinematics);
+   }
+   
   Math::SpatialVector CalcEnergy_ineficient(Model &model,
       const Math::VectorNd &Q,
       const Math::VectorNd &QDot,
@@ -34,7 +81,7 @@ namespace RigidBodyDynamics {
     /// of the inertial frame?
 
     /// @warning We start with body 1 becouse the first link is the root world link which seems to have 1 kg mass
-    for(unsigned int i=1; i<model.mBodies.size(); ++i){
+    for(size_t i=1; i<model.mBodies.size(); ++i){
       unsigned int body_id = i;//rbdl_model_.GetBodyId(link_names_[i].c_str());
 
       if(method == 0){
@@ -60,6 +107,8 @@ namespace RigidBodyDynamics {
         // Optimization using spatial operators, in the book there is a further optimization to reduce operations
         spatial_moment += model.X_base[body_id].applyTranspose(model.mBodies[body_id].mSpatialInertia*(model.v[body_id]));
       }
+
+      //std::cerr<<"Spatial moment: "<<i<<"  is: "<<spatial_moment.transpose()<<std::endl;
     }
     
     return spatial_moment;
@@ -211,7 +260,7 @@ namespace RigidBodyDynamics {
       UpdateKinematicsCustom (model, &Q, NULL, NULL);
     }
 
-    Vector3d com = CalCOM(model, Q, false);
+    Vector3d com = CalCOM(model, Q, update_kinematics);
 
     Eigen::MatrixXd jacobian_link(6, model.dof_count);
     for (unsigned int i = 1; i < model.mBodies.size(); ++i) {
