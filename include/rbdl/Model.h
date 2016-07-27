@@ -15,6 +15,7 @@
 #include <iostream>
 #include <limits>
 #include <cstring>
+#include <stdexcept>
 
 #include "rbdl/Logging.h"
 #include "rbdl/Joint.h"
@@ -359,8 +360,9 @@ w	 * determined via std::numeric_limits<unsigned int>::max() and the
 	 */
 	unsigned int GetBodyId (const char *body_name) const {
 		if (mBodyNameMap.count(body_name) == 0) {
-      /// @todo: find a better way to notify this error
-            std::cerr<<"GET BODY ID: ID does not exist: "<<body_name<<std::endl;
+            std::stringstream ss;
+            ss<<"GET BODY ID: ID does not exist: "<<body_name;
+            throw std::runtime_error(ss.str());
             assert(mBodyNameMap.count(body_name) == 0);
 			return std::numeric_limits<unsigned int>::max();
 		}

@@ -324,7 +324,7 @@ void constructRBDLfromURDF(Model &rbdl_model, LinkPtr urdf_link,
 
 
 // WTF Happened here, that in was not found in the .so when linked?
-bool parseUrdf(urdf::Model &urdf_model, Model &rbdl_model,
+bool parseUrdf(const urdf::Model &urdf_model, Model &rbdl_model,
                const std::vector<std::string> &tips,
                bool floating_base,
                bool planar_floating_base) {
@@ -335,7 +335,7 @@ bool parseUrdf(urdf::Model &urdf_model, Model &rbdl_model,
   return true;
 }
 
-bool parseUrdf(urdf::Model &urdf_model, Model &rbdl_model,
+bool parseUrdf(const urdf::Model &urdf_model, Model &rbdl_model,
                bool floating_base,
                bool planar_floating_base) {
 
@@ -402,6 +402,18 @@ bool parseUrdfString(RigidBodyDynamics::Model &rbdl_model,
                      const std::string &robot_description,
                      bool planar_floating_base){
 
+  std::vector<std::string> names;
+
+  return parseUrdfString(rbdl_model, floating_base, robot_description, planar_floating_base, names);
+}
+
+
+bool parseUrdfString(RigidBodyDynamics::Model &rbdl_model,
+                     bool floating_base,
+                     const std::string &robot_description,
+                     bool planar_floating_base,
+                     std::vector<std::string> &names){
+
   urdf::Model urdf_model;
 
   if (!urdf_model.initString(robot_description)){
@@ -410,6 +422,30 @@ bool parseUrdfString(RigidBodyDynamics::Model &rbdl_model,
   }
 
   bool res = parseUrdf(urdf_model, rbdl_model, floating_base, planar_floating_base);
+
+  unsigned int i=0;
+  if(floating_base){
+    if(planar_floating_base){
+      i = 3;
+    }
+    else{
+      i=6; //Floating base has been added
+    }
+  }
+
+  for(; i< rbdl_model.dof_count; ++i){
+    boost::shared_ptr<urdf::Link> urdf_link;
+    //As the joints, the bodyes with movable joints start ad +1
+    //Since the movable bodies have a small numbering and the fixed bodyes have
+    //a high numbering will get n joint names in the lower numbers
+    std::string body_name = rbdl_model.GetBodyName(i+1);
+
+    ROS_DEBUG_STREAM("rbdl body name: "<<body_name);
+
+    urdf_model.getLink(body_name, urdf_link);
+    names.push_back(urdf_link->parent_joint->name);
+    ROS_DEBUG_STREAM(" names "<<urdf_link->parent_joint->name);
+  }
   return res;
 }
 
@@ -456,6 +492,26 @@ bool parseUrdfParamServerParameters(RigidBodyDynamics::Model &rbdl_model, std::v
     ROS_ERROR("Failed to parse urdf file");
     return false;
   }
+
+  parseUrdfParamServerParameters(urdf_model, rbdl_model, joint_names,
+                                  position_min, position_max,
+                                  vel_min, vel_max,
+                                  damping, friction,
+                                  max_effort,
+                                  floating_base,
+                                  planar_floating_base);
+
+}
+
+
+bool parseUrdfParamServerParameters(const urdf::Model &urdf_model,
+                                    RigidBodyDynamics::Model &rbdl_model, std::vector<std::string> &joint_names,
+                                    std::vector<double> &position_min,  std::vector<double> &position_max,
+                                    std::vector<double> &vel_min,  std::vector<double> &vel_max,
+                                    std::vector<double> &damping, std::vector<double> &friction,
+                                    std::vector<double> &max_effort,
+                                    bool floating_base,
+                                    bool planar_floating_base){
 
   ROS_INFO("Successfully parsed urdf file");
   bool res = parseUrdf(urdf_model, rbdl_model, floating_base, planar_floating_base);

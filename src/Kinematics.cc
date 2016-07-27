@@ -132,7 +132,7 @@ namespace RigidBodyDynamics {
     }
   }
 
-  Vector3d CalcBodyToBaseCoordinates (
+  Vector3d  CalcBodyToBaseCoordinates (
       Model &model,
       const VectorNd &Q,
       unsigned int body_id,

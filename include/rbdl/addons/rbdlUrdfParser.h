@@ -4,13 +4,12 @@
 //Rbdl stuff
 #include <rbdl/rbdl.h>
 #include <vector>
+#include <urdf/model.h>
 
-//THIS GIVES PROBLEMS UP THE LINKING
-//bool parseUrdf(urdf::Model &urdf_model, Model &rbdl_model);
+bool parseUrdf(const urdf::Model &urdf_model, RigidBodyDynamics::Model &rbdl_model,
+               bool floating_base,
+               bool planar_floating_base);
 
-/**
-  Parse rbdl model from param server
-*/
 bool parseUrdfParamServerParameters(RigidBodyDynamics::Model &rbdl_model,
                                     bool floating_base,
                                     bool planar_floating_base);
@@ -19,6 +18,12 @@ bool parseUrdfString(RigidBodyDynamics::Model &rbdl_model,
                      bool floating_base,
                      const std::string &robot_description,
                      bool planar_floating_base);
+
+bool parseUrdfString(RigidBodyDynamics::Model &rbdl_model,
+                     bool floating_base,
+                     const std::string &robot_description,
+                     bool planar_floating_base,
+                     std::vector<std::string> &names);
 
 /**
   Parse rbdl model from param server, only getting the branches of the tree that have their tips listed in the vector tips
@@ -32,6 +37,15 @@ bool parseUrdfParamServerParameters(RigidBodyDynamics::Model &rbdl_model,
   Parse rbdl model from param server with aditional parameters
 */
 bool parseUrdfParamServerParameters(RigidBodyDynamics::Model &rbdl_model, std::vector<std::string> &joint_names,
+                                    std::vector<double> &position_min,  std::vector<double> &position_max,
+                                    std::vector<double> &vel_min, std::vector<double> &vel_max,
+                                    std::vector<double> &damping, std::vector<double> &friction,
+                                    std::vector<double> &max_effort,
+                                    bool floating_base,
+                                    bool planar_floating_base);
+
+bool parseUrdfParamServerParameters(const urdf::Model &urdf_model,
+                                    RigidBodyDynamics::Model &rbdl_model, std::vector<std::string> &joint_names,
                                     std::vector<double> &position_min,  std::vector<double> &position_max,
                                     std::vector<double> &vel_min, std::vector<double> &vel_max,
                                     std::vector<double> &damping, std::vector<double> &friction,
