@@ -3,7 +3,7 @@ PROJECT (rbdl)
 
 find_package(cmake_modules REQUIRED)
 find_package(Eigen REQUIRED)
-find_package(catkin REQUIRED COMPONENTS urdf)
+find_package(catkin REQUIRED COMPONENTS urdf eigen_checks)
 
 SET(CMAKE_CXX_FLAGS "-std=c++0x ${CMAKE_CXX_FLAGS}")
 
@@ -90,7 +90,7 @@ IF (RBDL_BUILD_ADDON_LUAMODEL)
 ENDIF (RBDL_BUILD_ADDON_LUAMODEL)
 
 
- ADD_SUBDIRECTORY ( tests )
+ADD_SUBDIRECTORY(ggtest)
 
 
 # Source files for RBDL
