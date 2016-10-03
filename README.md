@@ -1,3 +1,5 @@
+[![Build Status](http://venus:8080/view/Integration%20Jobs/job/I40-rbdl-dubnium-devel_dubnium/badge/icon)](http://venus:8080/view/Integration%20Jobs/job/I40-rbdl-dubnium-devel_dubnium/)
+
 RBDL - Rigid Body Dynamics Library
 Copyright (c) 2011-2016 Martin Felis <martin.felis@iwr.uni-heidelberg.de>
 
