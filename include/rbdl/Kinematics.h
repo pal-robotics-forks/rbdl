@@ -1,26 +1,32 @@
 /*
  * RBDL - Rigid Body Dynamics Library
- * Copyright (c) 2011-2012 Martin Felis <martin.felis@iwr.uni-heidelberg.de>
+ * Copyright (c) 2011-2016 Martin Felis <martin.felis@iwr.uni-heidelberg.de>
  *
  * Licensed under the zlib license. See LICENSE for more details.
  */
 
-#ifndef _KINEMATICS_H
-#define _KINEMATICS_H
+#ifndef RBDL_KINEMATICS_H
+#define RBDL_KINEMATICS_H
 
-#include <rbdl/rbdl_math.h>
+#include "rbdl/rbdl_math.h"
 #include <assert.h>
 #include <iostream>
 #include "rbdl/Logging.h"
 
 namespace RigidBodyDynamics {
 
-/** \defgroup kinematics_group Kinematics
- * @{
+/** \page kinematics_page Kinematics
+ * All functions related to kinematics are specified in the \ref
+ * kinematics_group "Kinematics Module".
  *
  * \note Please note that in the Rigid %Body Dynamics Library all angles
  * are specified in radians.
  *
+ * \defgroup kinematics_group Kinematics
+ * @{
+ *
+ * \note Please note that in the Rigid %Body Dynamics Library all angles
+ * are specified in radians.
  */
 
 /** \brief Updates and computes velocities and accelerations of the bodies
@@ -33,11 +39,11 @@ namespace RigidBodyDynamics {
  * \param QDot  the generalized velocities of the joints
  * \param QDDot the generalized accelerations of the joints
  */
-void UpdateKinematics (Model &model,
-		const Math::VectorNd &Q,
-		const Math::VectorNd &QDot,
-		const Math::VectorNd &QDDot
-		);
+RBDL_DLLAPI void UpdateKinematics (Model &model,
+    const Math::VectorNd &Q,
+    const Math::VectorNd &QDot,
+    const Math::VectorNd &QDDot
+    );
 
 /** \brief Selectively updates model internal states of body positions, velocities and/or accelerations.
  *
@@ -47,65 +53,53 @@ void UpdateKinematics (Model &model,
  * In contrast to UpdateKinematics() this function allows to update the model
  * state with values one is interested and thus reduce computations (e.g. only
  * positions, only positions + accelerations, only velocities, etc.).
- 
+
  * \param model the model
  * \param Q     the positional variables of the model
  * \param QDot  the generalized velocities of the joints
  * \param QDDot the generalized accelerations of the joints
  */
-void UpdateKinematicsCustom (Model &model,
-		const Math::VectorNd *Q,
-		const Math::VectorNd *QDot,
-		const Math::VectorNd *QDDot
-		);
+RBDL_DLLAPI void UpdateKinematicsCustom (Model &model,
+    const Math::VectorNd *Q,
+    const Math::VectorNd *QDot,
+    const Math::VectorNd *QDDot
+    );
 
 /** \brief Returns the base coordinates of a point given in body coordinates.
  *
  * \param model the rigid body model
  * \param Q the curent genereralized positions
  * \param body_id id of the body for which the point coordinates are expressed
- * \param point_body_coordinates coordinates of the point in body coordinates
+ * \param body_point_position coordinates of the point in body coordinates
  * \param update_kinematics whether UpdateKinematics() should be called
  * or not (default: true)
  *
  * \returns a 3-D vector with coordinates of the point in base coordinates
  */
-Math::Vector3d CalcBodyToBaseCoordinates (
-		Model &model,
-		const Math::VectorNd &Q,
-		unsigned int body_id,
-		const Math::Vector3d &body_point_position,
-		bool update_kinematics = true);
-
-/**
- Calculate a jacobian with the body as root of the chain
- */
-void CalcPoseJacobianBodyFrame (
+RBDL_DLLAPI Math::Vector3d CalcBodyToBaseCoordinates (
     Model &model,
     const Math::VectorNd &Q,
     unsigned int body_id,
-    const Math::Vector3d &point_position,
-    Math::MatrixNd &G,
-    bool update_kinematics = true
-    );
+    const Math::Vector3d &body_point_position,
+    bool update_kinematics = true);
 
 /** \brief Returns the body coordinates of a point given in base coordinates.
  *
  * \param model the rigid body model
  * \param Q the curent genereralized positions
  * \param body_id id of the body for which the point coordinates are expressed
- * \param point_base_coordinates coordinates of the point in base coordinates
+ * \param base_point_position coordinates of the point in base coordinates
  * \param update_kinematics whether UpdateKinematics() should be called or not
  * (default: true).
  *
  * \returns a 3-D vector with coordinates of the point in body coordinates
  */
-Math::Vector3d CalcBaseToBodyCoordinates (
-		Model &model,
-		const Math::VectorNd &Q,
-		unsigned int body_id,
-		const Math::Vector3d &base_point_position,
-		bool update_kinematics = true);
+RBDL_DLLAPI Math::Vector3d CalcBaseToBodyCoordinates (
+    Model &model,
+    const Math::VectorNd &Q,
+    unsigned int body_id,
+    const Math::Vector3d &base_point_position,
+    bool update_kinematics = true);
 
 /** \brief Returns the orientation of a given body as 3x3 matrix
  *
@@ -118,11 +112,11 @@ Math::Vector3d CalcBaseToBodyCoordinates (
  * \returns An orthonormal 3x3 matrix that rotates vectors from base coordinates
  * to body coordinates.
  */
-Math::Matrix3d CalcBodyWorldOrientation (
-		Model &model,
-		const Math::VectorNd &Q,
-		const unsigned int body_id,
-		bool update_kinematics = true);
+RBDL_DLLAPI Math::Matrix3d CalcBodyWorldOrientation (
+    Model &model,
+    const Math::VectorNd &Q,
+    const unsigned int body_id,
+    bool update_kinematics = true);
 
 /** \brief Computes the point jacobian for a point on a body
  *
@@ -134,106 +128,94 @@ Math::Matrix3d CalcBodyWorldOrientation (
  * \param Q       state vector of the internal joints
  * \param body_id the id of the body
  * \param point_position the position of the point in body-local data
- * \param G       a matrix where the result will be stored in
+ * \param G       a matrix of dimensions 3 x \#qdot_size where the result will be stored in
  * \param update_kinematics whether UpdateKinematics() should be called or not (default: true)
  *
- * \returns A 3 x \#dof_count matrix of the point jacobian
+ * The result will be returned via the G argument.
+ *
+ * \note This function only evaluates the entries of G that are non-zero. One
+ * Before calling this function one has to ensure that all other values
+ * have been set to zero, e.g. by calling G.setZero().
+ *
+ */ 
+RBDL_DLLAPI void CalcPointJacobian (Model &model,
+    const Math::VectorNd &Q,
+    unsigned int body_id,
+    const Math::Vector3d &point_position,
+    Math::MatrixNd &G,
+    bool update_kinematics = true
+    );
+
+RBDL_DLLAPI void CalcOrientationJacobian (Model &model,
+    const Math::VectorNd &Q,
+    unsigned int body_id,
+    Math::MatrixNd &G,
+    bool update_kinematics = true
+    );
+
+/** \brief Computes a 6-D Jacobian for a point on a body
+ *
+ * Computes the 6-D Jacobian \f$G(q)\f$ that when multiplied with
+ * \f$\dot{q}\f$ gives a 6-D vector that has the angular velocity as the
+ * first three entries and the linear velocity as the last three entries.
+ *
+ * \param model   rigid body model
+ * \param Q       state vector of the internal joints
+ * \param body_id the id of the body
+ * \param point_position the position of the point in body-local data
+ * \param G       a matrix of dimensions 6 x \#qdot_size where the result will be stored in
+ * \param update_kinematics whether UpdateKinematics() should be called or not (default: true)
+ *
+ * The result will be returned via the G argument.
+ *
+ * \note This function only evaluates the entries of G that are non-zero. One
+ * Before calling this function one has to ensure that all other values
+ * have been set to zero, e.g. by calling G.setZero().
+ *
+ */ 
+RBDL_DLLAPI void CalcPointJacobian6D (Model &model,
+    const Math::VectorNd &Q,
+    unsigned int body_id,
+    const Math::Vector3d &point_position,
+    Math::MatrixNd &G,
+    bool update_kinematics = true
+    );
+
+RBDL_DLLAPI void CalcPointJacobian6DBodyFrame (Model &model,
+    const Math::VectorNd &Q,
+    unsigned int body_id,
+    const Math::Vector3d &point_position,
+    Math::MatrixNd &G,
+    bool update_kinematics = true
+    );
+
+/** \brief Computes the spatial jacobian for a body
+ *
+ * The spatial velocity of a body at the origin of the base coordinate
+ * system can be expressed as \f${}^0 \hat{v}_i = G(q) * \dot{q}\f$. The
+ * matrix \f$G(q)\f$ is called the spatial body jacobian of the body and
+ * can be computed using this function.
+ *
+ * \param model   rigid body model
+ * \param Q       state vector of the internal joints
+ * \param body_id the id of the body
+ * \param G       a matrix of size 6 x \#qdot_size where the result will be stored in
+ * \param update_kinematics whether UpdateKinematics() should be called or not (default: true)
+ *
+ * The result will be returned via the G argument and represents the
+ * body Jacobian expressed at the origin of the body.
+ *
+ * \note This function only evaluates the entries of G that are non-zero. One
+ * Before calling this function one has to ensure that all other values
+ * have been set to zero, e.g. by calling G.setZero().
  */
-void CalcPointJacobian (Model &model,
-		const Math::VectorNd &Q,
-		unsigned int body_id,
-		const Math::Vector3d &point_position,
-		Math::MatrixNd &G,
-		bool update_kinematics = true
-		);
-
-/// @todo document
-void CalcOrientationJacobian (Model &model,
-    const Math::VectorNd &Q,
-    unsigned int body_id,
-    const Math::Vector3d &point_position,
-    Math::MatrixNd &G,
-    bool update_kinematics = true
-    );
-
-
-/// @todo: document
-void CalcPoseJacobian (Model &model,
-		const Math::VectorNd &Q,
-		unsigned int body_id,
-		const Math::Vector3d &point_position,
-		Math::MatrixNd &G,
-		bool update_kinematics = true
-		);
-
-void CalcPoseJacobianGlobalFrame (Model &model,
+RBDL_DLLAPI void CalcBodySpatialJacobian (
+    Model &model,
     const Math::VectorNd &Q,
     unsigned int body_id,
     Math::MatrixNd &G,
     bool update_kinematics = true
     );
-
-/// @todo: document
-void CalcPointJacobianGlobalFrame (Model &model,
-		const Math::VectorNd &Q,
-		unsigned int body_id,
-		const Math::Vector3d &point_position,
-		Math::MatrixNd &G,
-		bool update_kinematics = true
-		);
-
-/* THIS DOES NOT WORK DO TO THAT SPATIAL ACCELERATIONS DO NOT MAP TO 3D ACCELERATIONS AS EASY AS SPATIAL VELOCITIES DO
-
-void CalcPoseJacobianDot (
-    Model &model,
-    const Math::VectorNd &Q,
-    const Math::VectorNd &QDot,
-    unsigned int body_id,
-    const Math::Vector3d &point_position,
-    Math::MatrixNd &G,
-    bool update_kinematics = true
-    );
-*/
-
-
-/// @todo: document, and the COM of each link has to be taken into account
-void CalcCOMJacobian(
-    Model &model,
-    const Math::VectorNd &Q,
-    Math::MatrixNd &COMJ,
-    bool update_kinematics = true
-    );
-
-
-/// @todo: document
-void CalcCOMJacobian_ineficient (
-    Model &model,
-    const Math::VectorNd &Q,
-    Math::MatrixNd &COMJ,
-    bool update_kinematics = true
-    );
-
-Math::Vector3d CalCOM(Model &model,
-                const Math::VectorNd &Q,
-                bool update_kinematics = true);
-
-
-Math::Vector3d CalCOMVelocity(Model &model,
-                const Math::VectorNd &Q,
-                const Math::VectorNd &QDot,
-                bool update_kinematics = true);
-
-Math::Vector3d CalCOMAcceleartion(Model &model,
-                const Math::VectorNd &Q,
-                const Math::VectorNd &QDot,
-                const Math::VectorNd &QDDot,
-                bool update_kinematics = true);
-
-Math::Vector3d CalCOMAccelerationBias(Model &model,
-                const Math::VectorNd &Q,
-                const Math::VectorNd &QDot,
-                bool update_kinematics = true);
-
 
 /** \brief Computes the velocity of a point on a body 
  *
@@ -246,25 +228,48 @@ Math::Vector3d CalCOMAccelerationBias(Model &model,
  *
  * \returns The cartesian velocity of the point in global frame (output)
  */
-Math::Vector3d CalcPointVelocity (
-		Model &model,
-		const Math::VectorNd &Q,
-		const Math::VectorNd &QDot,
-		unsigned int body_id,
-		const Math::Vector3d &point_position,
-		bool update_kinematics = true
-		);
-/// @todo document
-Math::Vector3d CalcPointAngularVelocity (
+RBDL_DLLAPI Math::Vector3d CalcPointVelocity (
     Model &model,
     const Math::VectorNd &Q,
     const Math::VectorNd &QDot,
     unsigned int body_id,
     const Math::Vector3d &point_position,
     bool update_kinematics = true
-  );
+    );
 
-/** \brief Computes the acceleration of a point on a body 
+RBDL_DLLAPI Math::Vector3d CalcPointAngularVelocity (
+    Model &model,
+    const Math::VectorNd &Q,
+    const Math::VectorNd &QDot,
+    unsigned int body_id,
+    const Math::Vector3d &point_position,
+    bool update_kinematics = true
+    );
+
+/** \brief Computes angular and linear velocity of a point that is fixed on a body
+ *
+ * \param model   rigid body model
+ * \param Q       state vector of the internal joints
+ * \param QDot    velocity vector of the internal joints
+ * \param body_id the id of the body
+ * \param point_position the position of the point in body-local data
+ * \param update_kinematics whether UpdateKinematics() should be called or not (default: true)
+ *
+ * \returns The a 6-D vector for which the first three elements are the
+ * angular velocity and the last three elements the linear velocity in the
+ * global reference system.
+ */
+RBDL_DLLAPI
+  Math::SpatialVector CalcPointVelocity6D (
+      Model &model,
+      const Math::VectorNd &Q,
+      const Math::VectorNd &QDot,
+      unsigned int body_id,
+      const Math::Vector3d &point_position,
+      bool update_kinematics = true
+      );
+
+/** \brief Computes the linear acceleration of a point on a body 
  *
  * \param model   rigid body model
  * \param Q       state vector of the internal joints
@@ -281,59 +286,76 @@ Math::Vector3d CalcPointAngularVelocity (
  * UpdateKinematics() or setting the last parameter update_kinematics to
  * true (default).
  *
- * \note During the execution of ForwardDynamics() the acceleration
- * is only applied on the root body and propagated form there. Therefore
- * in the internal state the accelerations of the bodies only represent
- * the relative accelerations without any gravitational effects.
+ * \warning  If this function is called after ForwardDynamics() without
+ * an update of the kinematic state one has to add the gravity
+ * acceleration has to be added to the result.
+ */
+RBDL_DLLAPI
+  Math::Vector3d CalcPointAcceleration (
+      Model &model,
+      const Math::VectorNd &Q,
+      const Math::VectorNd &QDot,
+      const Math::VectorNd &QDDot,
+      unsigned int body_id,
+      const Math::Vector3d &point_position,
+      bool update_kinematics = true
+      );
+
+RBDL_DLLAPI
+  Math::Vector3d CalcPointAccelerationBias(
+      Model &model,
+      const Math::VectorNd &Q,
+      const Math::VectorNd &QDot,
+      unsigned int body_id,
+      const Math::Vector3d &point_position,
+      bool update_kinematics = true
+      );
+
+/** \brief Computes linear and angular acceleration of a point on a body 
+ *
+ * \param model   rigid body model
+ * \param Q       state vector of the internal joints
+ * \param QDot    velocity vector of the internal joints
+ * \param QDDot    velocity vector of the internal joints
+ * \param body_id the id of the body
+ * \param point_position the position of the point in body-local data
+ * \param update_kinematics whether UpdateKinematics() should be called or not (default: true)
+ *
+ * \returns A 6-D vector where the first three elements are the angular
+ * acceleration and the last three elements the linear accelerations of
+ * the point.
+ *
+ * The kinematic state of the model has to be updated before valid
+ * values can be obtained. This can either be done by calling
+ * UpdateKinematics() or setting the last parameter update_kinematics to
+ * true (default).
  *
  * \warning  If this function is called after ForwardDynamics() without
  * an update of the kinematic state one has to add the gravity
  * acceleration has to be added to the result.
  */
+RBDL_DLLAPI
+  Math::SpatialVector CalcPointAcceleration6D (
+      Model &model,
+      const Math::VectorNd &Q,
+      const Math::VectorNd &QDot,
+      const Math::VectorNd &QDDot,
+      unsigned int body_id,
+      const Math::Vector3d &point_position,
+      bool update_kinematics = true
+      );
 
-/// @todo this two functions need heavy optimization
-Math::Vector3d CalcPointAcceleration (
-		Model &model,
-		const Math::VectorNd &Q,
-		const Math::VectorNd &QDot,
-		const Math::VectorNd &QDDot,
-		unsigned int body_id,
-		const Math::Vector3d &point_position,
-		bool update_kinematics = true
-	);
+RBDL_DLLAPI
+  Math::SpatialVector CalcPointAcceleration6DBias (
+      Model &model,
+      const Math::VectorNd &Q,
+      const Math::VectorNd &QDot,
+      unsigned int body_id,
+      const Math::Vector3d &point_position,
+      bool update_kinematics = true
+      );
 
-
-Math::Vector3d CalcPointAccelerationBias (
-    Model &model,
-    const Math::VectorNd &Q,
-    const Math::VectorNd &QDot,
-    unsigned int body_id,
-    const Math::Vector3d &point_position,
-    bool update_kinematics = true
-    );
-
-
-Math::SpatialVector CalcPoseAccelerationBias (
-    Model &model,
-    const Math::VectorNd &Q,
-    const Math::VectorNd &QDot,
-    unsigned int body_id,
-    const Math::Vector3d &point_position,
-    bool update_kinematics = true
-    );
-
-
-Math::SpatialVector CalcPoseAccelerationBiasGlobalFrame (
-    Model &model,
-    const Math::VectorNd &Q,
-    const Math::VectorNd &QDot,
-    unsigned int body_id,
-    const Math::Vector3d &point_position,
-    bool update_kinematics = true
-    );
-
-
-/** \brief Computes the inverse kinematics iteratively using a damped Levenberg-Marquardt method
+/** \brief Computes the inverse kinematics iteratively using a damped Levenberg-Marquardt method (also known as Damped Least Squares method)
  *
  * \param model rigid body model
  * \param Qinit initial guess for the state
@@ -364,20 +386,22 @@ Math::SpatialVector CalcPoseAccelerationBiasGlobalFrame (
  * \warning The actual accuracy might be rather low (~1.0e-2)! Use this function with a
  * grain of suspicion.
  */
-bool InverseKinematics (
-		Model &model,
-		const Math::VectorNd &Qinit,
-		const std::vector<unsigned int>& body_id,
-		const std::vector<Math::Vector3d>& body_point,
-		const std::vector<Math::Vector3d>& target_pos,
-		Math::VectorNd &Qres,
-		double step_tol = 1.0e-12,
-		double lambda = 0.01,
-		unsigned int max_iter = 50
-		);
+RBDL_DLLAPI
+  bool InverseKinematics (
+      Model &model,
+      const Math::VectorNd &Qinit,
+      const std::vector<unsigned int>& body_id,
+      const std::vector<Math::Vector3d>& body_point,
+      const std::vector<Math::Vector3d>& target_pos,
+      Math::VectorNd &Qres,
+      double step_tol = 1.0e-12,
+      double lambda = 0.01,
+      unsigned int max_iter = 50
+      );
 
 /** @} */
 
 }
 
-#endif /* _KINEMATICS_H */
+/* RBDL_KINEMATICS_H */
+#endif 

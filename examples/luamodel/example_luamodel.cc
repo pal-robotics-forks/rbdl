@@ -1,6 +1,6 @@
 /*
  * RBDL - Rigid Body Dynamics Library
- * Copyright (c) 2011-2012 Martin Felis <martin.felis@iwr.uni-heidelberg.de>
+ * Copyright (c) 2011-2016 Martin Felis <martin.felis@iwr.uni-heidelberg.de>
  *
  * Licensed under the zlib license. See LICENSE for more details.
  */
@@ -9,8 +9,8 @@
 
 #include <rbdl/rbdl.h>
 
-#ifndef BUILD_ADDON_LUAMODEL
-	#error "Error: RBDL addon BUILD_LUAMODELS not activated."
+#ifndef RBDL_BUILD_ADDON_LUAMODEL
+	#error "Error: RBDL addon LuaModel not enabled."
 #endif
 
 #include <rbdl/addons/luamodel/luamodel.h>
@@ -25,7 +25,7 @@ int main (int argc, char* argv[]) {
 
 	model = new Model();
 
-	if (!Addons::LuaModelReadFromFile ("./samplemodel.lua", model, true)) {
+	if (!Addons::LuaModelReadFromFile ("./samplemodel.lua", model, false)) {
 		std::cerr << "Error loading model ./samplemodel.lua" << std::endl;
 		abort();
 	}

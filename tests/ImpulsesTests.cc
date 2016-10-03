@@ -16,242 +16,264 @@ using namespace RigidBodyDynamics::Math;
 const double TEST_PREC = 1.0e-14;
 
 struct ImpulsesFixture {
-	ImpulsesFixture () {
-		ClearLogOutput();
-		model = new Model;
+  ImpulsesFixture () {
+    ClearLogOutput();
+    model = new Model;
 
-		model->gravity = Vector3d (0., -9.81, 0.);
+    model->gravity = Vector3d (0., -9.81, 0.);
 
-		/* Basically a model like this, where X are the Center of Masses
-		 * and the CoM of the last (3rd) body comes out of the Y=X=0 plane.
-		 *
-		 *                X
-		 *                *
-		 *              _/
-		 *            _/  (-Z)
-		 *      Z    /
-		 *      *---* 
-		 *      |
-		 *      |
-		 *  Z   |
-		 *  O---*
-		 *      Y
-		 */
+    // base body
+    base = Body (
+        1.,
+        Vector3d (0., 1., 0.),
+        Vector3d (1., 1., 1.)
+        );
+    joint_rotzyx = Joint (
+        SpatialVector (0., 0., 1., 0., 0., 0.),
+        SpatialVector (0., 1., 0., 0., 0., 0.),
+        SpatialVector (1., 0., 0., 0., 0., 0.)
+        );
+    base_id = model->AddBody (0, Xtrans (Vector3d (0., 0., 0.)), joint_rotzyx, base);
 
-		// base body
-		base_rot_z = Body (
-				0.,
-				Vector3d (0., 0., 0.),
-				Vector3d (0., 0., 0.)
-				);
-		joint_base_rot_z = Joint (
-				JointTypeRevolute,
-				Vector3d (0., 0., 1.)
-				);
-		base_rot_z_id = model->AddBody (0, Xtrans (Vector3d (0., 0., 0.)), joint_base_rot_z, base_rot_z);
+    // child body (3 DoF)
+    child = Body (
+        1.,
+        Vector3d (0., 1., 0.),
+        Vector3d (1., 1., 1.)
+        );
+    child_id = model->AddBody (base_id, Xtrans (Vector3d (1., 0., 0.)), joint_rotzyx, child);
 
-		base_rot_y = Body (
-				0.,
-				Vector3d (0., 0., 0.),
-				Vector3d (0., 0., 0.)
-				);
-		joint_base_rot_y = Joint (
-				JointTypeRevolute,
-				Vector3d (0., 1., 0.)
-				);
-		base_rot_y_id = model->AddBody (base_rot_z_id, Xtrans (Vector3d (0., 0., 0.)), joint_base_rot_y, base_rot_y);
+    Q = VectorNd::Zero(model->dof_count);
+    QDot = VectorNd::Zero(model->dof_count);
+    QDDot = VectorNd::Zero(model->dof_count);
+    Tau = VectorNd::Zero(model->dof_count);
 
-		base_rot_x = Body (
-				1.,
-				Vector3d (0., 1., 0.),
-				Vector3d (1., 1., 1.)
-				);
-		joint_base_rot_x = Joint (
-				JointTypeRevolute,
-				Vector3d (1., 0., 0.)
-				);
-		base_rot_x_id = model->AddBody (base_rot_y_id, Xtrans (Vector3d (0., 0., 0.)), joint_base_rot_x, base_rot_x);
+    contact_body_id = child_id;
+    contact_point = Vector3d (0., 1., 0.);
+    contact_normal = Vector3d (0., 1., 0.);
 
-		// child body
-		child_rot_z = Body (
-				0.,
-				Vector3d (0., 0., 0.),
-				Vector3d (0., 0., 0.)
-				);
-		joint_child_rot_z = Joint (
-				JointTypeRevolute,
-				Vector3d (0., 0., 1.)
-				);
-		child_rot_z_id = model->AddBody (base_rot_x_id, Xtrans (Vector3d (1., 0., 0.)), joint_child_rot_z, child_rot_z);
+    ClearLogOutput();
+  }
 
-		child_rot_y = Body (
-				0.,
-				Vector3d (0., 0., 0.),
-				Vector3d (0., 0., 0.)
-				);
-		joint_child_rot_y = Joint (
-				JointTypeRevolute,
-				Vector3d (0., 1., 0.)
-				);
-		child_rot_y_id = model->AddBody (child_rot_z_id, Xtrans (Vector3d (0., 0., 0.)), joint_child_rot_y, child_rot_y);
+  ~ImpulsesFixture () {
+    delete model;
+  }
+  Model *model;
 
-		child_rot_x = Body (
-				1.,
-				Vector3d (0., 1., 0.),
-				Vector3d (1., 1., 1.)
-				);
-		joint_child_rot_x = Joint (
-				JointTypeRevolute,
-				Vector3d (1., 0., 0.)
-				);
-		child_rot_x_id = model->AddBody (child_rot_y_id, Xtrans (Vector3d (0., 0., 0.)), joint_child_rot_x, child_rot_x);
+  unsigned int base_id, child_id;
+  Body base, child;
+  Joint joint_rotzyx;
 
-		Q = VectorNd::Zero(model->dof_count);
-		QDot = VectorNd::Zero(model->dof_count);
-		QDDot = VectorNd::Zero(model->dof_count);
-		Tau = VectorNd::Zero(model->dof_count);
+  VectorNd Q;
+  VectorNd QDot;
+  VectorNd QDDot;
+  VectorNd Tau;
 
-		contact_body_id = child_rot_x_id;
-		contact_point = Vector3d (0., 1., 0.);
-		contact_normal = Vector3d (0., 1., 0.);
-
-		ClearLogOutput();
-	}
-	
-	~ImpulsesFixture () {
-		delete model;
-	}
-	Model *model;
-
-	unsigned int base_rot_z_id, base_rot_y_id, base_rot_x_id,
-		child_rot_z_id, child_rot_y_id, child_rot_x_id;
-
-	Body base_rot_z, base_rot_y, base_rot_x,
-		child_rot_z, child_rot_y, child_rot_x;
-
-	Joint joint_base_rot_z, joint_base_rot_y, joint_base_rot_x,
-		joint_child_rot_z, joint_child_rot_y, joint_child_rot_x;
-
-	VectorNd Q;
-	VectorNd QDot;
-	VectorNd QDDot;
-	VectorNd Tau;
-
-	unsigned int contact_body_id;
-	Vector3d contact_point;
-	Vector3d contact_normal;
-	ConstraintSet constraint_set;
+  unsigned int contact_body_id;
+  Vector3d contact_point;
+  Vector3d contact_normal;
+  ConstraintSet constraint_set;
 };
 
 TEST_FIXTURE(ImpulsesFixture, TestContactImpulse) {
-	constraint_set.AddConstraint(contact_body_id, contact_point, Vector3d (1., 0., 0.), NULL, 0.); 
-	constraint_set.AddConstraint(contact_body_id, contact_point, Vector3d (0., 1., 0.), NULL, 0.); 
-	constraint_set.AddConstraint(contact_body_id, contact_point, Vector3d (0., 0., 1.), NULL, 0.); 
+  constraint_set.AddConstraint(contact_body_id, contact_point, Vector3d (1., 0., 0.), NULL, 0.); 
+  constraint_set.AddConstraint(contact_body_id, contact_point, Vector3d (0., 1., 0.), NULL, 0.); 
+  constraint_set.AddConstraint(contact_body_id, contact_point, Vector3d (0., 0., 1.), NULL, 0.); 
 
-	constraint_set.Bind (*model);
+  constraint_set.Bind (*model);
 
-	QDot[0] = 0.1;
-	QDot[1] = -0.2;
-	QDot[2] = 0.1;
+  constraint_set.v_plus[0] = 0.;
+  constraint_set.v_plus[1] = 0.;
+  constraint_set.v_plus[2] = 0.;
 
-	Vector3d point_velocity;
-	{
-		SUPPRESS_LOGGING;
-		point_velocity = CalcPointVelocity (*model, Q, QDot, contact_body_id, contact_point, true);
-	}
+  QDot[0] = 0.1;
+  QDot[1] = -0.2;
+  QDot[2] = 0.1;
 
-	// cout << "Point Velocity = " << point_velocity << endl;
+  Vector3d point_velocity;
+  {
+    SUPPRESS_LOGGING;
+    point_velocity = CalcPointVelocity (*model, Q, QDot, contact_body_id, contact_point, true);
+  }
 
-	VectorNd qdot_post (QDot.size());
-	ComputeContactImpulsesLagrangian (*model, Q, QDot, constraint_set, qdot_post);
-	// cout << LogOutput.str() << endl;
-	// cout << "QdotPost = " << qdot_post << endl;
+  // cout << "Point Velocity = " << point_velocity << endl;
 
-	{
-		SUPPRESS_LOGGING;
-		point_velocity = CalcPointVelocity (*model, Q, qdot_post, contact_body_id, contact_point, true);
-	}
+  VectorNd qdot_post (QDot.size());
+  ComputeContactImpulsesDirect (*model, Q, QDot, constraint_set, qdot_post);
+  // cout << LogOutput.str() << endl;
+  // cout << "QdotPost = " << qdot_post << endl;
 
-	// cout << "Point Velocity = " << point_velocity << endl;
-	CHECK_ARRAY_CLOSE (Vector3d (0., 0., 0.).data(), point_velocity.data(), 3, TEST_PREC);
+  {
+    SUPPRESS_LOGGING;
+    point_velocity = CalcPointVelocity (*model, Q, qdot_post, contact_body_id, contact_point, true);
+  }
+
+  // cout << "Point Velocity = " << point_velocity << endl;
+  CHECK_ARRAY_CLOSE (Vector3d (0., 0., 0.).data(), point_velocity.data(), 3, TEST_PREC);
 }
 
 TEST_FIXTURE(ImpulsesFixture, TestContactImpulseRotated) {
-	constraint_set.AddConstraint(contact_body_id, contact_point, Vector3d (1., 0., 0.), NULL, 0.); 
-	constraint_set.AddConstraint(contact_body_id, contact_point, Vector3d (0., 1., 0.), NULL, 0.); 
-	constraint_set.AddConstraint(contact_body_id, contact_point, Vector3d (0., 0., 1.), NULL, 0.); 
+  constraint_set.AddConstraint(contact_body_id, contact_point, Vector3d (1., 0., 0.), NULL, 0.); 
+  constraint_set.AddConstraint(contact_body_id, contact_point, Vector3d (0., 1., 0.), NULL, 0.); 
+  constraint_set.AddConstraint(contact_body_id, contact_point, Vector3d (0., 0., 1.), NULL, 0.); 
 
-	constraint_set.Bind (*model);
+  constraint_set.Bind (*model);
 
-	Q[0] = 0.2;
-	Q[1] = -0.5;
-	Q[2] = 0.1;
-	Q[3] = -0.4;
-	Q[4] = -0.1;
-	Q[5] = 0.4;
+  constraint_set.v_plus[0] = 0.;
+  constraint_set.v_plus[1] = 0.;
+  constraint_set.v_plus[2] = 0.;
 
-	QDot[0] = 0.1;
-	QDot[1] = -0.2;
-	QDot[2] = 0.1;
+  Q[0] = 0.2;
+  Q[1] = -0.5;
+  Q[2] = 0.1;
+  Q[3] = -0.4;
+  Q[4] = -0.1;
+  Q[5] = 0.4;
 
-	Vector3d point_velocity;
-	{
-		SUPPRESS_LOGGING;
-		point_velocity = CalcPointVelocity (*model, Q, QDot, contact_body_id, contact_point, true);
-	}
+  QDot[0] = 0.1;
+  QDot[1] = -0.2;
+  QDot[2] = 0.1;
 
-	// cout << "Point Velocity = " << point_velocity << endl;
-	VectorNd qdot_post (QDot.size());
-	ComputeContactImpulsesLagrangian (*model, Q, QDot, constraint_set, qdot_post);
-	// cout << LogOutput.str() << endl;
-	// cout << "QdotPost = " << qdot_post << endl;
+  Vector3d point_velocity;
+  {
+    SUPPRESS_LOGGING;
+    point_velocity = CalcPointVelocity (*model, Q, QDot, contact_body_id, contact_point, true);
+  }
 
-	{
-		SUPPRESS_LOGGING;
-		point_velocity = CalcPointVelocity (*model, Q, qdot_post, contact_body_id, contact_point, true);
-	}
+  // cout << "Point Velocity = " << point_velocity << endl;
+  VectorNd qdot_post (QDot.size());
+  ComputeContactImpulsesDirect (*model, Q, QDot, constraint_set, qdot_post);
+  // cout << LogOutput.str() << endl;
+  // cout << "QdotPost = " << qdot_post << endl;
 
-	// cout << "Point Velocity = " << point_velocity << endl;
-	CHECK_ARRAY_CLOSE (Vector3d (0., 0., 0.).data(), point_velocity.data(), 3, TEST_PREC);
+  {
+    SUPPRESS_LOGGING;
+    point_velocity = CalcPointVelocity (*model, Q, qdot_post, contact_body_id, contact_point, true);
+  }
+
+  // cout << "Point Velocity = " << point_velocity << endl;
+  CHECK_ARRAY_CLOSE (Vector3d (0., 0., 0.).data(), point_velocity.data(), 3, TEST_PREC);
 }
 
 TEST_FIXTURE(ImpulsesFixture, TestContactImpulseRotatedCollisionVelocity) {
-	constraint_set.AddConstraint(contact_body_id, contact_point, Vector3d (1., 0., 0.), NULL, 1.); 
-	constraint_set.AddConstraint(contact_body_id, contact_point, Vector3d (0., 1., 0.), NULL, 2.); 
-	constraint_set.AddConstraint(contact_body_id, contact_point, Vector3d (0., 0., 1.), NULL, 3.); 
+  constraint_set.AddConstraint(contact_body_id, contact_point, Vector3d (1., 0., 0.), NULL, 1.); 
+  constraint_set.AddConstraint(contact_body_id, contact_point, Vector3d (0., 1., 0.), NULL, 2.); 
+  constraint_set.AddConstraint(contact_body_id, contact_point, Vector3d (0., 0., 1.), NULL, 3.); 
 
-	constraint_set.Bind (*model);
+  constraint_set.Bind (*model);
 
-	Q[0] = 0.2;
-	Q[1] = -0.5;
-	Q[2] = 0.1;
-	Q[3] = -0.4;
-	Q[4] = -0.1;
-	Q[5] = 0.4;
+  constraint_set.v_plus[0] = 1.;
+  constraint_set.v_plus[1] = 2.;
+  constraint_set.v_plus[2] = 3.;
 
-	QDot[0] = 0.1;
-	QDot[1] = -0.2;
-	QDot[2] = 0.1;
+  Q[0] = 0.2;
+  Q[1] = -0.5;
+  Q[2] = 0.1;
+  Q[3] = -0.4;
+  Q[4] = -0.1;
+  Q[5] = 0.4;
 
-	Vector3d point_velocity;
-	{
-		SUPPRESS_LOGGING;
-		point_velocity = CalcPointVelocity (*model, Q, QDot, contact_body_id, contact_point, true);
-	}
+  QDot[0] = 0.1;
+  QDot[1] = -0.2;
+  QDot[2] = 0.1;
 
-	// cout << "Point Velocity = " << point_velocity << endl;
+  Vector3d point_velocity;
+  {
+    SUPPRESS_LOGGING;
+    point_velocity = CalcPointVelocity (*model, Q, QDot, contact_body_id, contact_point, true);
+  }
 
-	VectorNd qdot_post (QDot.size());
-	ComputeContactImpulsesLagrangian (*model, Q, QDot, constraint_set, qdot_post);
-	
-	// cout << LogOutput.str() << endl;
-	// cout << "QdotPost = " << qdot_post << endl;
+  // cout << "Point Velocity = " << point_velocity << endl;
 
-	{
-		SUPPRESS_LOGGING;
-		point_velocity = CalcPointVelocity (*model, Q, qdot_post, contact_body_id, contact_point, true);
-	}
+  VectorNd qdot_post (QDot.size());
+  ComputeContactImpulsesDirect (*model, Q, QDot, constraint_set, qdot_post);
 
-	// cout << "Point Velocity = " << point_velocity << endl;
-	CHECK_ARRAY_CLOSE (Vector3d (1., 2., 3.).data(), point_velocity.data(), 3, TEST_PREC);
+  // cout << LogOutput.str() << endl;
+  // cout << "QdotPost = " << qdot_post << endl;
+
+  {
+    SUPPRESS_LOGGING;
+    point_velocity = CalcPointVelocity (*model, Q, qdot_post, contact_body_id, contact_point, true);
+  }
+
+  // cout << "Point Velocity = " << point_velocity << endl;
+  CHECK_ARRAY_CLOSE (Vector3d (1., 2., 3.).data(), point_velocity.data(), 3, TEST_PREC);
+}
+
+TEST_FIXTURE(ImpulsesFixture, TestContactImpulseRangeSpaceSparse) {
+  Q[0] = 0.2;
+  Q[1] = -0.5;
+  Q[2] = 0.1;
+  Q[3] = -0.4;
+  Q[4] = -0.1;
+  Q[5] = 0.4;
+
+  QDot[0] = 0.1;
+  QDot[1] = -0.2;
+  QDot[2] = 0.1;
+
+  constraint_set.AddConstraint(contact_body_id, contact_point, Vector3d (1., 0., 0.), NULL, 1.); 
+  constraint_set.AddConstraint(contact_body_id, contact_point, Vector3d (0., 1., 0.), NULL, 2.); 
+  constraint_set.AddConstraint(contact_body_id, contact_point, Vector3d (0., 0., 1.), NULL, 3.); 
+
+  constraint_set.Bind (*model);
+
+  constraint_set.v_plus[0] = 1.;
+  constraint_set.v_plus[1] = 2.;
+  constraint_set.v_plus[2] = 3.;
+
+  ConstraintSet constraint_set_rangespace;
+  constraint_set_rangespace = constraint_set.Copy();
+  constraint_set_rangespace.Bind (*model);
+
+  VectorNd qdot_post_direct (QDot.size());
+  ComputeContactImpulsesDirect (*model, Q, QDot, constraint_set, qdot_post_direct);
+
+  VectorNd qdot_post_rangespace (QDot.size());
+  ComputeContactImpulsesRangeSpaceSparse (*model, Q, QDot, constraint_set_rangespace, qdot_post_rangespace);
+
+  Vector3d point_velocity_direct = CalcPointVelocity (*model, Q, qdot_post_direct, contact_body_id, contact_point, true);
+  Vector3d point_velocity_rangespace = CalcPointVelocity (*model, Q, qdot_post_rangespace, contact_body_id, contact_point, true);
+
+  CHECK_ARRAY_CLOSE (qdot_post_direct.data(), qdot_post_rangespace.data(), qdot_post_direct.rows(), TEST_PREC);
+  CHECK_ARRAY_CLOSE (Vector3d (1., 2., 3.).data(), point_velocity_rangespace.data(), 3, TEST_PREC);
+}
+
+TEST_FIXTURE(ImpulsesFixture, TestContactImpulseNullSpace) {
+  Q[0] = 0.2;
+  Q[1] = -0.5;
+  Q[2] = 0.1;
+  Q[3] = -0.4;
+  Q[4] = -0.1;
+  Q[5] = 0.4;
+
+  QDot[0] = 0.1;
+  QDot[1] = -0.2;
+  QDot[2] = 0.1;
+
+  constraint_set.AddConstraint(contact_body_id, contact_point, Vector3d (1., 0., 0.), NULL, 1.); 
+  constraint_set.AddConstraint(contact_body_id, contact_point, Vector3d (0., 1., 0.), NULL, 2.); 
+  constraint_set.AddConstraint(contact_body_id, contact_point, Vector3d (0., 0., 1.), NULL, 3.); 
+
+  constraint_set.Bind (*model);
+
+  constraint_set.v_plus[0] = 1.;
+  constraint_set.v_plus[1] = 2.;
+  constraint_set.v_plus[2] = 3.;
+
+  ConstraintSet constraint_set_nullspace;
+  constraint_set_nullspace = constraint_set.Copy();
+  constraint_set_nullspace.Bind (*model);
+
+  VectorNd qdot_post_direct (QDot.size());
+  ComputeContactImpulsesDirect (*model, Q, QDot, constraint_set, qdot_post_direct);
+
+  VectorNd qdot_post_nullspace (QDot.size());
+  ComputeContactImpulsesNullSpace (*model, Q, QDot, constraint_set, qdot_post_nullspace);
+
+  Vector3d point_velocity_direct = CalcPointVelocity (*model, Q, qdot_post_direct, contact_body_id, contact_point, true);
+  Vector3d point_velocity_nullspace = CalcPointVelocity (*model, Q, qdot_post_nullspace, contact_body_id, contact_point, true);
+
+  CHECK_ARRAY_CLOSE (qdot_post_direct.data(), qdot_post_nullspace.data(), qdot_post_direct.rows(), TEST_PREC);
+  CHECK_ARRAY_CLOSE (Vector3d (1., 2., 3.).data(), point_velocity_nullspace.data(), 3, TEST_PREC);
 }

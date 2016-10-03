@@ -1,15 +1,17 @@
 cmake_minimum_required(VERSION 2.8.3)
 PROJECT (rbdl)
-# Find and use the system's Eigen3 library
+
 find_package(cmake_modules REQUIRED)
 find_package(Eigen REQUIRED)
-
 find_package(catkin REQUIRED COMPONENTS urdf)
 
+SET(CMAKE_CXX_FLAGS "-std=c++0x ${CMAKE_CXX_FLAGS}")
+
+#message("XXXXXXXXXXXX ${CMAKE_CURRENT_BINARY_DIR} ${CATKIN_BUILD_PREFIX} ${CATKIN_DEVEL_PREFIX}")
 catkin_package(
-  INCLUDE_DIRS include
+  INCLUDE_DIRS include # ${CMAKE_CURRENT_BINARY_DIR}/include
   LIBRARIES rbdl RBDL_URDFParser
-  DEPENDS Eigen
+  DEPENDS Eigen urdf
 )
 
 INCLUDE_DIRECTORIES (
@@ -18,54 +20,121 @@ INCLUDE_DIRECTORIES (
         ${Eigen_INCLUDE_DIRS}
 )
 
+SET ( RBDL_VERSION_MAJOR 2 )
+SET ( RBDL_VERSION_MINOR 5 )
+SET ( RBDL_VERSION_PATCH 0 )
+SET ( RBDL_VERSION 
+	${RBDL_VERSION_MAJOR}.${RBDL_VERSION_MINOR}.${RBDL_VERSION_PATCH}
+)
+SET ( RBDL_SO_VERSION 
+	${RBDL_VERSION_MAJOR}.${RBDL_VERSION_MINOR}.${RBDL_VERSION_PATCH}
+)
+SET (PROJECT_VERSION ${RBDL_VERSION})
+
+LIST( APPEND CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/CMake )
+
+INCLUDE_DIRECTORIES ( 
+	${CMAKE_CURRENT_SOURCE_DIR}/include
+	${CMAKE_CURRENT_BINARY_DIR}/include
+)
+
+# SET (CMAKE_INSTALL_RPATH "${CMAKE_INSTALL_PREFIX}/lib")
+
+INCLUDE(GNUInstallDirs)
+
 SET_TARGET_PROPERTIES ( ${PROJECT_EXECUTABLES} PROPERTIES
 		LINKER_LANGUAGE CXX
 	)
 
-# Perform the proper linking
-SET (CMAKE_SKIP_BUILD_RPATH FALSE)
-SET (CMAKE_BUILD_WITH_INSTALL_RPATH FALSE)
-SET (CMAKE_INSTALL_RPATH "${CMAKE_INSTALL_PREFIX}/lib")
-SET (CMAKE_INSTALL_RPATH_USE_LINK_PATH TRUE)
+# Set a default build type to 'Release' if none was specified
+IF(NOT CMAKE_BUILD_TYPE AND NOT CMAKE_CONFIGURATION_TYPES)
+	MESSAGE(STATUS "Setting build type to 'Release' as none was specified.")
+	SET(CMAKE_BUILD_TYPE Release CACHE STRING "Choose the type of build." FORCE)
+  # Set the possible values of build type for cmake-gui
+  SET_PROPERTY(CACHE CMAKE_BUILD_TYPE PROPERTY STRINGS "Debug" "Release" "MinSizeRel" "RelWithDebInfo")
+ENDIF()
+
+# Find and use the system's Eigen3 library
+FIND_PACKAGE (Eigen3 3.0.0)
+
+IF (NOT EIGEN3_FOUND AND NOT RBDL_USE_SIMPLE_MATH)
+	MESSAGE (WARNING "Could not find Eigen3 on your system. Install it or use the slower SimpleMath library by enabling RBDL_USE_SIMPLE_MATH.")
+ENDIF (NOT EIGEN3_FOUND AND NOT RBDL_USE_SIMPLE_MATH)
+
+IF (EIGEN3_FOUND AND NOT RBDL_USE_SIMPLE_MATH)
+	INCLUDE_DIRECTORIES (${EIGEN3_INCLUDE_DIR})
+ENDIF (EIGEN3_FOUND AND NOT RBDL_USE_SIMPLE_MATH)
 
 # Options
-OPTION (BUILD_STATIC "Build the statically linked library" OFF)
-OPTION (BUILD_TESTS "Build the test executables" OFF)
+OPTION (RBDL_BUILD_STATIC "Build statically linked library (otherwise dynamiclly linked)" OFF)
+OPTION (RBDL_BUILD_TESTS "Build the test executables" OFF)
 OPTION (RBDL_ENABLE_LOGGING "Enable logging (warning: major impact on performance!)" OFF)
+OPTION (RBDL_USE_SIMPLE_MATH "Use slow math instead of the fast Eigen3 library (faster compilation)" OFF)
 OPTION (RBDL_STORE_VERSION "Enable storing of version information in the library (requires build from valid repository)" OFF)
+OPTION (RBDL_BUILD_ADDON_URDFREADER "Build the (experimental) urdf reader" OFF)
+OPTION (RBDL_BUILD_ADDON_BENCHMARK "Build the benchmarking tool" OFF)
+OPTION (RBDL_BUILD_ADDON_LUAMODEL "Build the lua model reader" OFF)
+OPTION (RBDL_BUILD_PYTHON_WRAPPER "Build experimental python wrapper" OFF)
 
+# Addons
+IF (RBDL_BUILD_ADDON_URDFREADER)
+  ADD_SUBDIRECTORY ( addons/urdfreader )
+ENDIF (RBDL_BUILD_ADDON_URDFREADER)
+
+IF (RBDL_BUILD_ADDON_BENCHMARK)
+  ADD_SUBDIRECTORY ( addons/benchmark )
+ENDIF (RBDL_BUILD_ADDON_BENCHMARK)
+
+IF (RBDL_BUILD_ADDON_LUAMODEL)
+  ADD_SUBDIRECTORY ( addons/luamodel )
+ENDIF (RBDL_BUILD_ADDON_LUAMODEL)
+
+
+ ADD_SUBDIRECTORY ( tests )
+
+
+# Source files for RBDL
 SET ( RBDL_SOURCES 
 	src/rbdl_version.cc
 	src/rbdl_mathutils.cc
 	src/rbdl_utils.cc
 	src/Contacts.cc
-    src/Energy.cc
-    src/Dynamics.cc
+	src/Dynamics.cc
 	src/Logging.cc
 	src/Joint.cc
 	src/Model.cc
 	src/Kinematics.cc
+  src/Energy.cc
 	)
 
-ADD_LIBRARY ( rbdl SHARED ${RBDL_SOURCES} )
-
-#IF (BUILD_TESTS)
-	ADD_SUBDIRECTORY ( vendor/UnitTest++ )
-	INCLUDE_DIRECTORIES ( vendor/UnitTest++/src )
-        ADD_SUBDIRECTORY ( tests )
-#ENDIF (BUILD_TESTS)
-
-IF (BUILD_STATIC)
+# Static / dynamic builds
+IF (RBDL_BUILD_STATIC)
   ADD_LIBRARY ( rbdl-static STATIC ${RBDL_SOURCES} )
   SET_TARGET_PROPERTIES ( rbdl-static PROPERTIES PREFIX "lib")
   SET_TARGET_PROPERTIES ( rbdl-static PROPERTIES OUTPUT_NAME "rbdl")
 
-	INSTALL (TARGETS rbdl-static
-	  LIBRARY DESTINATION lib
-  	ARCHIVE DESTINATION lib
-	)
-ENDIF (BUILD_STATIC)
+	IF (RBDL_BUILD_ADDON_LUAMODEL)
+		TARGET_LINK_LIBRARIES ( rbdl-static
+			rbdl_luamodel-static
+			)
+	ENDIF (RBDL_BUILD_ADDON_LUAMODEL)
 
+	INSTALL (TARGETS rbdl-static
+	  LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
+		ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
+	)
+ELSE (RBDL_BUILD_STATIC)
+	ADD_LIBRARY ( rbdl SHARED ${RBDL_SOURCES} )
+	SET_TARGET_PROPERTIES ( rbdl PROPERTIES
+		VERSION ${RBDL_VERSION}
+		SOVERSION ${RBDL_SO_VERSION}
+		)
+
+	INSTALL (TARGETS rbdl
+		LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
+		ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
+		)
+ENDIF (RBDL_BUILD_STATIC)
 
 IF (RBDL_STORE_VERSION)
 	# Set versioning information that can be queried during runtime
@@ -82,21 +151,58 @@ ENDIF (RBDL_STORE_VERSION)
 
 CONFIGURE_FILE (
 	"${CMAKE_CURRENT_SOURCE_DIR}/include/rbdl/rbdl_config.h.cmake" 
-	"${CMAKE_CURRENT_SOURCE_DIR}/include/rbdl/rbdl_config.h"
+	"${CMAKE_CURRENT_BINARY_DIR}/include/rbdl/rbdl_config.h"
 	)
 
-FILE ( GLOB headers 
-	${CMAKE_CURRENT_SOURCE_DIR}/include/rbdl/*.h
-	${CMAKE_CURRENT_SOURCE_DIR}/include/rbdl/rbdl_config.h
-	)
+# Python wrapper
+IF (RBDL_BUILD_PYTHON_WRAPPER)
+	add_subdirectory ( python )
 
-INSTALL ( FILES ${headers} DESTINATION include/rbdl )
+ENDIF (RBDL_BUILD_PYTHON_WRAPPER)
 
-add_library(RBDL_URDFParser addons/urdfreader/RBDL_URDFParser.cpp)
+add_library(RBDL_URDFParser addons/urdfreader/urdfreader.cc)
 target_link_libraries(RBDL_URDFParser ${catkin_LIBRARIES} rbdl)
 
-add_executable(example examples/simple/example.cc)
-target_link_libraries(example ${catkin_LIBRARIES} rbdl)
+# Installation
+FILE ( GLOB headers 
+	${CMAKE_CURRENT_SOURCE_DIR}/include/rbdl/*.h
+	${CMAKE_CURRENT_BINARY_DIR}/include/rbdl/rbdl_config.h
+	)
+
+INSTALL ( FILES ${headers} DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/rbdl )
+
+# Setup of SimpleMath install settings
+IF (RBDL_USE_SIMPLE_MATH)
+	INSTALL ( DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/include/rbdl/SimpleMath"
+		DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/rbdl
+	)
+ENDIF (RBDL_USE_SIMPLE_MATH)
+
+# pkg-config
+CONFIGURE_FILE (
+  ${CMAKE_CURRENT_SOURCE_DIR}/rbdl.pc.cmake
+  ${CMAKE_CURRENT_BINARY_DIR}/rbdl.pc @ONLY
+  )
+INSTALL (
+  FILES  ${CMAKE_CURRENT_BINARY_DIR}/rbdl.pc
+  DESTINATION ${CMAKE_INSTALL_LIBDIR}/pkgconfig
+  )
+
+# Packaging
+SET(CPACK_GENERATOR "DEB")
+SET(CPACK_DEBIAN_PACKAGE_MAINTAINER "Martin Felis <martin.felis@iwr.uni-heidelberg.de>")
+SET(CPACK_PACKAGE_DESCRIPTION_SUMMARY "the Rigid Body Dynamics Library (RBDL)")
+SET(CPACK_PACKAGE_VENDOR "Martin Felis")
+SET(CPACK_PACKAGE_DESCRIPTION_FILE "${CMAKE_CURRENT_SOURCE_DIR}/README.md")
+SET(CPACK_RESOURCE_FILE_LICENSE "${CMAKE_CURRENT_SOURCE_DIR}/LICENSE")
+SET(CPACK_PACKAGE_VERSION_MAJOR ${RBDL_VERSION_MAJOR})
+SET(CPACK_PACKAGE_VERSION_MINOR ${RBDL_VERSION_MINOR})
+SET(CPACK_PACKAGE_VERSION_PATCH ${RBDL_VERSION_PATCH})
+SET(CPACK_PACKAGE_INSTALL_DIRECTORY "CPACK_PACKAGE ${CPACK_PACKAGE_VERSION_MAJOR}.${CPACK_PACKAGE_VERSION_MINOR}")
+SET(CPACK_PACKAGE_FILE_NAME "rbdl-${CMAKE_LIBRARY_ARCHITECTURE}-${CPACK_PACKAGE_VERSION_MAJOR}.${CPACK_PACKAGE_VERSION_MINOR}.${CPACK_PACKAGE_VERSION_PATCH}")
+SET(CPACK_PACKAGE_EXECUTABLES "rbdl_luamodel_util;RBDL Lua Model Utility")
+
+INCLUDE(CPack)
 
 # Installing
 INSTALL (TARGETS rbdl RBDL_URDFParser
@@ -108,5 +214,3 @@ install(DIRECTORY include/
    DESTINATION ${CATKIN_GLOBAL_INCLUDE_DESTINATION}
    FILES_MATCHING PATTERN "*.h"
 )
-
-			

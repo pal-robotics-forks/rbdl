@@ -1,12 +1,12 @@
 /*
  * RBDL - Rigid Body Dynamics Library
- * Copyright (c) 2011-2012 Martin Felis <martin.felis@iwr.uni-heidelberg.de>
+ * Copyright (c) 2011-2016 Martin Felis <martin.felis@iwr.uni-heidelberg.de>
  *
  * Licensed under the zlib license. See LICENSE for more details.
  */
 
-#ifndef _COMPILE_ASSERT_H
-#define _COMPILE_ASSERT_H
+#ifndef RBDL_COMPILE_ASSERT_H
+#define RBDL_COMPILE_ASSERT_H
 
 /* 
  * This is a simple compile time assertion tool taken from:
@@ -23,16 +23,16 @@
 
 namespace custom_static_assert
 {
-    template <bool> struct STATIC_ASSERT_FAILURE;
-    template <> struct STATIC_ASSERT_FAILURE<true> { enum { value = 1 }; };
+template <bool> struct STATIC_ASSERT_FAILURE;
+template <> struct STATIC_ASSERT_FAILURE<true> { enum { value = 1 }; };
 
-    template<int x> struct custom_static_assert_test{};
+template<int x> struct custom_static_assert_test{};
 }
 
 #define COMPILE_ASSERT(x) \
-    typedef ::custom_static_assert::custom_static_assert_test<\
-        sizeof(::custom_static_assert::STATIC_ASSERT_FAILURE< (bool)( x ) >)>\
-            JOIN(_custom_static_assert_typedef, __LINE__)
+  typedef ::custom_static_assert::custom_static_assert_test<\
+sizeof(::custom_static_assert::STATIC_ASSERT_FAILURE< (bool)( x ) >)>\
+JOIN(_custom_static_assert_typedef, __LINE__)
 
 #else // __cplusplus
 
@@ -42,5 +42,5 @@ namespace custom_static_assert
 
 #define VERIFY_EXPLICIT_CAST(from, to) COMPILE_ASSERT(sizeof(from) == sizeof(to)) 
 
-// _COMPILE_ASSERT_H_
+// RBDL_COMPILE_ASSERT_H_
 #endif

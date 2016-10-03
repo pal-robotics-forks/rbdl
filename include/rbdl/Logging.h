@@ -1,16 +1,17 @@
 /*
  * RBDL - Rigid Body Dynamics Library
- * Copyright (c) 2011-2012 Martin Felis <martin.felis@iwr.uni-heidelberg.de>
+ * Copyright (c) 2011-2016 Martin Felis <martin.felis@iwr.uni-heidelberg.de>
  *
  * Licensed under the zlib license. See LICENSE for more details.
  */
 
-#ifndef LOGGING_H
-#define LOGGING_H
+#ifndef RBDL_LOGGING_H
+#define RBDL_LOGGING_H
 
 #include <sstream>
+#include <rbdl/rbdl_config.h>
 
-class _NoLogging;
+class LoggingGuard;
 
 /** \def RBDL_ENABLE_LOGGING
  *
@@ -19,16 +20,16 @@ class _NoLogging;
  * \warning Logging has a huge impact on performance.
  */
 
-//#ifndef RBDL_ENABLE_LOGGING
-	#define LOG if (false) LogOutput 
-	#define SUPPRESS_LOGGING ;
-//#else
-//	#define LOG LogOutput
-//	#define SUPPRESS_LOGGING _NoLogging _nolog
-//#endif
+#ifndef RBDL_ENABLE_LOGGING
+#define LOG if (false) LogOutput 
+#define SUPPRESS_LOGGING ;
+#else
+#define LOG LogOutput
+#define SUPPRESS_LOGGING LoggingGuard _nolog
+#endif
 
-extern std::ostringstream LogOutput;
-void ClearLogOutput ();
+extern RBDL_DLLAPI std::ostringstream LogOutput;
+RBDL_DLLAPI void ClearLogOutput ();
 
 /** \brief Helper object to ignore any logs that happen during its lifetime
  *
@@ -41,9 +42,9 @@ void ClearLogOutput ();
  *   // logging will be active
  *   do_some_stuff();
  *  
- *   // now create a new scope in which a _NoLogging instance exists
+ *   // now create a new scope in which a LoggingGuard instance exists
  *   {
- *     _NoLogging ignore_logging;
+ *     LoggingGuard ignore_logging;
  *    
  *     // as a _Nologging instance exists, all logging will be discarded
  *     do_some_crazy_stuff();
@@ -55,19 +56,20 @@ void ClearLogOutput ();
  * \endcode
  *
  */
-class _NoLogging {
-	public:
-		_NoLogging() {
-			log_backup.str("");
-			log_backup << LogOutput.str();
-		}
-		~_NoLogging() {
-			LogOutput.str("");
-			LogOutput << log_backup.str();
-		}
+class RBDL_DLLAPI LoggingGuard {
+  public:
+    LoggingGuard() {
+      log_backup.str("");
+      log_backup << LogOutput.str();
+    }
+    ~LoggingGuard() {
+      LogOutput.str("");
+      LogOutput << log_backup.str();
+    }
 
-	private:
-		std::ostringstream log_backup;
+  private:
+    std::ostringstream log_backup;
 };
 
-#endif /* LOGGING_H */
+/* RBDL_LOGGING_H */
+#endif

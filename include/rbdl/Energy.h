@@ -1,29 +1,62 @@
-#ifndef _ENERGY_H
-#define _ENERGY_H
+#ifndef RBDL_ENERGY_H
+#define RBDL_ENERGY_H
 
-#include <rbdl/rbdl_math.h>
 #include <assert.h>
 #include <iostream>
+
+#include "rbdl/rbdl_math.h"
+#include "rbdl/rbdl_mathutils.h"
+#include "rbdl/Model.h"
+
 #include "rbdl/Logging.h"
 
 namespace RigidBodyDynamics {
 
   double CalcTotalMass(Model &model);
 
-  Math::SpatialVector CalcMoment(
+  Math::Vector3d CalcCOM(Model &model,
+                         const Math::VectorNd &Q,
+                         bool update_kinematics = true);
+
+
+  Math::Vector3d CalcCOMVelocity(Model &model,
+                                 const Math::VectorNd &Q,
+                                 const Math::VectorNd &QDot,
+                                 bool update_kinematics = true);
+
+  Math::Vector3d CalcCOMAcceleartion(Model &model,
+                                     const Math::VectorNd &Q,
+                                     const Math::VectorNd &QDot,
+                                     const Math::VectorNd &QDDot,
+                                     bool update_kinematics = true);
+
+  Math::Vector3d CalcCOMAccelerationBias(Model &model,
+                                         const Math::VectorNd &Q,
+                                         const Math::VectorNd &QDot,
+                                         bool update_kinematics = true);
+
+  void CalcCOMJacobian (
       Model &model,
       const Math::VectorNd &Q,
-      const Math::VectorNd &QDot,
+      Math::MatrixNd &COMJ,
       bool update_kinematics = true);
-  
-  Math::SpatialVector  CalcMomentCOM (
+
+
+  void CalcCOMJacobian_inefficient (
       Model &model,
       const Math::VectorNd &Q,
-      const Math::VectorNd &QDot,
-      bool update_kinematics = true);
-   
+      Math::MatrixNd &COMJ,
+      bool update_kinematics = true
+      );
+
+
+//  void CCM_CCRBI_Jacobian_com(Model &model,
+//                              const Math::VectorNd &Q,
+//                              Math::MatrixNd &AG,
+//                              bool update_kinematics = true);
+
   /// @todo: Document
-  Math::SpatialVector CalcEnergy_ineficient (
+  Math::SpatialVector CalcEnergy_inefficient (
       Model &model,
       const Math::VectorNd &Q,
       const Math::VectorNd &QDot,
@@ -31,54 +64,6 @@ namespace RigidBodyDynamics {
       unsigned int method = 0
       );
 
-  void Energy_matlab(
-      Model &model,
-      const Math::VectorNd &Q,
-      const Math::VectorNd &QDot,
-      Math::SpatialMatrix &Itot,
-      Math::SpatialVector htot,
-      double &total_KE,
-      Math::Vector3d &vcm,
-      bool update_kinematics = true
-      );
-
-  void CCM_CCRBI(Model &model,
-                 const Math::VectorNd &Q,
-                 const Math::VectorNd &QDot,
-                 Math::SpatialMatrix &I,
-                 bool update_kinematics = true);
-
-
-  void CCM_CCRBI(Model &model,
-                 const Math::VectorNd &Q,
-                 const Math::VectorNd &QDot,
-                 Math::SpatialMatrix &I,
-                 Math::MatrixNd &AG,
-                 Math::SpatialVector &h,
-                 bool update_kinematics = true);
-
-  void CCM_CCRBI_Jacobian_com(Model &model,
-                              const Math::VectorNd &Q,
-                              Math::MatrixNd &AG,
-                              bool update_kinematics = true);
-
-
-
-  /*
-  void systemMomentumMatrix(Model &model,
-                            const Math::VectorNd &Q,
-                            const Math::VectorNd &QDot,
-                            Math::MatrixNd &A,
-                            Math::SpatialVector &h,
-                            bool update_kinematics = false);
-
-  void massMatrixFromCCRBI(Model &model,
-                           const Math::VectorNd &Q,
-                           const Math::VectorNd &QDot,
-                           Math::MatrixNd &H );
-  */
 }
 
-
 #endif
-
