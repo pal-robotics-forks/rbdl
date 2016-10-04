@@ -89,7 +89,7 @@ namespace RigidBodyDynamics {
         Vector3d link_inertial_position;
         Vector3d link_inertial_rpy;
         Matrix3d link_inertial_inertia = Matrix3d::Zero();
-        double link_inertial_mass;
+        double link_inertial_mass = 0;
 
         // but only if we actually have inertial data
         if (urdf_link->inertial) {
@@ -130,7 +130,7 @@ namespace RigidBodyDynamics {
         //base (Like kdl). (The root is the only link allowed to be floating base
 
         if(floatingBaseType != FloatingBaseType::FixedBase){
-          double link_inertial_mass;
+          double link_inertial_mass = 0;
           Vector3d link_inertial_position;
           Vector3d link_inertial_rpy;
           Matrix3d link_inertial_inertia = Matrix3d::Zero();
@@ -260,7 +260,7 @@ namespace RigidBodyDynamics {
         Vector3d link_inertial_position;
         Vector3d link_inertial_rpy;
         Matrix3d link_inertial_inertia = Matrix3d::Zero();
-        double link_inertial_mass;
+        double link_inertial_mass = 0;
 
         // but only if we actually have inertial data
         if (urdf_link->inertial) {
@@ -301,7 +301,7 @@ namespace RigidBodyDynamics {
         //base (Like kdl). (The root is the only link allowed to be floating base
 
         if(floatingBaseType != FloatingBaseType::FixedBase){
-          double link_inertial_mass;
+          double link_inertial_mass = 0;
           Vector3d link_inertial_position;
           Vector3d link_inertial_rpy;
           Matrix3d link_inertial_inertia = Matrix3d::Zero();
