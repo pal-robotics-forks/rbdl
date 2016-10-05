@@ -2,6 +2,17 @@
 Changelog for package rbdl
 ^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+* Fixed cppecheck errors
+* Update README.md
+* Added gtests
+* Updated to new RBDL version
+* Update rbdl parser to parse urdf model
+* Merge branch 'dubnium-devel' of gitlab:control/rbdl into dubnium-devel
+* Added momentum computation
+* Contributors: Hilario Tome
+
 0.0.2 (2016-03-07)
 ------------------
 * Added 2d floating base support
