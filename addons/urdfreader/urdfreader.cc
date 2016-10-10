@@ -57,14 +57,14 @@ namespace RigidBodyDynamics {
         JointPtr urdf_joint = urdf_link->parent_joint;
         // create the joint
         Joint rbdl_joint;
-        if (urdf_joint->type == urdf::Joint::REVOLUTE || urdf_joint->type == urdf::Joint::CONTINUOUS) {
+        if ((urdf_joint->type == urdf::Joint::REVOLUTE || urdf_joint->type == urdf::Joint::CONTINUOUS) && !urdf_joint->mimic) {
           rbdl_joint = Joint (SpatialVector (urdf_joint->axis.x, urdf_joint->axis.y, urdf_joint->axis.z, 0., 0., 0.));
 
         }
-        else if (urdf_joint->type == urdf::Joint::PRISMATIC) {
+        else if (urdf_joint->type == urdf::Joint::PRISMATIC && !urdf_joint->mimic) {
           rbdl_joint = Joint (SpatialVector (0., 0., 0., urdf_joint->axis.x, urdf_joint->axis.y, urdf_joint->axis.z));
         }
-        else if (urdf_joint->type == urdf::Joint::FIXED) {
+        else if (urdf_joint->type == urdf::Joint::FIXED || urdf_joint->mimic) {
           rbdl_joint = Joint (JointTypeFixed);
         }
 
@@ -228,14 +228,13 @@ namespace RigidBodyDynamics {
         JointPtr urdf_joint = urdf_link->parent_joint;
         // create the joint
         Joint rbdl_joint;
-        if (urdf_joint->type == urdf::Joint::REVOLUTE || urdf_joint->type == urdf::Joint::CONTINUOUS) {
+        if ((urdf_joint->type == urdf::Joint::REVOLUTE || urdf_joint->type == urdf::Joint::CONTINUOUS)  && !urdf_joint->mimic) {
           rbdl_joint = Joint (SpatialVector (urdf_joint->axis.x, urdf_joint->axis.y, urdf_joint->axis.z, 0., 0., 0.));
-
         }
-        else if (urdf_joint->type == urdf::Joint::PRISMATIC) {
+        else if (urdf_joint->type == urdf::Joint::PRISMATIC && !urdf_joint->mimic) {
           rbdl_joint = Joint (SpatialVector (0., 0., 0., urdf_joint->axis.x, urdf_joint->axis.y, urdf_joint->axis.z));
         }
-        else if (urdf_joint->type == urdf::Joint::FIXED) {
+        else if (urdf_joint->type == urdf::Joint::FIXED || urdf_joint->mimic) {
           rbdl_joint = Joint (JointTypeFixed);
         }
 
@@ -914,7 +913,7 @@ namespace RigidBodyDynamics {
           std::string body_name = it->first;
           urdf_model.getLink(body_name, urdf_link);
 
-          if(urdf_link->parent_joint->type != urdf::Joint::FIXED) {
+          if((urdf_link->parent_joint->type != urdf::Joint::FIXED) && !urdf_link->parent_joint->mimic) {
 
             unsigned id;
             if(floatingBaseType == FloatingBaseType::XYZ_RollPitchYaw){
