@@ -2,6 +2,11 @@
 Changelog for package rbdl
 ^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+* Added conversion of mimic joints to fixed joints
+* Contributors: Hilario Tome
+
 0.1.0 (2016-10-05)
 ------------------
 * Fixed cppecheck errors
