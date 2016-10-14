@@ -2,8 +2,8 @@
 Changelog for package rbdl
 ^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Forthcoming
------------
+0.1.1 (2016-10-14)
+------------------
 * Added conversion of mimic joints to fixed joints
 * Contributors: Hilario Tome
 
