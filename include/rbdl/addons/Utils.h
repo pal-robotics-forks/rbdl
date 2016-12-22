@@ -21,6 +21,7 @@ inline Eigen::Isometry3d getBodyToBaseTransform(RigidBodyDynamics::Model &model,
 
 }
 
+// This method does not update the internal state of the model, it querys directly the internal data structure
 inline Eigen::Isometry3d getBodyTransform(RigidBodyDynamics::Model &model, const std::string &name){
   unsigned int id = model.GetBodyId(name.c_str());
   RigidBodyDynamics::Math::SpatialTransform tf;
