@@ -179,7 +179,7 @@ TEST_F(ModelFixture, TestjcalcSimple) {
       );
 
   EXPECT_TRUE (SpatialMatrixdCompareEpsilon (test_matrix, model->X_J[1].toMatrix(), 1.0e-16));
-  EXPECT_TRUE (SpatialVectordCompareEpsilon (test_vector, model->model_data.a[1], 1.0e-16));
+  EXPECT_TRUE (SpatialVectordCompareEpsilon (test_vector, model->v_J[1], 1.0e-16));
   EXPECT_EQ (test_joint_axis, model->S[1]);
 
   Q[0] = M_PI * 0.5;
@@ -197,7 +197,7 @@ TEST_F(ModelFixture, TestjcalcSimple) {
       );
 
   EXPECT_TRUE (SpatialMatrixdCompareEpsilon (test_matrix, model->X_J[1].toMatrix(), 1.0e-16));
-  EXPECT_TRUE (SpatialVectordCompareEpsilon (test_vector, model->model_data.a[1], 1.0e-16));
+  EXPECT_TRUE (SpatialVectordCompareEpsilon (test_vector, model->v_J[1], 1.0e-16));
   EXPECT_EQ (test_joint_axis, model->S[1]);
 }
 
