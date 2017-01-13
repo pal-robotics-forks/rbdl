@@ -33,8 +33,8 @@ RBDL_DLLAPI void InverseDynamics (
   LOG << "-------- " << __func__ << " --------" << std::endl;
 
   // Reset the velocity of the root body
-  model.v[0].setZero();
-  model.a[0].set (0., 0., 0., -model.gravity[0], -model.gravity[1], -model.gravity[2]);
+  model.model_data.v[0].setZero();
+  model.model_data.a[0].set (0., 0., 0., -model.gravity[0], -model.gravity[1], -model.gravity[2]);
 
   for (unsigned int i = 1; i < model.mBodies.size(); i++) {
     unsigned int q_index = model.mJoints[i].q_index;
@@ -42,16 +42,16 @@ RBDL_DLLAPI void InverseDynamics (
 
     jcalc (model, i, Q, QDot);
 
-    model.v[i] = model.X_lambda[i].apply(model.v[lambda]) + model.v_J[i];
-    model.c[i] = model.c_J[i] + crossm(model.v[i],model.v_J[i]);
+    model.model_data.v[i] = model.X_lambda[i].apply(model.model_data.v[lambda]) + model.v_J[i];
+    model.c[i] = model.c_J[i] + crossm(model.model_data.v[i],model.v_J[i]);
 
     if(model.mJoints[i].mJointType != JointTypeCustom){
       if (model.mJoints[i].mDoFCount == 1) {
-        model.a[i] =  model.X_lambda[i].apply(model.a[lambda])
+        model.model_data.a[i] =  model.X_lambda[i].apply(model.model_data.a[lambda])
           + model.c[i]
           + model.S[i] * QDDot[q_index];
       } else if (model.mJoints[i].mDoFCount == 3) {
-        model.a[i] =  model.X_lambda[i].apply(model.a[lambda])
+        model.model_data.a[i] =  model.X_lambda[i].apply(model.model_data.a[lambda])
           + model.c[i]
           + model.multdof3_S[i] * Vector3d (QDDot[q_index],
               QDDot[q_index + 1],
@@ -63,13 +63,13 @@ RBDL_DLLAPI void InverseDynamics (
       for(int z=0; z<model.mCustomJoints[k]->mDoFCount; ++z){
         customJointQDDot[z] = QDDot[q_index+z];
       }
-      model.a[i] =  model.X_lambda[i].apply(model.a[lambda])
+      model.model_data.a[i] =  model.X_lambda[i].apply(model.model_data.a[lambda])
         + model.c[i]
         + model.mCustomJoints[k]->S * customJointQDDot;
     }
 
     if (!model.mBodies[i].mIsVirtual) {
-      model.f[i] = model.I[i] * model.a[i] + crossf(model.v[i],model.I[i] * model.v[i]);
+      model.f[i] = model.I[i] * model.model_data.a[i] + crossf(model.model_data.v[i],model.I[i] * model.model_data.v[i]);
     } else {
       model.f[i].setZero();
     }
@@ -114,8 +114,8 @@ RBDL_DLLAPI void NonlinearEffects (
   SpatialVectord spatial_gravity (0., 0., 0., -model.gravity[0], -model.gravity[1], -model.gravity[2]);
 
   // Reset the velocity of the root body
-  model.v[0].setZero();
-  model.a[0] = spatial_gravity;
+  model.model_data.v[0].setZero();
+  model.model_data.a[0] = spatial_gravity;
 
   for (unsigned int i = 1; i < model.mJointUpdateOrder.size(); i++) {
     jcalc (model, model.mJointUpdateOrder[i], Q, QDot);
@@ -123,16 +123,16 @@ RBDL_DLLAPI void NonlinearEffects (
 
   for (unsigned int i = 1; i < model.mBodies.size(); i++) {
     if (model.lambda[i] == 0) {
-      model.v[i] = model.v_J[i];
-      model.a[i] = model.X_lambda[i].apply(spatial_gravity);
+      model.model_data.v[i] = model.v_J[i];
+      model.model_data.a[i] = model.X_lambda[i].apply(spatial_gravity);
     }	else {
-      model.v[i] = model.X_lambda[i].apply(model.v[model.lambda[i]]) + model.v_J[i];
-      model.c[i] = model.c_J[i] + crossm(model.v[i],model.v_J[i]);
-      model.a[i] = model.X_lambda[i].apply(model.a[model.lambda[i]]) + model.c[i];
+      model.model_data.v[i] = model.X_lambda[i].apply(model.model_data.v[model.lambda[i]]) + model.v_J[i];
+      model.c[i] = model.c_J[i] + crossm(model.model_data.v[i],model.v_J[i]);
+      model.model_data.a[i] = model.X_lambda[i].apply(model.model_data.a[model.lambda[i]]) + model.c[i];
     }
 
     if (!model.mBodies[i].mIsVirtual) {
-      model.f[i] = model.I[i] * model.a[i] + crossf(model.v[i],model.I[i] * model.v[i]);
+      model.f[i] = model.I[i] * model.model_data.a[i] + crossf(model.model_data.v[i],model.I[i] * model.model_data.v[i]);
     } else {
       model.f[i].setZero();
     }
@@ -328,7 +328,7 @@ RBDL_DLLAPI void ForwardDynamics (
   LOG << "---" << std::endl;
 
   // Reset the velocity of the root body
-  model.v[0].setZero();
+  model.model_data.v[0].setZero();
 
   for (i = 1; i < model.mBodies.size(); i++) {
     unsigned int lambda = model.lambda[i];
@@ -340,20 +340,20 @@ RBDL_DLLAPI void ForwardDynamics (
     else
       model.X_base[i] = model.X_lambda[i];
 
-    model.v[i] = model.X_lambda[i].apply( model.v[lambda]) + model.v_J[i];
+    model.model_data.v[i] = model.X_lambda[i].apply( model.model_data.v[lambda]) + model.v_J[i];
 
     /*
        LOG << "X_J (" << i << "):" << std::endl << X_J << std::endl;
        LOG << "v_J (" << i << "):" << std::endl << v_J << std::endl;
-       LOG << "v_lambda" << i << ":" << std::endl << model.v.at(lambda) << std::endl;
+       LOG << "v_lambda" << i << ":" << std::endl << model.model_data.v.at(lambda) << std::endl;
        LOG << "X_base (" << i << "):" << std::endl << model.X_base[i] << std::endl;
        LOG << "X_lambda (" << i << "):" << std::endl << model.X_lambda[i] << std::endl;
-       LOG << "SpatialVelocity (" << i << "): " << model.v[i] << std::endl;
+       LOG << "SpatialVelocity (" << i << "): " << model.model_data.v[i] << std::endl;
        */
-    model.c[i] = model.c_J[i] + crossm(model.v[i],model.v_J[i]);
+    model.c[i] = model.c_J[i] + crossm(model.model_data.v[i],model.v_J[i]);
     model.I[i].setSpatialMatrix (model.IA[i]);
 
-    model.pA[i] = crossf(model.v[i],model.I[i] * model.v[i]);
+    model.pA[i] = crossf(model.model_data.v[i],model.I[i] * model.model_data.v[i]);
 
     if (f_ext != NULL && (*f_ext)[i] != SpatialVectord::Zero()) {
       LOG << "External force (" << i << ") = " << model.X_base[i].toMatrixAdjoint() * (*f_ext)[i] << std::endl;
@@ -508,27 +508,27 @@ RBDL_DLLAPI void ForwardDynamics (
 
   //  ClearLogOutput();
 
-  model.a[0] = spatial_gravity * -1.;
+  model.model_data.a[0] = spatial_gravity * -1.;
 
   for (i = 1; i < model.mBodies.size(); i++) {
     unsigned int q_index = model.mJoints[i].q_index;
     unsigned int lambda = model.lambda[i];
     SpatialTransformd X_lambda = model.X_lambda[i];
 
-    model.a[i] = X_lambda.apply(model.a[lambda]) + model.c[i];
-    LOG << "a'[" << i << "] = " << model.a[i].transpose() << std::endl;
+    model.model_data.a[i] = X_lambda.apply(model.model_data.a[lambda]) + model.c[i];
+    LOG << "a'[" << i << "] = " << model.model_data.a[i].transpose() << std::endl;
 
     if (model.mJoints[i].mDoFCount == 1
         && model.mJoints[i].mJointType != JointTypeCustom) {
-      QDDot[q_index] = (1./model.d[i]) * (model.u[i] - model.U[i].dot(model.a[i]));
-      model.a[i] = model.a[i] + model.S[i] * QDDot[q_index];
+      QDDot[q_index] = (1./model.d[i]) * (model.u[i] - model.U[i].dot(model.model_data.a[i]));
+      model.model_data.a[i] = model.model_data.a[i] + model.S[i] * QDDot[q_index];
     } else if (model.mJoints[i].mDoFCount == 3
         && model.mJoints[i].mJointType != JointTypeCustom) {
-      Vector3d qdd_temp = model.multdof3_Dinv[i] * (model.multdof3_u[i] - model.multdof3_U[i].transpose() * model.a[i]);
+      Vector3d qdd_temp = model.multdof3_Dinv[i] * (model.multdof3_u[i] - model.multdof3_U[i].transpose() * model.model_data.a[i]);
       QDDot[q_index] = qdd_temp[0];
       QDDot[q_index + 1] = qdd_temp[1];
       QDDot[q_index + 2] = qdd_temp[2];
-      model.a[i] = model.a[i] + model.multdof3_S[i] * qdd_temp;
+      model.model_data.a[i] = model.model_data.a[i] + model.multdof3_S[i] * qdd_temp;
     } else if (model.mJoints[i].mJointType == JointTypeCustom) {
       unsigned int kI = model.mJoints[i].custom_joint_index;
       unsigned int dofI=model.mCustomJoints[kI]->mDoFCount;
@@ -536,13 +536,13 @@ RBDL_DLLAPI void ForwardDynamics (
       VectorNd qdd_temp = model.mCustomJoints[kI]->Dinv
         * (  model.mCustomJoints[kI]->u
             - model.mCustomJoints[kI]->U.transpose()
-            * model.a[i]);
+            * model.model_data.a[i]);
 
       for(int z=0; z<dofI; ++z){
         QDDot[q_index+z] = qdd_temp[z];
       }
 
-      model.a[i] = model.a[i]
+      model.model_data.a[i] = model.model_data.a[i]
         + model.mCustomJoints[kI]->S * qdd_temp;
     } 
   }
@@ -630,15 +630,15 @@ RBDL_DLLAPI void CalcMInvTimesTau ( Model &model,
   LOG << "---" << std::endl;
 
   // Reset the velocity of the root body
-  model.v[0].setZero();
-  model.a[0].setZero();
+  model.model_data.v[0].setZero();
+  model.model_data.a[0].setZero();
 
   if (update_kinematics) {
     for (unsigned int i = 1; i < model.mBodies.size(); i++) {
       jcalc_X_lambda_S (model, model.mJointUpdateOrder[i], Q);
 
       model.v_J[i].setZero();
-      model.v[i].setZero();
+      model.model_data.v[i].setZero();
       model.c_J[i].setZero();
       model.pA[i].setZero();
       model.I[i].setSpatialMatrix(model.IA[i]);
@@ -832,36 +832,36 @@ RBDL_DLLAPI void CalcMInvTimesTau ( Model &model,
     unsigned int lambda = model.lambda[i];
     SpatialTransformd X_lambda = model.X_lambda[i];
 
-    model.a[i] = X_lambda.apply(model.a[lambda]) + model.c[i];
-    LOG << "a'[" << i << "] = " << model.a[i].transpose() << std::endl;
+    model.model_data.a[i] = X_lambda.apply(model.model_data.a[lambda]) + model.c[i];
+    LOG << "a'[" << i << "] = " << model.model_data.a[i].transpose() << std::endl;
 
     if (model.mJoints[i].mDoFCount == 1
         && model.mJoints[i].mJointType != JointTypeCustom) {
-      QDDot[q_index] = (1./model.d[i])*(model.u[i]-model.U[i].dot(model.a[i]));
-      model.a[i]     = model.a[i] + model.S[i] * QDDot[q_index];
+      QDDot[q_index] = (1./model.d[i])*(model.u[i]-model.U[i].dot(model.model_data.a[i]));
+      model.model_data.a[i]     = model.model_data.a[i] + model.S[i] * QDDot[q_index];
     } else if (model.mJoints[i].mDoFCount == 3
         && model.mJoints[i].mJointType != JointTypeCustom) {
       Vector3d qdd_temp = 
         model.multdof3_Dinv[i] * (model.multdof3_u[i]
-            - model.multdof3_U[i].transpose()*model.a[i]);
+            - model.multdof3_U[i].transpose()*model.model_data.a[i]);
 
       QDDot[q_index]      = qdd_temp[0];
       QDDot[q_index + 1]  = qdd_temp[1];
       QDDot[q_index + 2]  = qdd_temp[2];
-      model.a[i]          = model.a[i] + model.multdof3_S[i] * qdd_temp;
+      model.model_data.a[i]          = model.model_data.a[i] + model.multdof3_S[i] * qdd_temp;
     } else if (model.mJoints[i].mJointType == JointTypeCustom) {
       unsigned int kI     = model.mJoints[i].custom_joint_index;
       unsigned int dofI   = model.mCustomJoints[kI]->mDoFCount;
 
       VectorNd qdd_temp = model.mCustomJoints[kI]->Dinv
         * (  model.mCustomJoints[kI]->u 
-            - model.mCustomJoints[kI]->U.transpose() * model.a[i]);
+            - model.mCustomJoints[kI]->U.transpose() * model.model_data.a[i]);
 
       for(int z=0; z<dofI;++z){
         QDDot[q_index+z]      = qdd_temp[z];
       }
 
-      model.a[i] =    model.a[i]
+      model.model_data.a[i] =    model.model_data.a[i]
         + model.mCustomJoints[kI]->S * qdd_temp;
     }
   }

@@ -41,8 +41,8 @@ RBDL_DLLAPI void UpdateKinematics(
       model.gravity[1],
       model.gravity[2]);
 
-  model.a[0].setZero();
-  //model.a[0] = spatial_gravity;
+  model.model_data.a[0].setZero();
+  //model.model_data.a[0] = spatial_gravity;
 
   for (i = 1; i < model.mBodies.size(); i++) {
     unsigned int q_index = model.mJoints[i].q_index;
@@ -56,39 +56,39 @@ RBDL_DLLAPI void UpdateKinematics(
 
     if (lambda != 0) {
       model.X_base[i] = model.X_lambda[i] * model.X_base[lambda];
-      model.v[i] = model.X_lambda[i].apply(model.v[lambda]) + model.v_J[i];
-      model.a_bias[i] = model.X_lambda[i].apply(model.a_bias[lambda]) + model.c[i];
+      model.model_data.v[i] = model.X_lambda[i].apply(model.model_data.v[lambda]) + model.v_J[i];
+      model.model_data.a_bias[i] = model.X_lambda[i].apply(model.model_data.a_bias[lambda]) + model.c[i];
     } else {
       model.X_base[i] = model.X_lambda[i];
-      model.v[i] = model.v_J[i];
-      model.a_bias[i].setZero();
+      model.model_data.v[i] = model.v_J[i];
+      model.model_data.a_bias[i].setZero();
     }
 
-    model.c[i] = model.c_J[i] + crossm(model.v[i],model.v_J[i]);
-    model.a[i] = model.X_lambda[i].apply(model.a[lambda]) + model.c[i];
+    model.c[i] = model.c_J[i] + crossm(model.model_data.v[i],model.v_J[i]);
+    model.model_data.a[i] = model.X_lambda[i].apply(model.model_data.a[lambda]) + model.c[i];
 
     if(model.mJoints[i].mJointType != JointTypeCustom){
       if (model.mJoints[i].mDoFCount == 1) {
-        model.a[i] = model.a[i] + model.S[i] * QDDot[q_index];
+        model.model_data.a[i] = model.model_data.a[i] + model.S[i] * QDDot[q_index];
       } else if (model.mJoints[i].mDoFCount == 3) {
         Vector3d omegadot_temp (QDDot[q_index], 
             QDDot[q_index + 1], 
             QDDot[q_index + 2]);
-        model.a[i] = model.a[i] + model.multdof3_S[i] * omegadot_temp;
+        model.model_data.a[i] = model.model_data.a[i] + model.multdof3_S[i] * omegadot_temp;
       }
     } else {
       unsigned int custom_index = model.mJoints[i].custom_joint_index;
       const CustomJoint* custom_joint = model.mCustomJoints[custom_index];
       unsigned int joint_dof_count = custom_joint->mDoFCount;
 
-      model.a[i] = model.a[i]
+      model.model_data.a[i] = model.model_data.a[i]
         + ( model.mCustomJoints[custom_index]->S 
             * QDDot.block(q_index, 0, joint_dof_count, 1));
     }
   }
 
   for (i = 1; i < model.mBodies.size(); i++) {
-    LOG << "a[" << i << "] = " << model.a[i].transpose() << std::endl;
+    LOG << "a[" << i << "] = " << model.model_data.a[i].transpose() << std::endl;
   }
 }
 
@@ -130,15 +130,15 @@ RBDL_DLLAPI void UpdateKinematicsCustom(
       jcalc (model, i, *Q, *QDot);
 
       if (lambda != 0) {
-        model.v[i] = model.X_lambda[i].apply(model.v[lambda]) + model.v_J[i];
-        model.c[i] = model.c_J[i] + crossm(model.v[i],model.v_J[i]);
-        model.a_bias[i] = model.X_lambda[i].apply(model.a_bias[lambda]) + model.c[i];
+        model.model_data.v[i] = model.X_lambda[i].apply(model.model_data.v[lambda]) + model.v_J[i];
+        model.c[i] = model.c_J[i] + crossm(model.model_data.v[i],model.v_J[i]);
+        model.model_data.a_bias[i] = model.X_lambda[i].apply(model.model_data.a_bias[lambda]) + model.c[i];
       } else {
-        model.v[i] = model.v_J[i];
-        model.c[i] = model.c_J[i] + crossm(model.v[i],model.v_J[i]);
-        model.a_bias[i] = model.X_lambda[i].apply(model.a_bias[lambda]) + model.c[i];
+        model.model_data.v[i] = model.v_J[i];
+        model.c[i] = model.c_J[i] + crossm(model.model_data.v[i],model.v_J[i]);
+        model.model_data.a_bias[i] = model.X_lambda[i].apply(model.model_data.a_bias[lambda]) + model.c[i];
       }
-      // LOG << "v[" << i << "] = " << model.v[i].transpose() << std::endl;
+      // LOG << "v[" << i << "] = " << model.model_data.v[i].transpose() << std::endl;
     }
   }
 
@@ -153,19 +153,19 @@ RBDL_DLLAPI void UpdateKinematicsCustom(
       unsigned int lambda = model.lambda[i];
 
       if (lambda != 0) {
-        model.a[i] = model.X_lambda[i].apply(model.a[lambda]) + model.c[i];
+        model.model_data.a[i] = model.X_lambda[i].apply(model.model_data.a[lambda]) + model.c[i];
       } else {
-        model.a[i] = model.c[i];
+        model.model_data.a[i] = model.c[i];
       }
 
       if( model.mJoints[i].mJointType != JointTypeCustom){
         if (model.mJoints[i].mDoFCount == 1) {
-          model.a[i] = model.a[i] + model.S[i] * (*QDDot)[q_index];
+          model.model_data.a[i] = model.model_data.a[i] + model.S[i] * (*QDDot)[q_index];
         } else if (model.mJoints[i].mDoFCount == 3) {
           Vector3d omegadot_temp ((*QDDot)[q_index], 
               (*QDDot)[q_index + 1], 
               (*QDDot)[q_index + 2]);
-          model.a[i] = model.a[i] 
+          model.model_data.a[i] = model.model_data.a[i] 
             + model.multdof3_S[i] * omegadot_temp;
         }
       } else {
@@ -174,7 +174,7 @@ RBDL_DLLAPI void UpdateKinematicsCustom(
         const CustomJoint* custom_joint = model.mCustomJoints[k];
         unsigned int joint_dof_count = custom_joint->mDoFCount;
 
-        model.a[i] = model.a[i]
+        model.model_data.a[i] = model.model_data.a[i]
           + (  (model.mCustomJoints[k]->S)
               *(QDDot->block(q_index, 0, joint_dof_count, 1)));
       }
@@ -611,7 +611,7 @@ RBDL_DLLAPI Vector3d CalcPointVelocity (
   assert (model.qdot_size == QDot.size());
 
   // Reset the velocity of the root body
-  model.v[0].setZero();
+  model.model_data.v[0].setZero();
 
   // update the Kinematics with zero acceleration
   if (update_kinematics) {
@@ -633,7 +633,7 @@ RBDL_DLLAPI Vector3d CalcPointVelocity (
   SpatialVectord point_spatial_velocity =
     SpatialTransformd (
         CalcBodyWorldOrientation (model, Q, reference_body_id, false).transpose(), 
-        reference_point).apply(model.v[reference_body_id]);
+        reference_point).apply(model.model_data.v[reference_body_id]);
 
   return Vector3d (
       point_spatial_velocity[3],
@@ -656,7 +656,7 @@ RBDL_DLLAPI Vector3d CalcPointAngularVelocity (
   assert (model.qdot_size == QDot.size());
 
   // Reset the velocity of the root body
-  model.v[0].setZero();
+  model.model_data.v[0].setZero();
 
   // update the Kinematics with zero acceleration
   if (update_kinematics) {
@@ -678,7 +678,7 @@ RBDL_DLLAPI Vector3d CalcPointAngularVelocity (
   SpatialVectord point_spatial_velocity =
     SpatialTransformd (
         CalcBodyWorldOrientation (model, Q, reference_body_id, false).transpose(),
-        reference_point).apply(model.v[reference_body_id]);
+        reference_point).apply(model.model_data.v[reference_body_id]);
 
   return Vector3d (
       point_spatial_velocity[0],
@@ -700,7 +700,7 @@ RBDL_DLLAPI Math::SpatialVectord CalcPointVelocity6D(
   assert (model.qdot_size == QDot.size());
 
   // Reset the velocity of the root body
-  model.v[0].setZero();
+  model.model_data.v[0].setZero();
 
   // update the Kinematics with zero acceleration
   if (update_kinematics) {
@@ -721,7 +721,7 @@ RBDL_DLLAPI Math::SpatialVectord CalcPointVelocity6D(
 
   return SpatialTransformd (
       CalcBodyWorldOrientation (model, Q, reference_body_id, false).transpose(), 
-      reference_point).apply(model.v[reference_body_id]);
+      reference_point).apply(model.model_data.v[reference_body_id]);
 }
 
 RBDL_DLLAPI Vector3d CalcPointAcceleration (
@@ -735,8 +735,8 @@ RBDL_DLLAPI Vector3d CalcPointAcceleration (
   LOG << "-------- " << __func__ << " --------" << std::endl;
 
   // Reset the velocity of the root body
-  model.v[0].setZero();
-  model.a[0].setZero();
+  model.model_data.v[0].setZero();
+  model.model_data.a[0].setZero();
 
   if (update_kinematics)
     UpdateKinematics (model, Q, QDot, QDDot);
@@ -759,10 +759,10 @@ RBDL_DLLAPI Vector3d CalcPointAcceleration (
       CalcBodyWorldOrientation (model, Q, reference_body_id, false).transpose(),
       reference_point);
 
-  SpatialVectord p_v_i = p_X_i.apply(model.v[reference_body_id]);
+  SpatialVectord p_v_i = p_X_i.apply(model.model_data.v[reference_body_id]);
   Vector3d a_dash = Vector3d (p_v_i[0], p_v_i[1], p_v_i[2]
       ).cross(Vector3d (p_v_i[3], p_v_i[4], p_v_i[5]));
-  SpatialVectord p_a_i = p_X_i.apply(model.a[reference_body_id]);
+  SpatialVectord p_a_i = p_X_i.apply(model.model_data.a[reference_body_id]);
 
   return Vector3d (
       p_a_i[3] + a_dash[0],
@@ -782,8 +782,8 @@ RBDL_DLLAPI Vector3d CalcPointAccelerationBias (
   LOG << "-------- " << __func__ << " --------" << std::endl;
 
   // Reset the velocity of the root body
-  model.v[0].setZero();
-  model.a[0].setZero();
+  model.model_data.v[0].setZero();
+  model.model_data.a[0].setZero();
 
   if (update_kinematics)
     UpdateKinematicsCustom(model, &Q, &QDot, NULL);
@@ -806,10 +806,10 @@ RBDL_DLLAPI Vector3d CalcPointAccelerationBias (
       CalcBodyWorldOrientation (model, Q, reference_body_id, false).transpose(),
       reference_point);
 
-  SpatialVectord p_v_i = p_X_i.apply(model.v[reference_body_id]);
+  SpatialVectord p_v_i = p_X_i.apply(model.model_data.v[reference_body_id]);
   Vector3d a_dash = Vector3d (p_v_i[0], p_v_i[1], p_v_i[2]
       ).cross(Vector3d (p_v_i[3], p_v_i[4], p_v_i[5]));
-  SpatialVectord p_a_i = p_X_i.apply(model.a_bias[reference_body_id]);
+  SpatialVectord p_a_i = p_X_i.apply(model.model_data.a_bias[reference_body_id]);
 
   return Vector3d (
       p_a_i[3] + a_dash[0],
@@ -830,8 +830,8 @@ RBDL_DLLAPI SpatialVectord CalcPointAcceleration6D(
   LOG << "-------- " << __func__ << " --------" << std::endl;
 
   // Reset the velocity of the root body
-  model.v[0].setZero();
-  model.a[0].setZero();
+  model.model_data.v[0].setZero();
+  model.model_data.a[0].setZero();
 
   if (update_kinematics)
     UpdateKinematics (model, Q, QDot, QDDot);
@@ -854,10 +854,10 @@ RBDL_DLLAPI SpatialVectord CalcPointAcceleration6D(
       CalcBodyWorldOrientation (model, Q, reference_body_id, false).transpose(),
       reference_point);
 
-  SpatialVectord p_v_i = p_X_i.apply(model.v[reference_body_id]);
+  SpatialVectord p_v_i = p_X_i.apply(model.model_data.v[reference_body_id]);
   Vector3d a_dash = Vector3d (p_v_i[0], p_v_i[1], p_v_i[2]
       ).cross(Vector3d (p_v_i[3], p_v_i[4], p_v_i[5]));
-  return (p_X_i.apply(model.a[reference_body_id]) 
+  return (p_X_i.apply(model.model_data.a[reference_body_id]) 
       + SpatialVectord (0, 0, 0, a_dash[0], a_dash[1], a_dash[2]));
 }
 
@@ -871,8 +871,8 @@ RBDL_DLLAPI SpatialVectord CalcPointAcceleration6DBias(
   LOG << "-------- " << __func__ << " --------" << std::endl;
 
   // Reset the velocity of the root body
-  model.v[0].setZero();
-  model.a[0].setZero();
+  model.model_data.v[0].setZero();
+  model.model_data.a[0].setZero();
 
   if (update_kinematics)
     UpdateKinematicsCustom(model, &Q, &QDot, NULL);
@@ -895,10 +895,10 @@ RBDL_DLLAPI SpatialVectord CalcPointAcceleration6DBias(
       CalcBodyWorldOrientation (model, Q, reference_body_id, false).transpose(),
       reference_point);
 
-  SpatialVectord p_v_i = p_X_i.apply(model.v[reference_body_id]);
+  SpatialVectord p_v_i = p_X_i.apply(model.model_data.v[reference_body_id]);
   Vector3d a_dash = Vector3d (p_v_i[0], p_v_i[1], p_v_i[2]
       ).cross(Vector3d (p_v_i[3], p_v_i[4], p_v_i[5]));
-  return (p_X_i.apply(model.a_bias[reference_body_id])
+  return (p_X_i.apply(model.model_data.a_bias[reference_body_id])
       + SpatialVectord (0, 0, 0, a_dash[0], a_dash[1], a_dash[2]));
 }
 

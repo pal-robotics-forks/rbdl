@@ -51,8 +51,8 @@ TEST_F(DynamicsFixture, TestCalcDynamicSingleChain) {
     LOG << "QDDot[" << i << "] = " << QDDot[i] << endl;
   }
 
-  for (i = 0; i < model->a.size(); i++) {
-    LOG << "a[" << i << "]     = " << model->a[i] << endl;
+  for (i = 0; i < model->model_data.a.size(); i++) {
+    LOG << "a[" << i << "]     = " << model->model_data.a[i] << endl;
   }
 
   EXPECT_EQ (-4.905, QDDot[0]);
@@ -80,8 +80,8 @@ TEST_F(DynamicsFixture, TestCalcDynamicSpatialInertiaSingleChain) {
     LOG << "QDDot[" << i << "] = " << QDDot[i] << endl;
   }
 
-  for (i = 0; i < model->a.size(); i++) {
-    LOG << "a[" << i << "]     = " << model->a[i] << endl;
+  for (i = 0; i < model->model_data.a.size(); i++) {
+    LOG << "a[" << i << "]     = " << model->model_data.a[i] << endl;
   }
 
   EXPECT_EQ (-2.3544, QDDot[0]);
@@ -113,8 +113,8 @@ TEST_F(DynamicsFixture, TestCalcDynamicDoubleChain) {
     LOG << "QDDot[" << i << "] = " << QDDot[i] << endl;
   }
 
-  for (i = 0; i < model->a.size(); i++) {
-    LOG << "a[" << i << "]     = " << model->a[i] << endl;
+  for (i = 0; i < model->model_data.a.size(); i++) {
+    LOG << "a[" << i << "]     = " << model->model_data.a[i] << endl;
   }
 
   //	cout << LogOutput.str() << endl;
@@ -154,8 +154,8 @@ TEST_F(DynamicsFixture, TestCalcDynamicTripleChain) {
     LOG << "QDDot[" << i << "] = " << QDDot[i] << endl;
   }
 
-  for (i = 0; i < model->a.size(); i++) {
-    LOG << "a[" << i << "]     = " << model->a[i] << endl;
+  for (i = 0; i < model->model_data.a.size(); i++) {
+    LOG << "a[" << i << "]     = " << model->model_data.a[i] << endl;
   }
 
   // cout << LogOutput.str() << endl;
@@ -191,8 +191,8 @@ TEST_F(DynamicsFixture, TestCalcDynamicDoubleChain3D) {
     LOG << "QDDot[" << i << "] = " << QDDot[i] << endl;
   }
 
-  for (i = 0; i < model->a.size(); i++) {
-    LOG << "a[" << i << "]     = " << model->a[i] << endl;
+  for (i = 0; i < model->model_data.a.size(); i++) {
+    LOG << "a[" << i << "]     = " << model->model_data.a[i] << endl;
   }
 
   // cout << LogOutput.str() << endl;
@@ -242,8 +242,8 @@ TEST_F(DynamicsFixture, TestCalcDynamicSimpleTree3D) {
     LOG << "QDDot[" << i << "] = " << QDDot[i] << endl;
   }
 
-  for (i = 0; i < model->a.size(); i++) {
-    LOG << "a[" << i << "]     = " << model->a[i] << endl;
+  for (i = 0; i < model->model_data.a.size(); i++) {
+    LOG << "a[" << i << "]     = " << model->model_data.a[i] << endl;
   }
 
   // cout << LogOutput.str() << endl;

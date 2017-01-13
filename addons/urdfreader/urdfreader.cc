@@ -949,8 +949,8 @@ namespace RigidBodyDynamics {
             }
             //Store the joint limits velocity
             if ( urdf_link->parent_joint->type != urdf::Joint::CONTINUOUS ) {
-              vel_min[id] = (-urdf_link->parent_joint->limits->velocity);
-              vel_max[id] = (urdf_link->parent_joint->limits->velocity);
+              vel_min[id] = (-urdf_link->parent_joint->limits->model_data.velocity);
+              vel_max[id] = (urdf_link->parent_joint->limits->model_data.velocity);
             }
             else{
               /// Random high value

@@ -276,13 +276,13 @@ TEST_F (SphericalJoint, TestUpdateKinematics) {
   UpdateKinematicsCustom (emulated_model, &emuQ, &emuQDot, &emuQDDot);
   UpdateKinematicsCustom (multdof3_model, &sphQ, &sphQDot, &sphQDDot);
 
-  EXPECT_TRUE(EIGEN_MATRIX_NEAR (emulated_model.v[emu_body_id], multdof3_model.v[sph_body_id], TEST_PREC));
-  EXPECT_TRUE(EIGEN_MATRIX_NEAR (emulated_model.a[emu_body_id], multdof3_model.a[sph_body_id],  TEST_PREC));
+  EXPECT_TRUE(EIGEN_MATRIX_NEAR (emulated_model.model_data.v[emu_body_id], multdof3_model.model_data.v[sph_body_id], TEST_PREC));
+  EXPECT_TRUE(EIGEN_MATRIX_NEAR (emulated_model.model_data.a[emu_body_id], multdof3_model.model_data.a[sph_body_id],  TEST_PREC));
 
   UpdateKinematics (multdof3_model, sphQ, sphQDot, sphQDDot);
 
-  EXPECT_TRUE(EIGEN_MATRIX_NEAR (emulated_model.v[emu_child_id], multdof3_model.v[sph_child_id],  TEST_PREC));
-  EXPECT_TRUE(EIGEN_MATRIX_NEAR (emulated_model.a[emu_child_id], multdof3_model.a[sph_child_id],  TEST_PREC));
+  EXPECT_TRUE(EIGEN_MATRIX_NEAR (emulated_model.model_data.v[emu_child_id], multdof3_model.model_data.v[sph_child_id],  TEST_PREC));
+  EXPECT_TRUE(EIGEN_MATRIX_NEAR (emulated_model.model_data.a[emu_child_id], multdof3_model.model_data.a[sph_child_id],  TEST_PREC));
 }
 
 TEST_F (SphericalJoint, TestSpatialVelocities) {
@@ -301,7 +301,7 @@ TEST_F (SphericalJoint, TestSpatialVelocities) {
   UpdateKinematicsCustom (emulated_model, &emuQ, &emuQDot, NULL);
   UpdateKinematicsCustom (multdof3_model, &sphQ, &sphQDot, NULL);
 
-  EXPECT_TRUE(EIGEN_MATRIX_NEAR (emulated_model.v[emu_child_id], multdof3_model.v[sph_child_id],  TEST_PREC));
+  EXPECT_TRUE(EIGEN_MATRIX_NEAR (emulated_model.model_data.v[emu_child_id], multdof3_model.model_data.v[sph_child_id],  TEST_PREC));
 }
 
 TEST_F (SphericalJoint, TestForwardDynamicsQAndQDot) {
@@ -320,7 +320,7 @@ TEST_F (SphericalJoint, TestForwardDynamicsQAndQDot) {
   ForwardDynamics (emulated_model, emuQ, emuQDot, emuTau, emuQDDot);
   ForwardDynamics (multdof3_model, sphQ, sphQDot, sphTau, sphQDDot);
 
-  EXPECT_TRUE(EIGEN_MATRIX_NEAR (emulated_model.a[emu_child_id], multdof3_model.a[sph_child_id], TEST_PREC));
+  EXPECT_TRUE(EIGEN_MATRIX_NEAR (emulated_model.model_data.a[emu_child_id], multdof3_model.model_data.a[sph_child_id], TEST_PREC));
 }
 
 TEST_F (SphericalJoint, TestDynamicsConsistencyRNEA_ABA ) {
@@ -688,7 +688,7 @@ TEST (MultiDofTests, TestJointTypeEulerXYZ ) {
   UpdateKinematicsCustom (model_3dof, &q, &qdot, &qddot_emulated);
 
   EXPECT_TRUE(EIGEN_MATRIX_EQUAL_DOUBLE (model_emulated.X_base[3].E, model_3dof.X_base[1].E));
-  EXPECT_TRUE(EIGEN_MATRIX_EQUAL_DOUBLE (model_emulated.v[3], model_3dof.v[1]));
+  EXPECT_TRUE(EIGEN_MATRIX_EQUAL_DOUBLE (model_emulated.model_data.v[3], model_3dof.model_data.v[1]));
 
   ForwardDynamicsLagrangian (model_emulated, q, qdot, tau, qddot_emulated);
   ForwardDynamicsLagrangian (model_3dof, q, qdot, tau, qddot_3dof);
@@ -738,7 +738,7 @@ TEST (MultiDofTests, TestJointTypeEulerYXZ ) {
   UpdateKinematicsCustom (model_3dof, &q, &qdot, &qddot_emulated);
 
   EXPECT_TRUE(EIGEN_MATRIX_NEAR (model_emulated.X_base[3].E, model_3dof.X_base[1].E,  TEST_PREC));
-  EXPECT_TRUE(EIGEN_MATRIX_NEAR (model_emulated.v[3], model_3dof.v[1], TEST_PREC));
+  EXPECT_TRUE(EIGEN_MATRIX_NEAR (model_emulated.model_data.v[3], model_3dof.model_data.v[1], TEST_PREC));
 
   VectorNd id_emulated (tau);
   VectorNd id_3dof(tau);
@@ -775,9 +775,9 @@ TEST_F  (Human36, TestUpdateKinematics) {
   UpdateKinematics (*model_emulated, q, qdot, qddot);
   UpdateKinematics (*model_3dof, q, qdot, qddot);
 
-  EXPECT_TRUE(EIGEN_MATRIX_NEAR (model_emulated->v[body_id_emulated[BodyPelvis]], model_3dof->v[body_id_3dof[BodyPelvis]], TEST_PREC));
-  EXPECT_TRUE(EIGEN_MATRIX_NEAR (model_emulated->v[body_id_emulated[BodyThighRight]], model_3dof->v[body_id_3dof[BodyThighRight]],  TEST_PREC));
-  EXPECT_TRUE(EIGEN_MATRIX_NEAR (model_emulated->v[body_id_emulated[BodyShankRight]], model_3dof->v[body_id_3dof[BodyShankRight]], TEST_PREC));
+  EXPECT_TRUE(EIGEN_MATRIX_NEAR (model_emulated->model_data.v[body_id_emulated[BodyPelvis]], model_3dof->model_data.v[body_id_3dof[BodyPelvis]], TEST_PREC));
+  EXPECT_TRUE(EIGEN_MATRIX_NEAR (model_emulated->model_data.v[body_id_emulated[BodyThighRight]], model_3dof->model_data.v[body_id_3dof[BodyThighRight]],  TEST_PREC));
+  EXPECT_TRUE(EIGEN_MATRIX_NEAR (model_emulated->model_data.v[body_id_emulated[BodyShankRight]], model_3dof->model_data.v[body_id_3dof[BodyShankRight]], TEST_PREC));
 }
 
 TEST_F  (Human36, TestInverseDynamics) {

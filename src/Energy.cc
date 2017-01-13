@@ -16,16 +16,16 @@ namespace RigidBodyDynamics {
   // We have to acumulate the spatial transforms, it seems that the cross product of acumulationg the
   // com displacements is a wrong assumption
   void CalcAcumulatedMass(Model &model, const VectorNd &Q){
-    assert(model.acumulated_mass.size() == model.mBodies.size());
+    assert(model.model_data.acumulated_mass.size() == model.mBodies.size());
 
     for(unsigned int i = 1; i<model.mBodies.size(); ++i){
       Vector3d comi = CalcBodyToBaseCoordinates(model, Q, i, model.mBodies[i].mCenterOfMass, false);
-      model.acumulated_mass[i] = model.mBodies[i].mMass*Xtrans_mat(comi);
+      model.model_data.acumulated_mass[i] = model.mBodies[i].mMass*Xtrans_mat(comi);
     }
 
     for (unsigned int i = model.mBodies.size() - 1; i > 0; i--) {
       unsigned int lambda = model.lambda[i];
-      model.acumulated_mass[lambda] += model.acumulated_mass[i];
+      model.model_data.acumulated_mass[lambda] += model.model_data.acumulated_mass[i];
     }
   }
 
@@ -161,12 +161,12 @@ namespace RigidBodyDynamics {
       if(model.mJoints[j].mJointType != JointTypeCustom){
         if (model.mJoints[j].mDoFCount == 1) {
           COMJ.block(0,q_index, 3, 1) =
-              (model.acumulated_mass[j]
+              (model.model_data.acumulated_mass[j]
                *(model.X_base[j].inverse().toMatrix()
                  * model.S[j])).block(3,0,3,1);
         } else if (model.mJoints[j].mDoFCount == 3) {
           COMJ.block(0, q_index, 3, 3) =
-              (model.acumulated_mass[j]
+              (model.model_data.acumulated_mass[j]
                  * (model.X_base[j].inverse()).toMatrix()
                * model.multdof3_S[j]).block(3,0,3,3);
         }
@@ -175,7 +175,7 @@ namespace RigidBodyDynamics {
         unsigned int k = model.mJoints[j].custom_joint_index;
 
         COMJ.block(0, q_index, 3, model.mCustomJoints[k]->mDoFCount) =
-            (model.acumulated_mass[j]
+            (model.model_data.acumulated_mass[j]
                * (model.X_base[j].inverse()).toMatrix()
              * model.mCustomJoints[k]->S).block(
               3,0,3,model.mCustomJoints[k]->mDoFCount);
@@ -257,23 +257,23 @@ namespace RigidBodyDynamics {
         spatial_moment += model.X_base[body_id].toMatrix().transpose()*
             model.I[body_id].toMatrix()*
             model.X_base[body_id].toMatrix()*
-            model.X_base[body_id].inverse().toMatrix()*model.v[body_id];
+            model.X_base[body_id].inverse().toMatrix()*model.model_data.v[body_id];
       }
       else if(method == 1){
         //Optimization using spatial operators, in the book there is a further optimization to reduce operations
         //    spatial_moment += model.X_base[body_id].apply(model.mBodies[body_id].mSpatialInertia*
-        //        (model.X_base[body_id].applyInverse(model.v[body_id])));
+        //        (model.X_base[body_id].applyInverse(model.model_data.v[body_id])));
 
         spatial_moment += model.X_base[body_id].toMatrix().transpose()*
             model.I[body_id].toMatrix()*
             model.X_base[body_id].toMatrix()*
-            (model.X_base[body_id].inverse().apply(model.v[body_id]));
+            (model.X_base[body_id].inverse().apply(model.model_data.v[body_id]));
 
       }
       else{
         //Spatial momentum vectors have the same properties as spatial force vectors
         // Optimization using spatial operators, in the book there is a further optimization to reduce operations
-        spatial_moment += model.X_base[body_id].applyTranspose(model.I[body_id].toMatrix()*(model.v[body_id]));
+        spatial_moment += model.X_base[body_id].applyTranspose(model.I[body_id].toMatrix()*(model.model_data.v[body_id]));
       }
 
       //std::cerr<<"Spatial moment: "<<i<<"  is: "<<spatial_moment.transpose()<<std::endl;

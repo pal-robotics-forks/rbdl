@@ -125,9 +125,9 @@ TEST_F ( CustomJointFixture, UpdateKinematics ) {
 
   EXPECT_TRUE(EIGEN_MATRIX_EQUAL_DOUBLE (reference_model.X_base[reference_body_id].E, custom_model.X_base[custom_body_id].E));
 
-  EXPECT_TRUE(EIGEN_MATRIX_EQUAL_DOUBLE (reference_model.v[reference_body_id], custom_model.v[custom_body_id]));
+  EXPECT_TRUE(EIGEN_MATRIX_EQUAL_DOUBLE (reference_model.model_data.v[reference_body_id], custom_model.model_data.v[custom_body_id]));
 
-  EXPECT_TRUE(EIGEN_MATRIX_EQUAL_DOUBLE (reference_model.a[reference_body_id], custom_model.a[custom_body_id]));
+  EXPECT_TRUE(EIGEN_MATRIX_EQUAL_DOUBLE (reference_model.model_data.a[reference_body_id], custom_model.model_data.a[custom_body_id]));
 }
 
 // TODO: implement test for UpdateKinematicsCustom

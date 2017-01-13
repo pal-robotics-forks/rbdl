@@ -95,8 +95,8 @@ TEST_F(FloatingBaseFixture, TestCalcDynamicFloatingBaseDoubleImplicit) {
     LOG << "QDDot[" << i << "] = " << QDDot[i] << endl;
   }
 
-  for (i = 0; i < model->a.size(); i++) {
-    LOG << "a[" << i << "]     = " << model->a.at(i) << endl;
+  for (i = 0; i < model->model_data.a.size(); i++) {
+    LOG << "a[" << i << "]     = " << model->model_data.a.at(i) << endl;
   }
 
   //	std::cout << LogOutput.str() << std::endl;
@@ -117,8 +117,8 @@ TEST_F(FloatingBaseFixture, TestCalcDynamicFloatingBaseDoubleImplicit) {
     LOG << "QDDot[" << i << "] = " << QDDot[i] << endl;
   }
 
-  for (i = 0; i < model->a.size(); i++) {
-    LOG << "a[" << i << "]     = " << model->a.at(i) << endl;
+  for (i = 0; i < model->model_data.a.size(); i++) {
+    LOG << "a[" << i << "]     = " << model->model_data.a.at(i) << endl;
   }
 
   //	std::cout << LogOutput.str() << std::endl;
@@ -146,8 +146,8 @@ TEST_F(FloatingBaseFixture, TestCalcDynamicFloatingBaseDoubleImplicit) {
     LOG << "QDDot[" << i << "] = " << QDDot[i] << endl;
   }
 
-  for (i = 0; i < model->a.size(); i++) {
-    LOG << "a[" << i << "]     = " << model->a.at(i) << endl;
+  for (i = 0; i < model->model_data.a.size(); i++) {
+    LOG << "a[" << i << "]     = " << model->model_data.a.at(i) << endl;
   }
 
   //	std::cout << LogOutput.str() << std::endl;

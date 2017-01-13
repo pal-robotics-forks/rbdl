@@ -37,8 +37,8 @@ TEST_F(ModelFixture, TestInit) {
   EXPECT_EQ (0u, model->q_size);
   EXPECT_EQ (0u, model->qdot_size);
 
-  EXPECT_EQ (1u, model->v.size());
-  EXPECT_EQ (1u, model->a.size());
+  EXPECT_EQ (1u, model->model_data.v.size());
+  EXPECT_EQ (1u, model->model_data.a.size());
 
   EXPECT_EQ (1u, model->mJoints.size());
   EXPECT_EQ (1u, model->S.size());
@@ -69,8 +69,8 @@ TEST_F(ModelFixture, TestAddBodyDimensions) {
   EXPECT_EQ (2u, model->mu.size());
   EXPECT_EQ (1u, model->dof_count);
 
-  EXPECT_EQ (2u, model->v.size());
-  EXPECT_EQ (2u, model->a.size());
+  EXPECT_EQ (2u, model->model_data.v.size());
+  EXPECT_EQ (2u, model->model_data.a.size());
 
   EXPECT_EQ (2u, model->mJoints.size());
   EXPECT_EQ (2u, model->S.size());
@@ -104,8 +104,8 @@ TEST_F(ModelFixture, TestFloatingBodyDimensions) {
   EXPECT_EQ (7u, model->q_size);
   EXPECT_EQ (6u, model->qdot_size);
 
-  EXPECT_EQ (3u, model->v.size());
-  EXPECT_EQ (3u, model->a.size());
+  EXPECT_EQ (3u, model->model_data.v.size());
+  EXPECT_EQ (3u, model->model_data.a.size());
 
   EXPECT_EQ (3u, model->mJoints.size());
   EXPECT_EQ (3u, model->S.size());
@@ -179,7 +179,7 @@ TEST_F(ModelFixture, TestjcalcSimple) {
       );
 
   EXPECT_TRUE (SpatialMatrixdCompareEpsilon (test_matrix, model->X_J[1].toMatrix(), 1.0e-16));
-  EXPECT_TRUE (SpatialVectordCompareEpsilon (test_vector, model->v_J[1], 1.0e-16));
+  EXPECT_TRUE (SpatialVectordCompareEpsilon (test_vector, model->model_data.a[1], 1.0e-16));
   EXPECT_EQ (test_joint_axis, model->S[1]);
 
   Q[0] = M_PI * 0.5;
@@ -197,7 +197,7 @@ TEST_F(ModelFixture, TestjcalcSimple) {
       );
 
   EXPECT_TRUE (SpatialMatrixdCompareEpsilon (test_matrix, model->X_J[1].toMatrix(), 1.0e-16));
-  EXPECT_TRUE (SpatialVectordCompareEpsilon (test_vector, model->v_J[1], 1.0e-16));
+  EXPECT_TRUE (SpatialVectordCompareEpsilon (test_vector, model->model_data.a[1], 1.0e-16));
   EXPECT_EQ (test_joint_axis, model->S[1]);
 }
 

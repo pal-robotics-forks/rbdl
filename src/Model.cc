@@ -39,11 +39,11 @@ Model::Model() {
   gravity = Vector3d (0., -9.81, 0.);
 
   // state information
-  v.push_back(zero_spatial);
-  a.push_back(zero_spatial);
-  a_bias.push_back(zero_spatial);
+  model_data.v.push_back(zero_spatial);
+  model_data.a.push_back(zero_spatial);
+  model_data.a_bias.push_back(zero_spatial);
   SpatialMatrixd zero_spatial_matrix; zero_spatial_matrix.setZero();
-  acumulated_mass.push_back(zero_spatial_matrix);
+  model_data.acumulated_mass.push_back(zero_spatial_matrix);
 
   // Joints
   mJoints.push_back(root_joint);
@@ -347,11 +347,11 @@ unsigned int Model::AddBody(
   }
 
   // state information
-  v.push_back(SpatialVectord(0., 0., 0., 0., 0., 0.));
-  a.push_back(SpatialVectord(0., 0., 0., 0., 0., 0.));
-  a_bias.push_back(SpatialVectord(0., 0., 0., 0., 0., 0.));
+  model_data.v.push_back(SpatialVectord(0., 0., 0., 0., 0., 0.));
+  model_data.a.push_back(SpatialVectord(0., 0., 0., 0., 0., 0.));
+  model_data.a_bias.push_back(SpatialVectord(0., 0., 0., 0., 0., 0.));
   SpatialMatrixd zero_spatial_matrix; zero_spatial_matrix.setZero();
-  acumulated_mass.push_back(zero_spatial_matrix);
+  model_data.acumulated_mass.push_back(zero_spatial_matrix);
 
   // Joints
   unsigned int prev_joint_index = mJoints.size() - 1;

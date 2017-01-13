@@ -549,19 +549,19 @@ TEST_F ( CustomJointMultiBodyFixture, UpdateKinematics ) {
       TEST_PREC));
 
     EXPECT_TRUE(EIGEN_MATRIX_NEAR (
-      reference_model.at(idx).v[
+      reference_model.at(idx).model_data.v[
         reference_body_id.at(idx).at(NUMBER_OF_BODIES-1)
         ],
-      custom_model.at(idx).v[
+      custom_model.at(idx).model_data.v[
         custom_body_id.at(idx).at(NUMBER_OF_BODIES-1)
         ],
       TEST_PREC));
 
     EXPECT_TRUE(EIGEN_MATRIX_NEAR (
-      reference_model.at(idx).a[
+      reference_model.at(idx).model_data.a[
         reference_body_id.at(idx).at(NUMBER_OF_BODIES-1)
         ],
-      custom_model.at(idx).a[
+      custom_model.at(idx).model_data.a[
         custom_body_id.at(idx).at(NUMBER_OF_BODIES-1)
         ],
       TEST_PREC));
@@ -603,10 +603,10 @@ TEST_F (CustomJointMultiBodyFixture, UpdateKinematicsCustom) {
                             &qdot.at(idx), NULL);
 
     EXPECT_TRUE(EIGEN_MATRIX_NEAR (
-          reference_model.at(idx).v[
+          reference_model.at(idx).model_data.v[
             reference_body_id.at(idx).at(NUMBER_OF_BODIES-1)
             ],
-          custom_model.at(idx).v[
+          custom_model.at(idx).model_data.v[
             custom_body_id.at(idx).at(NUMBER_OF_BODIES-1)
             ],
           TEST_PREC));
@@ -624,10 +624,10 @@ TEST_F (CustomJointMultiBodyFixture, UpdateKinematicsCustom) {
                             &qddot.at(idx));
 
     EXPECT_TRUE(EIGEN_MATRIX_NEAR (
-      reference_model.at(idx).a[
+      reference_model.at(idx).model_data.a[
         reference_body_id.at(idx).at(NUMBER_OF_BODIES-1)
         ],
-      custom_model.at(idx).a[
+      custom_model.at(idx).model_data.a[
         custom_body_id.at(idx).at(NUMBER_OF_BODIES-1)
         ],
       TEST_PREC));

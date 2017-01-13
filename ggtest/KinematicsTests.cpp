@@ -592,7 +592,7 @@ TEST_F ( Human36, SpatialJacobianSimple ) {
   UpdateKinematicsCustom (*model, &q, &qdot, NULL);
   SpatialVectord v_body = SpatialVectord(G * qdot);
 
-  EXPECT_TRUE(EIGEN_MATRIX_NEAR (model->v[foot_r_id], v_body,  TEST_PREC));
+  EXPECT_TRUE(EIGEN_MATRIX_NEAR (model->model_data.v[foot_r_id], v_body,  TEST_PREC));
 }
 
 TEST_F ( Human36, SpatialJacobianFixedBody ) {
@@ -609,7 +609,7 @@ TEST_F ( Human36, SpatialJacobianFixedBody ) {
   UpdateKinematicsCustom (*model, &q, &qdot, NULL);
   SpatialVectord v_body = SpatialVectord(G * qdot);
 
-  SpatialVectord v_fixed_body = model->mFixedBodies[fixed_body_id].mParentTransform.apply (model->v[movable_parent]);
+  SpatialVectord v_fixed_body = model->mFixedBodies[fixed_body_id].mParentTransform.apply (model->model_data.v[movable_parent]);
 
   EXPECT_TRUE(EIGEN_MATRIX_NEAR (v_fixed_body, v_body,  TEST_PREC));
 }
@@ -630,7 +630,7 @@ TEST_F ( Human36, CalcPointJacobian6D ) {
   Vector3d r_point = CalcBodyToBaseCoordinates (*model, q, foot_r_id, point_local);
   SpatialTransformd X_foot (Matrix3d::Identity(), r_point);
   UpdateKinematicsCustom (*model, &q, &qdot, NULL);
-  SpatialVectord v_foot_0_ref = X_foot.apply(model->X_base[foot_r_id].inverse().apply(model->v[foot_r_id]));
+  SpatialVectord v_foot_0_ref = X_foot.apply(model->X_base[foot_r_id].inverse().apply(model->model_data.v[foot_r_id]));
 
   EXPECT_TRUE(EIGEN_MATRIX_NEAR (v_foot_0_ref, v_foot_0_jac,  TEST_PREC));
 }
@@ -649,7 +649,7 @@ TEST_F ( Human36, CalcPointVelocity6D ) {
   Vector3d r_point = CalcBodyToBaseCoordinates (*model, q, foot_r_id, point_local);
   SpatialTransformd X_foot (Matrix3d::Identity(), r_point);
   UpdateKinematicsCustom (*model, &q, &qdot, NULL);
-  SpatialVectord v_foot_0_ref = X_foot.apply(model->X_base[foot_r_id].inverse().apply(model->v[foot_r_id]));
+  SpatialVectord v_foot_0_ref = X_foot.apply(model->X_base[foot_r_id].inverse().apply(model->model_data.v[foot_r_id]));
 
   EXPECT_TRUE(EIGEN_MATRIX_NEAR (v_foot_0_ref, v_foot_0,  TEST_PREC));
 }
@@ -673,9 +673,9 @@ TEST_F ( Human36, CalcPointAcceleration6D ) {
   SpatialTransformd X_foot (Matrix3d::Identity(), r_point);
   UpdateKinematicsCustom (*model, &q, &qdot, NULL);
   SpatialVectord a_foot_0_ref = X_foot.apply(
-      model->X_base[foot_r_id].inverse().apply(model->a[foot_r_id])
+      model->X_base[foot_r_id].inverse().apply(model->model_data.a[foot_r_id])
       - crossm(rdot,
-        model->X_base[foot_r_id].inverse().apply(model->v[foot_r_id])
+        model->X_base[foot_r_id].inverse().apply(model->model_data.v[foot_r_id])
         )
       );
 

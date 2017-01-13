@@ -540,7 +540,7 @@ void ForwardDynamicsApplyConstraintForces (
 
   for (i = 1; i < model.mBodies.size(); i++) {
     model.IA[i] = model.I[i].toMatrix();;
-    model.pA[i] = crossf(model.v[i],model.I[i] * model.v[i]);
+    model.pA[i] = crossf(model.model_data.v[i],model.I[i] * model.model_data.v[i]);
 
     if (CS.f_ext_constraints[i] != SpatialVectord::Zero()) {
       LOG << "External force (" << i << ") = " << model.X_base[i].toMatrixAdjoint() * CS.f_ext_constraints[i] << std::endl;
@@ -647,30 +647,30 @@ void ForwardDynamicsApplyConstraintForces (
     }
   }
 
-  model.a[0] = SpatialVectord (0., 0., 0., -model.gravity[0], -model.gravity[1], -model.gravity[2]);
+  model.model_data.a[0] = SpatialVectord (0., 0., 0., -model.gravity[0], -model.gravity[1], -model.gravity[2]);
 
   for (i = 1; i < model.mBodies.size(); i++) {
     unsigned int q_index = model.mJoints[i].q_index;
     unsigned int lambda = model.lambda[i];
     SpatialTransformd X_lambda = model.X_lambda[i];
 
-    model.a[i] = X_lambda.apply(model.a[lambda]) + model.c[i];
-    LOG << "a'[" << i << "] = " << model.a[i].transpose() << std::endl;
+    model.model_data.a[i] = X_lambda.apply(model.model_data.a[lambda]) + model.c[i];
+    LOG << "a'[" << i << "] = " << model.model_data.a[i].transpose() << std::endl;
 
     if (model.mJoints[i].mDoFCount == 3
         && model.mJoints[i].mJointType != JointTypeCustom) {
       Vector3d qdd_temp = model.multdof3_Dinv[i] * 
         (model.multdof3_u[i] 
-         - model.multdof3_U[i].transpose() * model.a[i]);
+         - model.multdof3_U[i].transpose() * model.model_data.a[i]);
 
       QDDot[q_index] = qdd_temp[0];
       QDDot[q_index + 1] = qdd_temp[1];
       QDDot[q_index + 2] = qdd_temp[2];
-      model.a[i] = model.a[i] + model.multdof3_S[i] * qdd_temp;
+      model.model_data.a[i] = model.model_data.a[i] + model.multdof3_S[i] * qdd_temp;
     } else if (model.mJoints[i].mDoFCount == 1
         && model.mJoints[i].mJointType != JointTypeCustom) {
-      QDDot[q_index] = (1./model.d[i]) * (model.u[i] - model.U[i].dot(model.a[i]));
-      model.a[i] = model.a[i] + model.S[i] * QDDot[q_index];
+      QDDot[q_index] = (1./model.d[i]) * (model.u[i] - model.U[i].dot(model.model_data.a[i]));
+      model.model_data.a[i] = model.model_data.a[i] + model.S[i] * QDDot[q_index];
     } else if (model.mJoints[i].mJointType == JointTypeCustom){
       unsigned int kI     = model.mJoints[i].custom_joint_index;
       unsigned int dofI   = model.mCustomJoints[kI]->mDoFCount;
@@ -679,13 +679,13 @@ void ForwardDynamicsApplyConstraintForces (
       qdd_temp = model.mCustomJoints[kI]->Dinv 
         * (model.mCustomJoints[kI]->u
             - model.mCustomJoints[kI]->U.transpose()
-            * model.a[i]);
+            * model.model_data.a[i]);
 
       for(int z=0; z<dofI;++z){
         QDDot[q_index+z] = qdd_temp[z];
       }
 
-      model.a[i] = model.a[i] + (model.mCustomJoints[kI]->S * qdd_temp);
+      model.model_data.a[i] = model.model_data.a[i] + (model.mCustomJoints[kI]->S * qdd_temp);
     }
   }
 
@@ -782,7 +782,7 @@ void ForwardDynamicsAccelerationDeltas (
   }
 
   QDDot_t[0] = 0.;
-  CS.d_a[0] = model.a[0];
+  CS.d_a[0] = model.model_data.a[0];
 
   for (unsigned int i = 1; i < model.mBodies.size(); i++) {
     unsigned int q_index = model.mJoints[i].q_index;
@@ -798,7 +798,7 @@ void ForwardDynamicsAccelerationDeltas (
       QDDot_t[q_index] = qdd_temp[0];
       QDDot_t[q_index + 1] = qdd_temp[1];
       QDDot_t[q_index + 2] = qdd_temp[2];
-      model.a[i] = model.a[i] + model.multdof3_S[i] * qdd_temp;
+      model.model_data.a[i] = model.model_data.a[i] + model.multdof3_S[i] * qdd_temp;
       CS.d_a[i] = Xa + model.multdof3_S[i] * qdd_temp;
     } else if (model.mJoints[i].mDoFCount == 1
         && model.mJoints[i].mJointType != JointTypeCustom){
@@ -818,7 +818,7 @@ void ForwardDynamicsAccelerationDeltas (
         QDDot_t[q_index+z] = qdd_temp[z];
       }
 
-      model.a[i] = model.a[i] + model.mCustomJoints[kI]->S * qdd_temp;
+      model.model_data.a[i] = model.model_data.a[i] + model.mCustomJoints[kI]->S * qdd_temp;
       CS.d_a[i] = Xa + model.mCustomJoints[kI]->S * qdd_temp;
     }
 

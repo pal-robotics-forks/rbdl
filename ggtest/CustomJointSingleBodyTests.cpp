@@ -401,13 +401,13 @@ TEST_F ( CustomJointSingleBodyFixture, UpdateKinematics ) {
         TEST_PREC));
 
     EXPECT_TRUE(EIGEN_MATRIX_NEAR (
-                  reference_model.at(idx).v[reference_body_id.at(idx)],
-                custom_model.at(idx).v[   custom_body_id.at(idx)],
+                  reference_model.at(idx).model_data.v[reference_body_id.at(idx)],
+                custom_model.at(idx).model_data.v[   custom_body_id.at(idx)],
         TEST_PREC));
 
     EXPECT_TRUE(EIGEN_MATRIX_NEAR (
-                  reference_model.at(idx).a[reference_body_id.at(idx)],
-                custom_model.at(idx).a[   custom_body_id.at(idx)],
+                  reference_model.at(idx).model_data.a[reference_body_id.at(idx)],
+                custom_model.at(idx).model_data.a[   custom_body_id.at(idx)],
         TEST_PREC));
   }
 }
@@ -445,8 +445,8 @@ TEST_F (CustomJointSingleBodyFixture, UpdateKinematicsCustom) {
                             NULL);
 
     EXPECT_TRUE(EIGEN_MATRIX_NEAR (
-                  reference_model.at(idx).v[reference_body_id.at(idx)],
-                custom_model.at(idx).v[   custom_body_id.at(idx)],
+                  reference_model.at(idx).model_data.v[reference_body_id.at(idx)],
+                custom_model.at(idx).model_data.v[   custom_body_id.at(idx)],
         TEST_PREC));
 
 
@@ -462,8 +462,8 @@ TEST_F (CustomJointSingleBodyFixture, UpdateKinematicsCustom) {
                             &qddot.at(idx));
 
     EXPECT_TRUE(EIGEN_MATRIX_NEAR (
-                  reference_model.at(idx).a[reference_body_id.at(idx)],
-                custom_model.at(idx).a[   custom_body_id.at(idx)],
+                  reference_model.at(idx).model_data.a[reference_body_id.at(idx)],
+                custom_model.at(idx).model_data.a[   custom_body_id.at(idx)],
         TEST_PREC));
   }
 

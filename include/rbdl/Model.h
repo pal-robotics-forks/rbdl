@@ -110,6 +110,20 @@ namespace RigidBodyDynamics {
  * RigidBodyDynamics::Addons::URDFReadFromFile \endlink.
  */
 
+  struct ModelData{
+
+      // State information
+      /// \brief The spatial velocity of the bodies
+      std::vector<Math::SpatialVectord> v;
+      /// \brief The spatial acceleration of the bodies
+      std::vector<Math::SpatialVectord> a;
+      /// \brief The spatial bias acceleration of the bodies
+      std::vector<Math::SpatialVectord> a_bias;
+
+      /// \brief For computing COM jacobian efficiently
+      std::vector<Math::SpatialMatrixd> acumulated_mass;
+  };
+
 /** \brief Contains all information about the rigid body model
  *
  * This class contains all information required to perform the forward
@@ -134,6 +148,7 @@ public:
   Model();
 
   // Structural information
+  ModelData model_data;
 
   /// \brief The id of the parents body
   std::vector<unsigned int> lambda;
@@ -165,17 +180,6 @@ public:
 
   /// \brief the cartesian vector of the gravity
   Math::Vector3d gravity;
-
-  // State information
-  /// \brief The spatial velocity of the bodies
-  std::vector<Math::SpatialVectord> v;
-  /// \brief The spatial acceleration of the bodies
-  std::vector<Math::SpatialVectord> a;
-  /// \brief The spatial bias acceleration of the bodies
-  std::vector<Math::SpatialVectord> a_bias;
-
-  /// \brief For computing COM jacobian efficiently
-  std::vector<Math::SpatialMatrixd> acumulated_mass;
 
   ////////////////////////////////////
   // Joints

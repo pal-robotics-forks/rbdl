@@ -164,7 +164,7 @@ RBDL_DLLAPI void CalcCenterOfMass (
 
   for (size_t i = 1; i < model.mBodies.size(); i++) {
     model.Ic[i] = model.I[i];
-    model.hc[i] = model.Ic[i].toMatrix() * model.v[i];
+    model.hc[i] = model.Ic[i].toMatrix() * model.model_data.v[i];
   }
 
   SpatialRigidBodyInertiad Itot (0., Vector3d (0., 0., 0.), Matrix3d::Zero(3,3));
@@ -220,7 +220,7 @@ RBDL_DLLAPI double CalcKineticEnergy (
   double result = 0.;
 
   for (size_t i = 1; i < model.mBodies.size(); i++) {
-    result += 0.5 * model.v[i].transpose() * (model.I[i] * model.v[i]);
+    result += 0.5 * model.model_data.v[i].transpose() * (model.I[i] * model.model_data.v[i]);
   }
   return result;
 }
