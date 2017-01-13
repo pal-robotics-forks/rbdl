@@ -14,36 +14,35 @@ namespace RigidBodyDynamics {
 
   double CalcTotalMass(Model &model);
 
-  Math::Vector3d CalcCOM(Model &model,
+  Math::Vector3d CalcCOM(Model &model, ModelData &model_data,
                          const Math::VectorNd &Q,
                          bool update_kinematics = true);
 
 
-  Math::Vector3d CalcCOMVelocity(Model &model,
+  Math::Vector3d CalcCOMVelocity(Model &model, ModelData &model_data,
                                  const Math::VectorNd &Q,
                                  const Math::VectorNd &QDot,
                                  bool update_kinematics = true);
 
-  Math::Vector3d CalcCOMAcceleartion(Model &model,
+  Math::Vector3d CalcCOMAcceleartion(Model &model, ModelData &model_data,
                                      const Math::VectorNd &Q,
                                      const Math::VectorNd &QDot,
                                      const Math::VectorNd &QDDot,
                                      bool update_kinematics = true);
 
-  Math::Vector3d CalcCOMAccelerationBias(Model &model,
+  Math::Vector3d CalcCOMAccelerationBias(Model &model, ModelData &model_data,
                                          const Math::VectorNd &Q,
                                          const Math::VectorNd &QDot,
                                          bool update_kinematics = true);
 
-  void CalcCOMJacobian (
-      Model &model,
+  void CalcCOMJacobian (Model &model,
+                        ModelData &model_data,
       const Math::VectorNd &Q,
       Math::MatrixNd &COMJ,
       bool update_kinematics = true);
 
 
-  void CalcCOMJacobian_inefficient (
-      Model &model,
+  void CalcCOMJacobian_inefficient (Model &model, ModelData &model_data,
       const Math::VectorNd &Q,
       Math::MatrixNd &COMJ,
       bool update_kinematics = true
@@ -56,8 +55,8 @@ namespace RigidBodyDynamics {
 //                              bool update_kinematics = true);
 
   /// @todo: Document
-  Math::SpatialVectord CalcEnergy_inefficient (
-      Model &model,
+  Math::SpatialVectord CalcEnergy_inefficient (Model &model,
+                                               ModelData &model_data,
       const Math::VectorNd &Q,
       const Math::VectorNd &QDot,
       bool update_kinematics = true,

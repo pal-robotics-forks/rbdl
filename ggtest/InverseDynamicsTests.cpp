@@ -31,7 +31,7 @@ protected:
 TEST_F(InverseDynamicsFixture, TestInverseForwardDynamicsFloatingBase) {
   Body base_body(1., Vector3d (1., 0., 0.), Vector3d (1., 1., 1.));
 
-  model->AddBody (0, SpatialTransformd(),
+  model->AddBody (model_data, *model_data, 0, SpatialTransformd(),
       Joint (
         SpatialVectord (0., 0., 0., 1., 0., 0.),
         SpatialVectord (0., 0., 0., 0., 1., 0.),

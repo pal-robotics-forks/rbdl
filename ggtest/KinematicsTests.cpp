@@ -43,22 +43,22 @@ protected:
     body_a = Body (1., Vector3d (1., 0., 0.), Vector3d (1., 1., 1.));
     joint_a = Joint( SpatialVectord (0., 0., 1., 0., 0., 0.));
 
-    body_a_id = model->AddBody(0, Xtrans(Vector3d(0., 0., 0.)), joint_a, body_a);
+    body_a_id = model->AddBody(*model_data,*model_data, 0, Xtrans(Vector3d(0., 0., 0.)), joint_a, body_a);
 
     body_b = Body (1., Vector3d (0., 1., 0.), Vector3d (1., 1., 1.));
     joint_b = Joint ( SpatialVectord (0., 1., 0., 0., 0., 0.));
 
-    body_b_id = model->AddBody(body_a_id, Xtrans(Vector3d(1., 0., 0.)), joint_b, body_b);
+    body_b_id = model->AddBody(*model_data,*model_data, body_a_id, Xtrans(Vector3d(1., 0., 0.)), joint_b, body_b);
 
     body_c = Body (1., Vector3d (0., 0., 1.), Vector3d (1., 1., 1.));
     joint_c = Joint ( SpatialVectord (0., 0., 1., 0., 0., 0.));
 
-    body_c_id = model->AddBody(body_b_id, Xtrans(Vector3d(0., 1., 0.)), joint_c, body_c);
+    body_c_id = model->AddBody(*model_data,*model_data, body_b_id, Xtrans(Vector3d(0., 1., 0.)), joint_c, body_c);
 
     body_d = Body (1., Vector3d (1., 0., 0.), Vector3d (1., 1., 1.));
     joint_c = Joint ( SpatialVectord (1., 0., 0., 0., 0., 0.));
 
-    body_d_id = model->AddBody(body_c_id, Xtrans(Vector3d(0., 0., -1.)), joint_c, body_d);
+    body_d_id = model->AddBody(*model_data,*model_data, body_c_id, Xtrans(Vector3d(0., 0., -1.)), joint_c, body_d);
 
     Q = VectorNd::Constant ((size_t) model->dof_count, 0.);
     QDot = VectorNd::Constant ((size_t) model->dof_count, 0.);
@@ -113,7 +113,7 @@ protected:
         SpatialVectord (0., 1., 0., 0., 0., 0.),
         SpatialVectord (1., 0., 0., 0., 0., 0.)
         );
-    base_id = model->AddBody (0, Xtrans (Vector3d (0., 0., 0.)), joint_rotzyx, base);
+    base_id = model->AddBody (model_data, *model_data, 0, Xtrans (Vector3d (0., 0., 0.)), joint_rotzyx, base);
 
     // child body (3 DoF)
     child = Body (
@@ -121,7 +121,7 @@ protected:
         Vector3d (0., 0.5, 0.),
         Vector3d (1., 1., 1.)
         );
-    child_id = model->AddBody (base_id, Xtrans (Vector3d (1., 0., 0.)), joint_rotzyx, child);
+    child_id = model->AddBody (model_data, *model_data, base_id, Xtrans (Vector3d (1., 0., 0.)), joint_rotzyx, child);
 
     Q = VectorNd::Constant (model->mBodies.size() - 1, 0.);
     QDot = VectorNd::Constant (model->mBodies.size() - 1, 0.);
@@ -295,7 +295,7 @@ TEST_F(KinematicsFixture, TestCalcBodyToBaseCoordinatesRotated) {
 }
 
 TEST(KinematcisTests, TestCalcPointJacobian) {
-  Model model;
+  Model model(model_data);
   Body base_body (1., Vector3d (0., 0., 0.), Vector3d (1., 1., 1.));
 
   unsigned int base_body_id = model.AddBody (0, SpatialTransformd(),
@@ -334,7 +334,7 @@ TEST(KinematcisTests, TestCalcPointJacobian) {
   point_velocity_ref = CalcPointVelocity (model, Q, QDot, base_body_id, point_position);
 
   G.setZero();
-  CalcPointJacobian (model, Q, base_body_id, point_position, G);
+  CalcPointJacobian (model, model_data, Q, base_body_id, point_position, G);
 
   point_velocity = G * QDot;
 
@@ -455,7 +455,7 @@ TEST ( KinematicsTests, FixedJointBodyCalcBodyToBase ) {
   Body body(1., Vector3d (1., 0.4, 0.4), Vector3d (1., 1., 1.));
   Body fixed_body(1., Vector3d (1., 0.4, 0.4), Vector3d (1., 1., 1.));
 
-  Model model;
+  Model model(model_data);
 
   Joint joint_rot_z ( SpatialVectord (0., 0., 1., 0., 0., 0.));
   model.AddBody (0, Xtrans(Vector3d(0., 0., 0.)), joint_rot_z, body);
@@ -473,7 +473,7 @@ TEST ( KinematicsTests, FixedJointBodyCalcBodyToBaseRotated ) {
   Body body(1., Vector3d (1., 0.4, 0.4), Vector3d (1., 1., 1.));
   Body fixed_body(1., Vector3d (1., 0.4, 0.4), Vector3d (1., 1., 1.));
 
-  Model model;
+  Model model(model_data);
 
   Joint joint_rot_z ( SpatialVectord(0., 0., 1., 0., 0., 0.));
   model.AddBody (0, Xtrans(Vector3d(0., 0., 0.)), joint_rot_z, body);
@@ -483,7 +483,7 @@ TEST ( KinematicsTests, FixedJointBodyCalcBodyToBaseRotated ) {
 
   ClearLogOutput();
   Q[0] = M_PI * 0.5;
-  Vector3d base_coords = CalcBodyToBaseCoordinates (model, Q, fixed_body_id, Vector3d (1., 0., 0.));
+  Vector3d base_coords = CalcBodyToBaseCoordinates (model, model_data, Q, fixed_body_id, Vector3d (1., 0., 0.));
   //	cout << LogOutput.str() << endl;
 
   EXPECT_TRUE(EIGEN_MATRIX_NEAR (Vector3d (0., 2., 0.), base_coords,  TEST_PREC));
@@ -495,7 +495,7 @@ TEST ( KinematicsTests, FixedJointBodyCalcBaseToBody ) {
   Body body(1., Vector3d (1., 0.4, 0.4), Vector3d (1., 1., 1.));
   Body fixed_body(1., Vector3d (1., 0.4, 0.4), Vector3d (1., 1., 1.));
 
-  Model model;
+  Model model(model_data);
 
   Joint joint_rot_z ( SpatialVectord (0., 0., 1., 0., 0., 0.));
   model.AddBody (0, Xtrans(Vector3d(0., 0., 0.)), joint_rot_z, body);
@@ -513,7 +513,7 @@ TEST ( KinematicsTests, FixedJointBodyCalcBaseToBodyRotated ) {
   Body body(1., Vector3d (1., 0.4, 0.4), Vector3d (1., 1., 1.));
   Body fixed_body(1., Vector3d (1., 0.4, 0.4), Vector3d (1., 1., 1.));
 
-  Model model;
+  Model model(model_data);
 
   Joint joint_rot_z ( SpatialVectord (0., 0., 1., 0., 0., 0.));
   model.AddBody (0, Xtrans(Vector3d(0., 0., 0.)), joint_rot_z, body);
@@ -523,7 +523,7 @@ TEST ( KinematicsTests, FixedJointBodyCalcBaseToBodyRotated ) {
 
   ClearLogOutput();
   Q[0] = M_PI * 0.5;
-  Vector3d base_coords = CalcBaseToBodyCoordinates (model, Q, fixed_body_id, Vector3d (0., 2., 0.));
+  Vector3d base_coords = CalcBaseToBodyCoordinates (model, model_data, Q, fixed_body_id, Vector3d (0., 2., 0.));
   // cout << LogOutput.str() << endl;
 
   EXPECT_TRUE(EIGEN_MATRIX_NEAR (Vector3d (1., 0., 0.), base_coords,  TEST_PREC));
@@ -535,7 +535,7 @@ TEST (KinematicsTests, FixedJointBodyWorldOrientation ) {
   Body body(1., Vector3d (1., 0.4, 0.4), Vector3d (1., 1., 1.));
   Body fixed_body(1., Vector3d (1., 0.4, 0.4), Vector3d (1., 1., 1.));
 
-  Model model;
+  Model model(model_data);
 
   Joint joint_rot_z ( SpatialVectord (0., 0., 1., 0., 0., 0.));
   model.AddBody (0, Xtrans(Vector3d(0., 0., 0.)), joint_rot_z, body);
@@ -557,7 +557,7 @@ TEST ( KinematicsTests, FixedJointCalcPointJacobian ) {
   Body body(1., Vector3d (1., 0.4, 0.4), Vector3d (1., 1., 1.));
   Body fixed_body(1., Vector3d (1., 0.4, 0.4), Vector3d (1., 1., 1.));
 
-  Model model;
+  Model model(model_data);
 
   Joint joint_rot_z ( SpatialVectord (0., 0., 1., 0., 0., 0.));
   model.AddBody (0, Xtrans(Vector3d(0., 0., 0.)), joint_rot_z, body);
@@ -574,7 +574,7 @@ TEST ( KinematicsTests, FixedJointCalcPointJacobian ) {
   Vector3d point_position (1., 0., 0.);
 
   MatrixNd G = MatrixNd::Zero (3, model.dof_count);
-  CalcPointJacobian (model, Q, fixed_body_id, point_position, G);
+  CalcPointJacobian (model, model_data, Q, fixed_body_id, point_position, G);
   Vector3d point_velocity_jacobian = G * QDot;
   Vector3d point_velocity_reference = CalcPointVelocity (model, Q, QDot, fixed_body_id, point_position);
 

@@ -52,13 +52,13 @@ string get_body_name (const RigidBodyDynamics::Model &model, unsigned int body_i
   return model.GetBodyName(body_id);
 }
 
-RBDL_DLLAPI std::string GetModelDOFOverview (const Model &model) {
+RBDL_DLLAPI std::string GetModelDOFOverview (const Model &model, const ModelData &model_data) {
   stringstream result ("");
 
   unsigned int q_index = 0;
   for (unsigned int i = 1; i < model.mBodies.size(); i++) {
     if (model.mJoints[i].mDoFCount == 1) {
-      result << setfill(' ') << setw(3) << q_index << ": " << get_body_name(model, i) << "_" << get_dof_name (model.S[i]) << endl;
+      result << setfill(' ') << setw(3) << q_index << ": " << get_body_name(model, i) << "_" << get_dof_name (model_data.S[i]) << endl;
       q_index++;
     } else {
       for (unsigned int j = 0; j < model.mJoints[i].mDoFCount; j++) {
@@ -71,7 +71,8 @@ RBDL_DLLAPI std::string GetModelDOFOverview (const Model &model) {
   return result.str();
 }
 
-std::string print_hierarchy (const RigidBodyDynamics::Model &model, unsigned int body_index = 0, int indent = 0) {
+std::string print_hierarchy (const RigidBodyDynamics::Model &model, const RigidBodyDynamics::ModelData &model_data,
+                             unsigned int body_index = 0, int indent = 0) {
   stringstream result ("");
 
   for (int j = 0; j < indent; j++)
@@ -94,18 +95,18 @@ std::string print_hierarchy (const RigidBodyDynamics::Model &model, unsigned int
       abort();
     }
 
-    result << get_dof_name(model.S[body_index]) << ", ";
+    result << get_dof_name(model_data.S[body_index]) << ", ";
 
     body_index = model.mu[body_index][0];
   }
 
   if (body_index > 0)
-    result << get_dof_name(model.S[body_index]) << " ]";
+    result << get_dof_name(model_data.S[body_index]) << " ]";
   result << endl;
 
   unsigned int child_index = 0;
   for (child_index = 0; child_index < model.mu[body_index].size(); child_index++) {
-    result << print_hierarchy (model, model.mu[body_index][child_index], indent + 1);
+    result << print_hierarchy (model, model_data, model.mu[body_index][child_index], indent + 1);
   }
 
   // print fixed children
@@ -122,19 +123,19 @@ std::string print_hierarchy (const RigidBodyDynamics::Model &model, unsigned int
   return result.str();
 }
 
-RBDL_DLLAPI std::string GetModelHierarchy (const Model &model) {
+RBDL_DLLAPI std::string GetModelHierarchy (const Model &model, const ModelData &model_data) {
   stringstream result ("");
 
-  result << print_hierarchy (model);
+  result << print_hierarchy (model, model_data);
 
   return result.str();
 }
 
-RBDL_DLLAPI std::string GetNamedBodyOriginsOverview (Model &model) {
+RBDL_DLLAPI std::string GetNamedBodyOriginsOverview (Model &model, ModelData &model_data) {
   stringstream result ("");
 
   VectorNd Q (VectorNd::Zero(model.dof_count));
-  UpdateKinematicsCustom (model, &Q, NULL, NULL);
+  UpdateKinematicsCustom (model, model_data, &Q, NULL, NULL);
 
   for (unsigned int body_id = 0; body_id < model.mBodies.size(); body_id++) {
     std::string body_name = model.GetBodyName (body_id);
@@ -142,7 +143,7 @@ RBDL_DLLAPI std::string GetNamedBodyOriginsOverview (Model &model) {
     if (body_name.size() == 0) 
       continue;
 
-    Vector3d position = CalcBodyToBaseCoordinates (model, Q, body_id, Vector3d (0., 0., 0.), false);
+    Vector3d position = CalcBodyToBaseCoordinates (model, model_data, Q, body_id, Vector3d (0., 0., 0.), false);
 
     result << body_name << ": " << position.transpose() << endl;
   }
@@ -152,6 +153,7 @@ RBDL_DLLAPI std::string GetNamedBodyOriginsOverview (Model &model) {
 
 RBDL_DLLAPI void CalcCenterOfMass (
     Model &model, 
+    ModelData &model_data,
     const Math::VectorNd &q, 
     const Math::VectorNd &qdot, 
     double &mass, 
@@ -160,11 +162,11 @@ RBDL_DLLAPI void CalcCenterOfMass (
     Math::Vector3d *angular_momentum,
     bool update_kinematics) {
   if (update_kinematics)
-    UpdateKinematicsCustom (model, &q, &qdot, NULL);
+    UpdateKinematicsCustom (model, model_data, &q, &qdot, NULL);
 
   for (size_t i = 1; i < model.mBodies.size(); i++) {
     model.Ic[i] = model.I[i];
-    model.hc[i] = model.Ic[i].toMatrix() * model.model_data.v[i];
+    model.hc[i] = model.Ic[i].toMatrix() * model_data.v[i];
   }
 
   SpatialRigidBodyInertiad Itot (0., Vector3d (0., 0., 0.), Matrix3d::Zero(3,3));
@@ -174,11 +176,11 @@ RBDL_DLLAPI void CalcCenterOfMass (
     unsigned int lambda = model.lambda[i];
 
     if (lambda != 0) {
-      model.Ic[lambda] = model.Ic[lambda] + model.X_lambda[i].applyTranspose (model.Ic[i]);
-      model.hc[lambda] = model.hc[lambda] + model.X_lambda[i].applyTranspose (model.hc[i]);
+      model.Ic[lambda] = model.Ic[lambda] + model_data.X_lambda[i].applyTranspose (model.Ic[i]);
+      model.hc[lambda] = model.hc[lambda] + model_data.X_lambda[i].applyTranspose (model.hc[i]);
     } else {
-      Itot = Itot + model.X_lambda[i].applyTranspose (model.Ic[i]);
-      htot = htot + model.X_lambda[i].applyTranspose (model.hc[i]);
+      Itot = Itot + model_data.X_lambda[i].applyTranspose (model.Ic[i]);
+      htot = htot + model_data.X_lambda[i].applyTranspose (model.hc[i]);
     }
   }
 
@@ -196,7 +198,8 @@ RBDL_DLLAPI void CalcCenterOfMass (
 }
 
 RBDL_DLLAPI double CalcPotentialEnergy (
-    Model &model, 
+    Model &model,
+    ModelData &model_data,
     const Math::VectorNd &q, 
     bool update_kinematics) {
   double mass;
@@ -211,16 +214,17 @@ RBDL_DLLAPI double CalcPotentialEnergy (
 
 RBDL_DLLAPI double CalcKineticEnergy (
     Model &model, 
+    ModelData &model_data,
     const Math::VectorNd &q, 
     const Math::VectorNd &qdot, 
     bool update_kinematics) {
   if (update_kinematics)
-    UpdateKinematicsCustom (model, &q, &qdot, NULL);
+    UpdateKinematicsCustom (model, model_data, &q, &qdot, NULL);
 
   double result = 0.;
 
   for (size_t i = 1; i < model.mBodies.size(); i++) {
-    result += 0.5 * model.model_data.v[i].transpose() * (model.I[i] * model.model_data.v[i]);
+    result += 0.5 * model_data.v[i].transpose() * (model.I[i] * model_data.v[i]);
   }
   return result;
 }

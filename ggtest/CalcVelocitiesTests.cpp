@@ -25,17 +25,17 @@ protected:
     body_a = Body (1., Vector3d (1., 0., 0.), Vector3d (1., 1., 1.));
     Joint joint_a ( SpatialVectord (0., 0., 1., 0., 0., 0.));
 
-    body_a_id = model->AddBody(0, Xtrans(Vector3d(0., 0., 0.)), joint_a, body_a);
+    body_a_id = model->AddBody(*model_data,*model_data, *model_data, 0, Xtrans(Vector3d(0., 0., 0.)), joint_a, body_a);
 
     body_b = Body (1., Vector3d (0., 1., 0.), Vector3d (1., 1., 1.));
     Joint joint_b ( SpatialVectord (0., 1., 0., 0., 0., 0.));
 
-    body_b_id = model->AddBody(1, Xtrans(Vector3d(1., 0., 0.)), joint_b, body_b);
+    body_b_id = model->AddBody(*model_data,*model_data, *model_data, 1, Xtrans(Vector3d(1., 0., 0.)), joint_b, body_b);
 
     body_c = Body (1., Vector3d (1., 0., 0.), Vector3d (1., 1., 1.));
     Joint joint_c ( SpatialVectord (1., 0., 0., 0., 0., 0.));
 
-    body_c_id = model->AddBody(2, Xtrans(Vector3d(0., 1., 0.)), joint_c, body_c);
+    body_c_id = model->AddBody(*model_data,*model_data, *model_data, 2, Xtrans(Vector3d(0., 1., 0.)), joint_c, body_c);
 
     Q = VectorNd::Constant ((size_t) model->dof_count, 0.);
     QDot = VectorNd::Constant ((size_t) model->dof_count, 0.);
@@ -169,7 +169,7 @@ TEST(CalcVelocitiesTest, FixedJointCalcPointVelocity ) {
   Body body(1., Vector3d (1., 0.4, 0.4), Vector3d (1., 1., 1.));
   Body fixed_body(1., Vector3d (1., 0.4, 0.4), Vector3d (1., 1., 1.));
 
-  Model model;
+  Model model(model_data);
 
   Joint joint_rot_z ( SpatialVectord (0., 0., 1., 0., 0., 0.));
   model.AddBody (0, Xtrans(Vector3d(0., 0., 0.)), joint_rot_z, body);
@@ -196,7 +196,7 @@ TEST (CalcVelocitiesTest, FixedJointCalcPointVelocityRotated ) {
   Body body(1., Vector3d (1., 0.4, 0.4), Vector3d (1., 1., 1.));
   Body fixed_body(1., Vector3d (1., 0.4, 0.4), Vector3d (1., 1., 1.));
 
-  Model model;
+  Model model(model_data);
 
   Joint joint_rot_z ( SpatialVectord (0., 0., 1., 0., 0., 0.));
   model.AddBody (0, Xtrans(Vector3d(0., 0., 0.)), joint_rot_z, body);

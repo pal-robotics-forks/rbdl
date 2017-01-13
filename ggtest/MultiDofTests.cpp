@@ -276,13 +276,13 @@ TEST_F (SphericalJoint, TestUpdateKinematics) {
   UpdateKinematicsCustom (emulated_model, &emuQ, &emuQDot, &emuQDDot);
   UpdateKinematicsCustom (multdof3_model, &sphQ, &sphQDot, &sphQDDot);
 
-  EXPECT_TRUE(EIGEN_MATRIX_NEAR (emulated_model.model_data.v[emu_body_id], multdof3_model.model_data.v[sph_body_id], TEST_PREC));
-  EXPECT_TRUE(EIGEN_MATRIX_NEAR (emulated_model.model_data.a[emu_body_id], multdof3_model.model_data.a[sph_body_id],  TEST_PREC));
+  EXPECT_TRUE(EIGEN_MATRIX_NEAR (emulated_model_data.v[emu_body_id], multdof3_model_data.v[sph_body_id], TEST_PREC));
+  EXPECT_TRUE(EIGEN_MATRIX_NEAR (emulated_model_data.a[emu_body_id], multdof3_model_data.a[sph_body_id],  TEST_PREC));
 
   UpdateKinematics (multdof3_model, sphQ, sphQDot, sphQDDot);
 
-  EXPECT_TRUE(EIGEN_MATRIX_NEAR (emulated_model.model_data.v[emu_child_id], multdof3_model.model_data.v[sph_child_id],  TEST_PREC));
-  EXPECT_TRUE(EIGEN_MATRIX_NEAR (emulated_model.model_data.a[emu_child_id], multdof3_model.model_data.a[sph_child_id],  TEST_PREC));
+  EXPECT_TRUE(EIGEN_MATRIX_NEAR (emulated_model_data.v[emu_child_id], multdof3_model_data.v[sph_child_id],  TEST_PREC));
+  EXPECT_TRUE(EIGEN_MATRIX_NEAR (emulated_model_data.a[emu_child_id], multdof3_model_data.a[sph_child_id],  TEST_PREC));
 }
 
 TEST_F (SphericalJoint, TestSpatialVelocities) {
@@ -301,7 +301,7 @@ TEST_F (SphericalJoint, TestSpatialVelocities) {
   UpdateKinematicsCustom (emulated_model, &emuQ, &emuQDot, NULL);
   UpdateKinematicsCustom (multdof3_model, &sphQ, &sphQDot, NULL);
 
-  EXPECT_TRUE(EIGEN_MATRIX_NEAR (emulated_model.model_data.v[emu_child_id], multdof3_model.model_data.v[sph_child_id],  TEST_PREC));
+  EXPECT_TRUE(EIGEN_MATRIX_NEAR (emulated_model_data.v[emu_child_id], multdof3_model_data.v[sph_child_id],  TEST_PREC));
 }
 
 TEST_F (SphericalJoint, TestForwardDynamicsQAndQDot) {
@@ -320,7 +320,7 @@ TEST_F (SphericalJoint, TestForwardDynamicsQAndQDot) {
   ForwardDynamics (emulated_model, emuQ, emuQDot, emuTau, emuQDDot);
   ForwardDynamics (multdof3_model, sphQ, sphQDot, sphTau, sphQDDot);
 
-  EXPECT_TRUE(EIGEN_MATRIX_NEAR (emulated_model.model_data.a[emu_child_id], multdof3_model.model_data.a[sph_child_id], TEST_PREC));
+  EXPECT_TRUE(EIGEN_MATRIX_NEAR (emulated_model_data.a[emu_child_id], multdof3_model_data.a[sph_child_id], TEST_PREC));
 }
 
 TEST_F (SphericalJoint, TestDynamicsConsistencyRNEA_ABA ) {

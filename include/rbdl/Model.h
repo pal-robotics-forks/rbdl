@@ -122,7 +122,36 @@ namespace RigidBodyDynamics {
 
       /// \brief For computing COM jacobian efficiently
       std::vector<Math::SpatialMatrixd> acumulated_mass;
+
+      /// \brief Transformation from the base to bodies reference frame
+      std::vector<Math::SpatialTransformd> X_base;
+
+      // Joint state variables
+      std::vector<Math::SpatialTransformd> X_J;
+      std::vector<Math::SpatialVectord> v_J;
+      std::vector<Math::SpatialVectord> c_J;
+
+      /// \brief The joint axis for joint i
+      std::vector<Math::SpatialVectord> S;
+
+      // Special variables for joints with 3 degrees of freedom
+      /// \brief Motion subspace for joints with 3 degrees of freedom
+      std::vector<Math::Matrix63d> multdof3_S;
+
+      // Bodies
+
+      /** \brief Transformation from the parent body to the current body
+       * \f[
+       *	X_{\lambda(i)} = {}^{i} X_{\lambda(i)}
+       * \f]
+       */
+      std::vector<Math::SpatialTransformd> X_lambda;
+
+      // Dynamics variables
+      /// \brief The velocity dependent spatial acceleration
+      std::vector<Math::SpatialVectord> c;
   };
+
 
 /** \brief Contains all information about the rigid body model
  *
@@ -145,11 +174,9 @@ class RBDL_DLLAPI Model {
 
 public:
 
-  Model();
+  Model(ModelData &model_data);
 
   // Structural information
-  ModelData model_data;
-
   /// \brief The id of the parents body
   std::vector<unsigned int> lambda;
   /** \brief The index of the parent degree of freedom that is directly 
@@ -187,13 +214,6 @@ public:
   /// \brief All joints
 
   std::vector<Joint> mJoints;
-  /// \brief The joint axis for joint i
-  std::vector<Math::SpatialVectord> S;
-
-  // Joint state variables
-  std::vector<Math::SpatialTransformd> X_J;
-  std::vector<Math::SpatialVectord> v_J;
-  std::vector<Math::SpatialVectord> c_J;
 
   std::vector<unsigned int> mJointUpdateOrder;
 
@@ -207,7 +227,6 @@ public:
   ////////////////////////////////////
   // Special variables for joints with 3 degrees of freedom
   /// \brief Motion subspace for joints with 3 degrees of freedom
-  std::vector<Math::Matrix63d> multdof3_S;
   std::vector<Math::Matrix63d> multdof3_U;
   std::vector<Math::Matrix3d> multdof3_Dinv;
   std::vector<Math::Vector3d> multdof3_u;
@@ -218,8 +237,6 @@ public:
   ////////////////////////////////////
   // Dynamics variables
 
-  /// \brief The velocity dependent spatial acceleration
-  std::vector<Math::SpatialVectord> c;
   /// \brief The spatial inertia of the bodies 
   std::vector<Math::SpatialMatrixd> IA;
   /// \brief The spatial bias force
@@ -240,15 +257,6 @@ public:
 
   ////////////////////////////////////
   // Bodies
-
-  /** \brief Transformation from the parent body to the current body
-   * \f[
-   *	X_{\lambda(i)} = {}^{i} X_{\lambda(i)}
-   * \f]
-   */
-  std::vector<Math::SpatialTransformd> X_lambda;
-  /// \brief Transformation from the base to bodies reference frame
-  std::vector<Math::SpatialTransformd> X_base;
 
   /// \brief All bodies that are attached to a body via a fixed joint.
   std::vector<FixedBody> mFixedBodies;
@@ -308,15 +316,15 @@ public:
    *
    * \returns id of the added body
    */
-  unsigned int AddBody (
+  unsigned int AddBody (ModelData &model_data,
       const unsigned int parent_id,
       const Math::SpatialTransformd &joint_frame,
       const Joint &joint,
       const Body &body,
-      std::string body_name = "" 
+      std::string body_name = ""
       );
 
-  unsigned int AddBodySphericalJoint (
+  unsigned int AddBodySphericalJoint (ModelData &model_data,
       const unsigned int parent_id,
       const Math::SpatialTransformd &joint_frame,
       const Joint &joint,
@@ -330,19 +338,19 @@ public:
    * This function is basically the same as Model::AddBody() however the
    * most recently added body (or body 0) is taken as parent.
    */
-  unsigned int AppendBody (
+  unsigned int AppendBody (ModelData &model_data,
       const Math::SpatialTransformd &joint_frame,
       const Joint &joint,
       const Body &body,
-      std::string body_name = "" 
+      std::string body_name = ""
       );
 
-  unsigned int AddBodyCustomJoint (
+  unsigned int AddBodyCustomJoint (ModelData &model_data,
       const unsigned int parent_id,
       const Math::SpatialTransformd &joint_frame,
       CustomJoint *custom_joint,
       const Body &body,
-      std::string body_name = "" 
+      std::string body_name = ""
       );
 
   /** \brief Specifies the dynamical parameters of the first body and
@@ -369,7 +377,7 @@ public:
    *
    *  \returns id of the body with 6 DoF
    */
-  unsigned int SetFloatingBaseBody (const Body &body);
+  unsigned int SetFloatingBaseBody (ModelData &model_data, const Body &body);
 
   /** \brief Returns the id of a body that was passed to AddBody()
    *

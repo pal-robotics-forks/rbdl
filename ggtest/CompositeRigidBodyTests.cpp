@@ -32,7 +32,7 @@ protected:
 TEST_F(CompositeRigidBodyFixture, TestCompositeRigidBodyForwardDynamicsFloatingBase) {
   Body base_body(1., Vector3d (1., 0., 0.), Vector3d (1., 1., 1.));
 
-  model->AddBody (0, SpatialTransformd(),
+  model->AddBody (model_data, *model_data, 0, SpatialTransformd(),
       Joint (
         SpatialVectord  (0., 0., 0., 1., 0., 0.),
         SpatialVectord  (0., 0., 0., 0., 1., 0.),
@@ -248,7 +248,7 @@ TEST_F(FixedBase6DoF, TestCRBAFloatingBase12DoFInverseDynamics) {
 TEST_F(CompositeRigidBodyFixture, TestCompositeRigidBodyForwardDynamicsSpherical) {
   Body base_body(1., Vector3d (0., 0., 0.), Vector3d (1., 2., 3.));
 
-  model->AddBody(0, SpatialTransformd(), Joint(JointTypeSpherical), base_body);
+  model->AddBody(*model_data,*model_data, *model_data, 0, SpatialTransformd(), Joint(JointTypeSpherical), base_body);
   VectorNd Q = VectorNd::Constant ((size_t) model->q_size, 0.);
   model->SetQuaternion (1, Quaterniond(), Q);
   MatrixNd H = MatrixNd::Constant ((size_t) model->qdot_size, (size_t) model->qdot_size, 0.);

@@ -42,7 +42,7 @@ namespace RigidBodyDynamics {
                           std::vector<double> &max_effort,
                           bool verbose = false);
 
-    bool URDFReadFromParamServer(Model* model, FloatingBaseType floatingBaseType,
+    bool URDFReadFromParamServer(Model* model, ModelData &model_data, FloatingBaseType floatingBaseType,
                                  std::vector<std::string> &joint_names,
                                  std::vector<double> &position_min,  std::vector<double> &position_max,
                                  std::vector<double> &vel_min,  std::vector<double> &vel_max,
@@ -61,7 +61,7 @@ namespace RigidBodyDynamics {
 
     // With subtree parsing
 
-    bool URDFReadFromParamServer(Model* model, FloatingBaseType floatingBaseType, const std::vector<std::string> &tipLinks,
+    bool URDFReadFromParamServer(Model* model, ModelData &model_data, FloatingBaseType floatingBaseType, const std::vector<std::string> &tipLinks,
                                  std::vector<std::string> &joint_names,
                                  std::vector<double> &position_min,  std::vector<double> &position_max,
                                  std::vector<double> &vel_min,  std::vector<double> &vel_max,

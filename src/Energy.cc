@@ -15,27 +15,30 @@ namespace RigidBodyDynamics {
 
   // We have to acumulate the spatial transforms, it seems that the cross product of acumulationg the
   // com displacements is a wrong assumption
-  void CalcAcumulatedMass(Model &model, const VectorNd &Q){
-    assert(model.model_data.acumulated_mass.size() == model.mBodies.size());
+  void CalcAcumulatedMass(Model &model,
+                          ModelData &model_data,
+                          const VectorNd &Q){
+    assert(model_data.acumulated_mass.size() == model.mBodies.size());
 
     for(unsigned int i = 1; i<model.mBodies.size(); ++i){
-      Vector3d comi = CalcBodyToBaseCoordinates(model, Q, i, model.mBodies[i].mCenterOfMass, false);
-      model.model_data.acumulated_mass[i] = model.mBodies[i].mMass*Xtrans_mat(comi);
+      Vector3d comi = CalcBodyToBaseCoordinates(model, model_data, Q, i, model.mBodies[i].mCenterOfMass, false);
+      model_data.acumulated_mass[i] = model.mBodies[i].mMass*Xtrans_mat(comi);
     }
 
     for (unsigned int i = model.mBodies.size() - 1; i > 0; i--) {
       unsigned int lambda = model.lambda[i];
-      model.model_data.acumulated_mass[lambda] += model.model_data.acumulated_mass[i];
+      model_data.acumulated_mass[lambda] += model_data.acumulated_mass[i];
     }
   }
 
 
   Math::Vector3d CalcCOM(Model &model,
+                         ModelData &model_data,
                          const Math::VectorNd &Q,
                          bool update_kinematics){
     // update the Kinematics if necessary
     if (update_kinematics) {
-      UpdateKinematicsCustom (model, &Q, NULL, NULL);
+      UpdateKinematicsCustom (model, model_data, &Q, NULL, NULL);
     }
     Eigen::Vector3d com;
     com.setZero();
@@ -44,7 +47,7 @@ namespace RigidBodyDynamics {
     for(unsigned int i=1; i<model.mBodies.size(); ++i){
       int body_id = i;//rbdl_model_.GetBodyId(link_names_[i].c_str());
       Eigen::Vector3d link_com;
-      link_com = CalcBodyToBaseCoordinates(model, Q,
+      link_com = CalcBodyToBaseCoordinates(model, model_data, Q,
                                            body_id, model.mBodies[body_id].mCenterOfMass, false);
 
       com += model.mBodies[body_id].mMass*link_com;
@@ -56,13 +59,14 @@ namespace RigidBodyDynamics {
 
 
   Math::Vector3d CalcCOMVelocity(Model &model,
+                                 ModelData &model_data,
                                  const Math::VectorNd &Q,
                                  const Math::VectorNd &QDot,
                                  bool update_kinematics){
 
     // update the Kinematics if necessary
     if (update_kinematics) {
-      UpdateKinematicsCustom (model, &Q, &QDot, NULL);
+      UpdateKinematicsCustom (model, model_data, &Q, &QDot, NULL);
     }
     Eigen::Vector3d com_vel;
     com_vel.setZero();
@@ -71,7 +75,7 @@ namespace RigidBodyDynamics {
     for(unsigned int i=1; i<model.mBodies.size(); ++i){
       int body_id = i;//rbdl_model_.GetBodyId(link_names_[i].c_str());
       Eigen::Vector3d link_com_vel;
-      link_com_vel = CalcPointVelocity(model, Q, QDot,
+      link_com_vel = CalcPointVelocity(model, model_data, Q, QDot,
                                        body_id, model.mBodies[body_id].mCenterOfMass, false);
 
       com_vel += model.mBodies[body_id].mMass*link_com_vel;
@@ -82,13 +86,14 @@ namespace RigidBodyDynamics {
   }
 
   Math::Vector3d CalcCOMAcceleartion(Model &model,
+                                     ModelData &model_data,
                                      const Math::VectorNd &Q,
                                      const Math::VectorNd &QDot,
                                      const Math::VectorNd &QDDot,
                                      bool update_kinematics){
     // update the Kinematics if necessary
     if (update_kinematics) {
-      UpdateKinematics(model, Q, QDot, QDDot);
+      UpdateKinematics(model, model_data, Q, QDot, QDDot);
     }
     Eigen::Vector3d com_acc;
     com_acc.setZero();
@@ -97,7 +102,7 @@ namespace RigidBodyDynamics {
     for(unsigned int i=1; i<model.mBodies.size(); ++i){
       int body_id = i;
       Eigen::Vector3d link_com_acc;
-      link_com_acc = CalcPointAcceleration(model, Q, QDot, QDDot,
+      link_com_acc = CalcPointAcceleration(model, model_data, Q, QDot, QDDot,
                                            body_id, model.mBodies[body_id].mCenterOfMass, false);
 
       com_acc += model.mBodies[body_id].mMass*link_com_acc;
@@ -107,12 +112,13 @@ namespace RigidBodyDynamics {
   }
 
   Math::Vector3d CalcCOMAccelerationBias(Model &model,
+                                         ModelData &model_data,
                                          const Math::VectorNd &Q,
                                          const Math::VectorNd &QDot,
                                          bool update_kinematics){
     // update the Kinematics if necessary
     if (update_kinematics) {
-      UpdateKinematicsCustom(model, &Q, &QDot, NULL);
+      UpdateKinematicsCustom(model, model_data, &Q, &QDot, NULL);
     }
     Eigen::Vector3d com_acc_bias;
     com_acc_bias.setZero();
@@ -121,7 +127,7 @@ namespace RigidBodyDynamics {
     for(unsigned int i=1; i<model.mBodies.size(); ++i){
       int body_id = i;
       Eigen::Vector3d link_com_acc_bias;
-      link_com_acc_bias = CalcPointAccelerationBias(model, Q, QDot,
+      link_com_acc_bias = CalcPointAccelerationBias(model, model_data, Q, QDot,
                                                     body_id, model.mBodies[body_id].mCenterOfMass, false);
 
       com_acc_bias += model.mBodies[body_id].mMass*link_com_acc_bias;
@@ -134,6 +140,7 @@ namespace RigidBodyDynamics {
 
   void CalcCOMJacobian (
       Model &model,
+      ModelData &model_data,
       const Math::VectorNd &Q,
       Math::MatrixNd &COMJ,
       bool update_kinematics){
@@ -142,7 +149,7 @@ namespace RigidBodyDynamics {
 
     // update the Kinematics if necessary
     if (update_kinematics) {
-      UpdateKinematicsCustom (model, &Q, NULL, NULL);
+      UpdateKinematicsCustom (model, model_data, &Q, NULL, NULL);
     }
 
     double total_mass = 0;
@@ -152,7 +159,7 @@ namespace RigidBodyDynamics {
     }
 
 
-    CalcAcumulatedMass(model, Q);
+    CalcAcumulatedMass(model, model_data, Q);
 
 
     for (unsigned int j = 1; j < model.mBodies.size(); j++) {
@@ -161,22 +168,22 @@ namespace RigidBodyDynamics {
       if(model.mJoints[j].mJointType != JointTypeCustom){
         if (model.mJoints[j].mDoFCount == 1) {
           COMJ.block(0,q_index, 3, 1) =
-              (model.model_data.acumulated_mass[j]
-               *(model.X_base[j].inverse().toMatrix()
-                 * model.S[j])).block(3,0,3,1);
+              (model_data.acumulated_mass[j]
+               *(model_data.X_base[j].inverse().toMatrix()
+                 * model_data.S[j])).block(3,0,3,1);
         } else if (model.mJoints[j].mDoFCount == 3) {
           COMJ.block(0, q_index, 3, 3) =
-              (model.model_data.acumulated_mass[j]
-                 * (model.X_base[j].inverse()).toMatrix()
-               * model.multdof3_S[j]).block(3,0,3,3);
+              (model_data.acumulated_mass[j]
+                 * (model_data.X_base[j].inverse()).toMatrix()
+               * model_data.multdof3_S[j]).block(3,0,3,3);
         }
       }
       else{
         unsigned int k = model.mJoints[j].custom_joint_index;
 
         COMJ.block(0, q_index, 3, model.mCustomJoints[k]->mDoFCount) =
-            (model.model_data.acumulated_mass[j]
-               * (model.X_base[j].inverse()).toMatrix()
+            (model_data.acumulated_mass[j]
+               * (model_data.X_base[j].inverse()).toMatrix()
              * model.mCustomJoints[k]->S).block(
               3,0,3,model.mCustomJoints[k]->mDoFCount);
       }
@@ -189,6 +196,7 @@ namespace RigidBodyDynamics {
 
   void CalcCOMJacobian_inefficient (
       Model &model,
+      ModelData &model_data,
       const VectorNd &Q,
       MatrixNd &COMJ,
       bool update_kinematics
@@ -198,7 +206,7 @@ namespace RigidBodyDynamics {
 
     // update the Kinematics if necessary
     if (update_kinematics) {
-      UpdateKinematicsCustom (model, &Q, NULL, NULL);
+      UpdateKinematicsCustom (model, model_data, &Q, NULL, NULL);
     }
 
     double total_mass = 0;
@@ -215,7 +223,7 @@ namespace RigidBodyDynamics {
       jacobian_link.setZero();
       double mass_link = model.mBodies[j].mMass;
       /// @todo: make optinional to not especify extra displacement of the tip
-      CalcPointJacobian(model, Q, j,
+      CalcPointJacobian(model, model_data, Q, j,
                         model.mBodies[j].mCenterOfMass, jacobian_link, false);
       COMJ += mass_link*jacobian_link;
     }
@@ -232,6 +240,7 @@ namespace RigidBodyDynamics {
   /// @todo: Document
   SpatialVectord CalcEnergy_inefficient(
       Model &model,
+      ModelData &model_data,
       const Math::VectorNd &Q,
       const Math::VectorNd &QDot,
       bool update_kinematics,
@@ -240,7 +249,7 @@ namespace RigidBodyDynamics {
 
     if (update_kinematics) {
       //Compute energy & COM & mass of the robot;
-      RigidBodyDynamics::UpdateKinematicsCustom(model, &Q, &QDot, NULL);
+      RigidBodyDynamics::UpdateKinematicsCustom(model, model_data, &Q, &QDot, NULL);
     }
 
     SpatialVectord spatial_moment = RigidBodyDynamics::Math::SpatialVectord::Zero();
@@ -254,26 +263,26 @@ namespace RigidBodyDynamics {
 
       if(method == 0){
         /// X'*I*X*(X^-1*v)
-        spatial_moment += model.X_base[body_id].toMatrix().transpose()*
+        spatial_moment += model_data.X_base[body_id].toMatrix().transpose()*
             model.I[body_id].toMatrix()*
-            model.X_base[body_id].toMatrix()*
-            model.X_base[body_id].inverse().toMatrix()*model.model_data.v[body_id];
+            model_data.X_base[body_id].toMatrix()*
+            model_data.X_base[body_id].inverse().toMatrix()*model_data.v[body_id];
       }
       else if(method == 1){
         //Optimization using spatial operators, in the book there is a further optimization to reduce operations
-        //    spatial_moment += model.X_base[body_id].apply(model.mBodies[body_id].mSpatialInertia*
-        //        (model.X_base[body_id].applyInverse(model.model_data.v[body_id])));
+        //    spatial_moment += model_data.X_base[body_id].apply(model.mBodies[body_id].mSpatialInertia*
+        //        (model_data.X_base[body_id].applyInverse(model_data.v[body_id])));
 
-        spatial_moment += model.X_base[body_id].toMatrix().transpose()*
+        spatial_moment += model_data.X_base[body_id].toMatrix().transpose()*
             model.I[body_id].toMatrix()*
-            model.X_base[body_id].toMatrix()*
-            (model.X_base[body_id].inverse().apply(model.model_data.v[body_id]));
+            model_data.X_base[body_id].toMatrix()*
+            (model_data.X_base[body_id].inverse().apply(model_data.v[body_id]));
 
       }
       else{
         //Spatial momentum vectors have the same properties as spatial force vectors
         // Optimization using spatial operators, in the book there is a further optimization to reduce operations
-        spatial_moment += model.X_base[body_id].applyTranspose(model.I[body_id].toMatrix()*(model.model_data.v[body_id]));
+        spatial_moment += model_data.X_base[body_id].applyTranspose(model.I[body_id].toMatrix()*(model_data.v[body_id]));
       }
 
       //std::cerr<<"Spatial moment: "<<i<<"  is: "<<spatial_moment.transpose()<<std::endl;

@@ -62,7 +62,7 @@ TEST_F(ModelFixture, TestAddBodyDimensions) {
   Joint joint ( SpatialVectord (0., 0., 1., 0., 0., 0.));
 
   unsigned int body_id = 0;
-  body_id = model->AddBody(0, Xtrans(Vector3d(0., 0., 0.)), joint, body);
+  body_id = model->AddBody(*model_data,*model_data, 0, Xtrans(Vector3d(0., 0., 0.)), joint, body);
 
   EXPECT_EQ (1u, body_id);
   EXPECT_EQ (2u, model->lambda.size());
@@ -131,7 +131,7 @@ TEST_F(ModelFixture, TestAddBodySpatialValues) {
   Body body;
   Joint joint ( SpatialVectord (0., 0., 1., 0., 0., 0.));
 
-  model->AddBody(0, Xtrans(Vector3d(0., 0., 0.)), joint, body);
+  model->AddBody(*model_data,*model_data, 0, Xtrans(Vector3d(0., 0., 0.)), joint, body);
 
   SpatialVectord spatial_joint_axis(0., 0., 1., 0., 0., 0.);
   EXPECT_EQ (spatial_joint_axis, joint.mJointAxes[0]);
@@ -143,7 +143,7 @@ TEST_F(ModelFixture, TestAddBodyTestBodyName) {
   Body body;
   Joint joint ( SpatialVectord (0., 0., 1., 0., 0., 0.));
 
-  model->AddBody(0, Xtrans(Vector3d(0., 0., 0.)), joint, body, "mybody");
+  model->AddBody(*model_data,*model_data, 0, Xtrans(Vector3d(0., 0., 0.)), joint, body, "mybody");
 
   unsigned int body_id = model->GetBodyId("mybody");
 
@@ -155,7 +155,7 @@ TEST_F(ModelFixture, TestjcalcSimple) {
   Body body;
   Joint joint ( SpatialVectord (0., 0., 1., 0., 0., 0.));
 
-  model->AddBody(0, Xtrans(Vector3d(1., 0., 0.)), joint, body);
+  model->AddBody(*model_data,*model_data, 0, Xtrans(Vector3d(1., 0., 0.)), joint, body);
 
   VectorNd Q = VectorNd::Zero (model->q_size);
   VectorNd QDot = VectorNd::Zero (model->q_size);
@@ -204,7 +204,7 @@ TEST_F(ModelFixture, TestjcalcSimple) {
 TEST_F ( ModelFixture, TestTransformBaseToLocal ) {
   Body body;
 
-  unsigned int body_id = model->AddBody (0, SpatialTransformd(),
+  unsigned int body_id = model->AddBody (model_data, *model_data, 0, SpatialTransformd(),
       Joint (
         SpatialVectord (0., 0., 0., 1., 0., 0.),
         SpatialVectord (0., 0., 0., 0., 1., 0.),
@@ -397,7 +397,7 @@ TEST (ModelTests, ModelFixedJointQueryBodyId ) {
   Body body(1., Vector3d (1., 0.4, 0.4), Vector3d (1., 1., 1.));
   Body fixed_body(1., Vector3d (1., 0.4, 0.4), Vector3d (1., 1., 1.));
 
-  Model model;
+  Model model(model_data);
 
   Joint joint_rot_z ( SpatialVectord (0., 0., 1., 0., 0., 0.));
 
@@ -417,7 +417,7 @@ TEST (ModelTests, ModelAppendToFixedBody ) {
   Body body(1., Vector3d (1., 0.4, 0.4), Vector3d (1., 1., 1.));
   Body fixed_body(1., Vector3d (1., 0.4, 0.4), Vector3d (1., 1., 1.));
 
-  Model model;
+  Model model(model_data);
 
   Joint joint_rot_z ( SpatialVectord (0., 0., 1., 0., 0., 0.));
 
@@ -444,7 +444,7 @@ TEST (ModelTests, ModelAppendFixedToFixedBody ) {
   Body body(movable_mass, movable_com, Vector3d (1., 1., 1.));
   Body fixed_body(fixed_mass, fixed_com, Vector3d (1., 1., 1.));
 
-  Model model;
+  Model model(model_data);
 
   Joint joint_rot_z ( SpatialVectord (0., 0., 1., 0., 0., 0.));
 
@@ -474,7 +474,7 @@ TEST (ModelTests, ModelFixedJointRotationOrderTranslationRotation ) {
   Body body(1., Vector3d (1., 0.4, 0.4), Vector3d (1., 1., 1.));
   Body fixed_body(1., Vector3d (1., 0.4, 0.4), Vector3d (1., 1., 1.));
 
-  Model model;
+  Model model(model_data);
 
   Joint joint_rot_z ( SpatialVectord (0., 0., 1., 0., 0., 0.));
 
@@ -487,7 +487,7 @@ TEST (ModelTests, ModelFixedJointRotationOrderTranslationRotation ) {
 
   VectorNd Q (VectorNd::Zero(model.dof_count));
   Q[0] = 45 * M_PI / 180.;
-  Vector3d point = CalcBodyToBaseCoordinates (model, Q, body_after_fixed, Vector3d (0., 1., 0.));
+  Vector3d point = CalcBodyToBaseCoordinates (model, model_data, Q, body_after_fixed, Vector3d (0., 1., 0.));
 
   EXPECT_TRUE(EIGEN_MATRIX_NEAR (Vector3d (0., 1., 0.), point, TEST_PREC));
 }
@@ -500,7 +500,7 @@ TEST (ModelTests, ModelFixedJointRotationOrderRotationTranslation ) {
   Body body(1., Vector3d (1., 0.4, 0.4), Vector3d (1., 1., 1.));
   Body fixed_body(1., Vector3d (1., 0.4, 0.4), Vector3d (1., 1., 1.));
 
-  Model model;
+  Model model(model_data);
 
   Joint joint_rot_z ( SpatialVectord (0., 0., 1., 0., 0., 0.));
 
@@ -513,7 +513,7 @@ TEST (ModelTests, ModelFixedJointRotationOrderRotationTranslation ) {
 
   VectorNd Q (VectorNd::Zero(model.dof_count));
   Q[0] = 45 * M_PI / 180.;
-  Vector3d point = CalcBodyToBaseCoordinates (model, Q, body_after_fixed, Vector3d (0., 1., 0.));
+  Vector3d point = CalcBodyToBaseCoordinates (model, model_data, Q, body_after_fixed, Vector3d (0., 1., 0.));
 
   EXPECT_TRUE(EIGEN_MATRIX_NEAR (Vector3d (-1., 2., 0.), point, TEST_PREC));
 }
@@ -523,7 +523,7 @@ TEST (ModelTests, ModelGetBodyName ) {
   Body body(1., Vector3d (1., 0.4, 0.4), Vector3d (1., 1., 1.));
   Body fixed_body(1., Vector3d (1., 0.4, 0.4), Vector3d (1., 1., 1.));
 
-  Model model;
+  Model model(model_data);
 
   Joint joint_rot_z ( SpatialVectord (0., 0., 1., 0., 0., 0.));
 

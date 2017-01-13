@@ -23,7 +23,9 @@ class FixedBase6DoF9DoF : public ::testing::Test{
 protected:
   virtual void SetUp () {
     ClearLogOutput();
-    model = new Model;
+
+    model_data = new ModelData;
+    model = new Model(*model_data);
 
     model->gravity = Vector3d  (0., -9.81, 0.);
 
@@ -50,7 +52,7 @@ protected:
         SpatialVectord  (0., 1., 0., 0., 0., 0.),
         SpatialVectord  (1., 0., 0., 0., 0., 0.)
         );
-    base_id = model->AddBody (0, Xtrans (Vector3d (0., 0., 0.)), joint_rotzyx, base);
+    base_id = model->AddBody (model_data, *model_data, 0, Xtrans (Vector3d (0., 0., 0.)), joint_rotzyx, base);
 
     // child body 1 (3 DoF)
     child = Body (
@@ -58,7 +60,7 @@ protected:
         Vector3d (0., 0.5, 0.),
         Vector3d (1., 1., 1.)
         );
-    child_id = model->AddBody (base_id, Xtrans (Vector3d (0., 0., 0.)), joint_rotzyx, child);
+    child_id = model->AddBody (model_data, *model_data, base_id, Xtrans (Vector3d (0., 0., 0.)), joint_rotzyx, child);
 
     // child body (3 DoF)
     child_2 = Body (
@@ -66,7 +68,7 @@ protected:
         Vector3d (0., 0.5, 0.),
         Vector3d (1., 1., 1.)
         );
-    child_2_id = model->AddBody (child_id, Xtrans (Vector3d (0., 0., 0.)), joint_rotzyx, child_2);
+    child_2_id = model->AddBody (model_data, *model_data, child_id, Xtrans (Vector3d (0., 0., 0.)), joint_rotzyx, child_2);
 
     Q = VectorNd::Constant (model->mBodies.size() - 1, 0.);
     QDot = VectorNd::Constant (model->mBodies.size() - 1, 0.);
@@ -83,6 +85,8 @@ protected:
   virtual void TearDown () {
     delete model;
   }
+
+  ModelData *model_data;
   Model *model;
 
   unsigned int base_id, child_id, child_2_id;
@@ -106,7 +110,7 @@ protected:
 // ForwardDynamicsContactsDirect
 //
 TEST (ContactsTests, TestForwardDynamicsContactsDirectSimple ) {
-  Model model;
+  Model model(model_data);
   model.gravity = Vector3d  (0., -9.81, 0.);
   Body base_body (1., Vector3d (0., 0., 0.), Vector3d (1., 1., 1.));
   unsigned int base_body_id = model.AddBody (0, SpatialTransformd(),
@@ -152,7 +156,7 @@ TEST (ContactsTests, TestForwardDynamicsContactsDirectSimple ) {
   //	cout << constraint_set.b << endl;
   //	cout << "QDDot = " << QDDot.transpose() << endl;
 
-  Vector3d point_acceleration = CalcPointAcceleration (model, Q, QDot, QDDot, contact_body_id, contact_point);
+  Vector3d point_acceleration = CalcPointAcceleration (model, model_data, Q, QDot, QDDot, contact_body_id, contact_point);
 
    EXPECT_TRUE(EIGEN_MATRIX_NEAR (
       Vector3d (0., 0., 0.) ,
@@ -166,7 +170,7 @@ TEST (ContactsTests, TestForwardDynamicsContactsDirectSimple ) {
 }
 
 TEST (ContactsTests, TestForwardDynamicsContactsDirectMoving ) {
-  Model model;
+  Model model(model_data);
   model.gravity = Vector3d  (0., -9.81, 0.);
   Body base_body (1., Vector3d (0., 0., 0.), Vector3d (1., 1., 1.));
   unsigned int base_body_id = model.AddBody (0, SpatialTransformd(),
@@ -214,7 +218,7 @@ TEST (ContactsTests, TestForwardDynamicsContactsDirectMoving ) {
 
   ForwardDynamicsContactsDirect (model, Q, QDot, Tau, constraint_set, QDDot);
 
-  Vector3d point_acceleration = CalcPointAcceleration (model, Q, QDot, QDDot, contact_body_id, contact_point);
+  Vector3d point_acceleration = CalcPointAcceleration (model, model_data, Q, QDot, QDDot, contact_body_id, contact_point);
 
    EXPECT_TRUE(EIGEN_MATRIX_NEAR (
       Vector3d (0., 0., 0.) ,
@@ -361,7 +365,7 @@ TEST_F (FixedBase6DoF, ForwardDynamicsContactsOptDoubleContact) {
 
   ClearLogOutput();
 
-  ForwardDynamicsContactsDirect (*model, Q, QDot, Tau, constraint_set_lagrangian, QDDot_lagrangian);
+  ForwardDynamicsContactsDirect (*model, *model_data, Q, QDot, Tau, constraint_set_lagrangian, QDDot_lagrangian);
   ForwardDynamicsContactsKokkevis (*model, Q, QDot, Tau, constraint_set, QDDot_contacts);
 
   point_accel_lagrangian = CalcPointAcceleration (*model, Q, QDot, QDDot_lagrangian, contact_body_id, contact_point, true);
@@ -571,13 +575,13 @@ TEST_F (FixedBase6DoF9DoF, ForwardDynamicsContactsOptMultipleContactsMultipleBod
   VectorNd QDDot_lagrangian = VectorNd::Constant (model->mBodies.size() - 1, 0.);
 
   ClearLogOutput();
-  ForwardDynamicsContactsKokkevis (*model, Q, QDot, Tau, constraint_set, QDDot);
+  ForwardDynamicsContactsKokkevis (*model, *model_data, Q, QDot, Tau, constraint_set, QDDot);
   //	cout << LogOutput.str() << endl;
 
   Vector3d point_accel_c, point_accel_2_c;
 
-  point_accel_c = CalcPointAcceleration (*model, Q, QDot, QDDot, contact_body_id, contact_point);
-  point_accel_2_c = CalcPointAcceleration (*model, Q, QDot, QDDot, child_2_id, contact_point);
+  point_accel_c = CalcPointAcceleration (*model, *model_data, Q, QDot, QDDot, contact_body_id, contact_point);
+  point_accel_2_c = CalcPointAcceleration (*model, *model_data, Q, QDot, QDDot, child_2_id, contact_point);
 
   //	cout << "point_accel_c = " << point_accel_c.transpose() << endl;
 

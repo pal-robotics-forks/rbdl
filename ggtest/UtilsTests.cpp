@@ -35,7 +35,8 @@ TEST_F(FloatingBase12DoF, TestKineticEnergy) {
 }
 
 TEST(UtilsTests, TestPotentialEnergy) {
-  Model model;
+  ModelData model_data;
+  Model model(model_data);
   Matrix3d inertia = Matrix3d::Zero(3,3);
   Body body (0.5, Vector3d (0., 0., 0.), inertia);
   Joint joint (
@@ -56,7 +57,8 @@ TEST(UtilsTests, TestPotentialEnergy) {
 }
 
 TEST(UtilsTests, TestCOMSimple) {
-  Model model;
+  ModelData model_data;
+  Model model(model_data);
   Matrix3d inertia = Matrix3d::Zero(3,3);
   Body body (123., Vector3d (0., 0., 0.), inertia);
   Joint joint (
@@ -91,7 +93,7 @@ TEST(UtilsTests, TestCOMSimple) {
 }
 
 TEST(UtilsTests, TestAngularMomentumSimple) {
-  Model model;
+  Model model(model_data);
   Matrix3d inertia = Matrix3d::Zero(3,3);
   inertia(0,0) = 1.1;
   inertia(1,1) = 2.2;

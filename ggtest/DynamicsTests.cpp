@@ -36,7 +36,7 @@ TEST_F(DynamicsFixture, TestCalcDynamicSingleChain) {
   Body body(1., Vector3d (1., 0., 0.), Vector3d (1., 1., 1.));
   Joint joint ( SpatialVectord (0., 0., 1., 0., 0., 0.));
 
-  model->AddBody(0, Xtrans(Vector3d(0., 0., 0.)), joint, body);
+  model->AddBody(*model_data,*model_data, 0, Xtrans(Vector3d(0., 0., 0.)), joint, body);
 
   // Initialization of the input vectors
   VectorNd Q = VectorNd::Constant ((size_t) model->dof_count, 0.);
@@ -64,7 +64,7 @@ TEST_F(DynamicsFixture, TestCalcDynamicSpatialInertiaSingleChain) {
 
   Joint joint ( SpatialVectord (0., 0., 1., 0., 0., 0.));
 
-  model->AddBody(0, Xtrans(Vector3d(0., 0., 0.)), joint, body);
+  model->AddBody(*model_data,*model_data, 0, Xtrans(Vector3d(0., 0., 0.)), joint, body);
 
   // Initialization of the input vectors
   VectorNd Q = VectorNd::Constant ((size_t) model->dof_count, 0.);
@@ -91,12 +91,12 @@ TEST_F(DynamicsFixture, TestCalcDynamicDoubleChain) {
   Body body_a (1., Vector3d (1., 0., 0.), Vector3d (1., 1., 1.));
   Joint joint_a ( SpatialVectord (0., 0., 1., 0., 0., 0.));
 
-  model->AddBody(0, Xtrans(Vector3d(0., 0., 0.)), joint_a, body_a);
+  model->AddBody(*model_data,*model_data, 0, Xtrans(Vector3d(0., 0., 0.)), joint_a, body_a);
 
   Body body_b (1., Vector3d (1., 0., 0.), Vector3d (1., 1., 1.));
   Joint joint_b ( SpatialVectord (0., 0., 1., 0., 0., 0.));
 
-  model->AddBody(1, Xtrans(Vector3d(1., 0., 0.)), joint_b, body_b);
+  model->AddBody(*model_data,*model_data, 1, Xtrans(Vector3d(1., 0., 0.)), joint_b, body_b);
 
   // Initialization of the input vectors
   VectorNd Q = VectorNd::Constant ((size_t) model->dof_count, 0.);
@@ -127,17 +127,17 @@ TEST_F(DynamicsFixture, TestCalcDynamicTripleChain) {
   Body body_a (1., Vector3d (1., 0., 0.), Vector3d (1., 1., 1.));
   Joint joint_a ( SpatialVectord (0., 0., 1., 0., 0., 0.));
 
-  model->AddBody(0, Xtrans(Vector3d(0., 0., 0.)), joint_a, body_a);
+  model->AddBody(*model_data,*model_data, 0, Xtrans(Vector3d(0., 0., 0.)), joint_a, body_a);
 
   Body body_b (1., Vector3d (1., 0., 0.), Vector3d (1., 1., 1.));
   Joint joint_b ( SpatialVectord (0., 0., 1., 0., 0., 0.));
 
-  model->AddBody(1, Xtrans(Vector3d(1., 0., 0.)), joint_b, body_b);
+  model->AddBody(*model_data,*model_data, 1, Xtrans(Vector3d(1., 0., 0.)), joint_b, body_b);
 
   Body body_c (1., Vector3d (1., 0., 0.), Vector3d (1., 1., 1.));
   Joint joint_c ( SpatialVectord (0., 0., 1., 0., 0., 0.));
 
-  model->AddBody(2, Xtrans(Vector3d(1., 0., 0.)), joint_c, body_c);
+  model->AddBody(*model_data,*model_data, 2, Xtrans(Vector3d(1., 0., 0.)), joint_c, body_c);
 
   // Initialization of the input vectors
   VectorNd Q = VectorNd::Constant ((size_t) model->dof_count, 0.);
@@ -169,12 +169,12 @@ TEST_F(DynamicsFixture, TestCalcDynamicDoubleChain3D) {
   Body body_a (1., Vector3d (1., 0., 0.), Vector3d (1., 1., 1.));
   Joint joint_a ( SpatialVectord (0., 0., 1., 0., 0., 0.));
 
-  model->AddBody(0, Xtrans(Vector3d(0., 0., 0.)), joint_a, body_a);
+  model->AddBody(*model_data,*model_data, 0, Xtrans(Vector3d(0., 0., 0.)), joint_a, body_a);
 
   Body body_b (1., Vector3d (0., 1., 0.), Vector3d (1., 1., 1.));
   Joint joint_b ( SpatialVectord (0., 1., 0., 0., 0., 0.));
 
-  model->AddBody(1, Xtrans(Vector3d(1., 0., 0.)), joint_b, body_b);
+  model->AddBody(*model_data,*model_data, 1, Xtrans(Vector3d(1., 0., 0.)), joint_b, body_b);
 
   // Initialization of the input vectors
   VectorNd Q = VectorNd::Constant ((size_t) model->dof_count, 0.);
@@ -205,27 +205,27 @@ TEST_F(DynamicsFixture, TestCalcDynamicSimpleTree3D) {
   Body body_a (1., Vector3d (1., 0., 0.), Vector3d (1., 1., 1.));
   Joint joint_a ( SpatialVectord (0., 0., 1., 0., 0., 0.));
 
-  model->AddBody(0, Xtrans(Vector3d(0., 0., 0.)), joint_a, body_a);
+  model->AddBody(*model_data,*model_data, 0, Xtrans(Vector3d(0., 0., 0.)), joint_a, body_a);
 
   Body body_b1 (1., Vector3d (0., 1., 0.), Vector3d (1., 1., 1.));
   Joint joint_b1 ( SpatialVectord (0., 1., 0., 0., 0., 0.));
 
-  model->AddBody(1, Xtrans(Vector3d(1., 0., 0.)), joint_b1, body_b1);
+  model->AddBody(*model_data,*model_data, 1, Xtrans(Vector3d(1., 0., 0.)), joint_b1, body_b1);
 
   Body body_c1 (1., Vector3d (0., 0., 1.), Vector3d (1., 1., 1.));
   Joint joint_c1 ( SpatialVectord (1., 0., 0., 0., 0., 0.));
 
-  model->AddBody(2, Xtrans(Vector3d(0., 1., 0.)), joint_c1, body_c1);
+  model->AddBody(*model_data,*model_data, 2, Xtrans(Vector3d(0., 1., 0.)), joint_c1, body_c1);
 
   Body body_b2 (1., Vector3d (0., 1., 0.), Vector3d (1., 1., 1.));
   Joint joint_b2 ( SpatialVectord (0., 1., 0., 0., 0., 0.));
 
-  model->AddBody(1, Xtrans(Vector3d(-0.5, 0., 0.)), joint_b2, body_b2);
+  model->AddBody(*model_data,*model_data, 1, Xtrans(Vector3d(-0.5, 0., 0.)), joint_b2, body_b2);
 
   Body body_c2 (1., Vector3d (0., 0., 1.), Vector3d (1., 1., 1.));
   Joint joint_c2 ( SpatialVectord (1., 0., 0., 0., 0., 0.));
 
-  model->AddBody(4, Xtrans(Vector3d(0., -0.5, 0.)), joint_c2, body_c2);
+  model->AddBody(*model_data,*model_data, 4, Xtrans(Vector3d(0., -0.5, 0.)), joint_c2, body_c2);
 
   // Initialization of the input vectors
   VectorNd Q = VectorNd::Constant ((size_t) model->dof_count, 0.);
@@ -256,7 +256,7 @@ TEST_F(DynamicsFixture, TestCalcDynamicSimpleTree3D) {
 }
 
 TEST (DynamicsTests, TestForwardDynamicsLagrangian) {
-  Model model;
+  Model model(model_data);
   Body base_body(1., Vector3d (1., 0., 0.), Vector3d (1., 1., 1.));
 
   model.AddBody (0, SpatialTransformd(),
@@ -314,7 +314,7 @@ TEST (DynamicsTests, TestForwardDynamicsLagrangian) {
  * it here.
  */
 TEST (DynamicsTests, TestForwardDynamics3DoFModel) {
-  Model model;
+  Model model(model_data);
 
   model.gravity = Vector3d (0., -9.81, 0.);
 
@@ -362,7 +362,7 @@ TEST (DynamicsTests, TestForwardDynamics3DoFModel) {
  * test ensures that the error does not happen when calling ForwardLagrangian.
  */
 TEST (DynamicsTests, TestForwardDynamics3DoFModelLagrangian) {
-  Model model;
+  Model model(model_data);
 
   model.gravity = Vector3d (0., -9.81, 0.);
 
@@ -467,24 +467,24 @@ TEST (DynamicsTests, TestForwardDynamicsTwoLegModelLagrangian) {
   unsigned int temp_id;
 
   // add hip to the model (planar, 3 DOF)
-  temp_id = model->AddBody (0, Xtrans (Vector3d (0., 0., 0.)), joint_trans_x, null_body);
-  temp_id = model->AddBody (temp_id, Xtrans (Vector3d (0., 0., 0.)), joint_trans_y, null_body);
-  hip_id = model->AddBody (temp_id, Xtrans (Vector3d (0., 0., 0.)), joint_rot_z, hip_body);
+  temp_id = model->AddBody (model_data, *model_data, 0, Xtrans (Vector3d (0., 0., 0.)), joint_trans_x, null_body);
+  temp_id = model->AddBody (model_data, *model_data, temp_id, Xtrans (Vector3d (0., 0., 0.)), joint_trans_y, null_body);
+  hip_id = model->AddBody (model_data, *model_data, temp_id, Xtrans (Vector3d (0., 0., 0.)), joint_rot_z, hip_body);
 
   //
   // right leg
   //
 
   // add right upper leg
-  temp_id = model->AddBody (hip_id, Xtrans (Vector3d(0., 0., 0.)), joint_rot_z, upper_leg_right_body);
+  temp_id = model->AddBody (model_data, *model_data, hip_id, Xtrans (Vector3d(0., 0., 0.)), joint_rot_z, upper_leg_right_body);
   upper_leg_right_id = temp_id;
 
   // add the right lower leg (only one DOF)
-  temp_id = model->AddBody (temp_id, Xtrans (Vector3d(0., -0.5, 0.)), joint_rot_z, lower_leg_right_body);
+  temp_id = model->AddBody (model_data, *model_data, temp_id, Xtrans (Vector3d(0., -0.5, 0.)), joint_rot_z, lower_leg_right_body);
   lower_leg_right_id = temp_id;
 
   // add the right foot (1 DOF)
-  temp_id = model->AddBody (temp_id, Xtrans (Vector3d(0., -0.5, 0.)), joint_rot_z, foot_right_body);
+  temp_id = model->AddBody (model_data, *model_data, temp_id, Xtrans (Vector3d(0., -0.5, 0.)), joint_rot_z, foot_right_body);
   foot_right_id = temp_id;
 
   //
@@ -492,15 +492,15 @@ TEST (DynamicsTests, TestForwardDynamicsTwoLegModelLagrangian) {
   //
 
   // add left upper leg
-  temp_id = model->AddBody (hip_id, Xtrans (Vector3d(0., 0., 0.)), joint_rot_z, upper_leg_left_body);
+  temp_id = model->AddBody (model_data, *model_data, hip_id, Xtrans (Vector3d(0., 0., 0.)), joint_rot_z, upper_leg_left_body);
   upper_leg_left_id = temp_id;
 
   // add the left lower leg (only one DOF)
-  temp_id = model->AddBody (temp_id, Xtrans (Vector3d(0., -0.5, 0.)), joint_rot_z, lower_leg_left_body);
+  temp_id = model->AddBody (model_data, *model_data, temp_id, Xtrans (Vector3d(0., -0.5, 0.)), joint_rot_z, lower_leg_left_body);
   lower_leg_left_id = temp_id;
 
   // add the left foot (1 DOF)
-  temp_id = model->AddBody (temp_id, Xtrans (Vector3d(0., -0.5, 0.)), joint_rot_z, foot_left_body);
+  temp_id = model->AddBody (model_data, *model_data, temp_id, Xtrans (Vector3d(0., -0.5, 0.)), joint_rot_z, foot_left_body);
   foot_left_id = temp_id;
 
   LOG << "--- model created (" << model->dof_count << " DOF) ---" << endl;

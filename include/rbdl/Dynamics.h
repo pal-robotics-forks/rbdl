@@ -19,6 +19,7 @@
 namespace RigidBodyDynamics {
 
 struct Model;
+struct ModelData;
 
 /** \page dynamics_page Dynamics
  *
@@ -44,6 +45,7 @@ struct Model;
  */
 RBDL_DLLAPI void InverseDynamics (
     Model &model,
+    ModelData &model_data,
     const Math::VectorNd &Q,
     const Math::VectorNd &QDot,
     const Math::VectorNd &QDDot,
@@ -64,6 +66,7 @@ RBDL_DLLAPI void InverseDynamics (
  */
 RBDL_DLLAPI void NonlinearEffects (
     Model &model,
+    ModelData &model_data,
     const Math::VectorNd &Q,
     const Math::VectorNd &QDot,
     Math::VectorNd &Tau
@@ -86,6 +89,7 @@ RBDL_DLLAPI void NonlinearEffects (
  */
 RBDL_DLLAPI void CompositeRigidBodyAlgorithm (
     Model& model,
+    ModelData &model_data,
     const Math::VectorNd &Q,
     Math::MatrixNd &H,
     bool update_kinematics = true
@@ -108,6 +112,7 @@ RBDL_DLLAPI void CompositeRigidBodyAlgorithm (
  */
 RBDL_DLLAPI void ForwardDynamics (
     Model &model,
+    ModelData &model_data,
     const Math::VectorNd &Q,
     const Math::VectorNd &QDot,
     const Math::VectorNd &Tau,
@@ -135,6 +140,7 @@ RBDL_DLLAPI void ForwardDynamics (
  */
 RBDL_DLLAPI void ForwardDynamicsLagrangian (
     Model &model,
+    ModelData &model_data,
     const Math::VectorNd &Q,
     const Math::VectorNd &QDot,
     const Math::VectorNd &Tau,
@@ -168,6 +174,7 @@ RBDL_DLLAPI void ForwardDynamicsLagrangian (
  */
 RBDL_DLLAPI void CalcMInvTimesTau (
     Model &model,
+    ModelData &model_data,
     const Math::VectorNd &Q,
     const Math::VectorNd &Tau,
     Math::VectorNd &QDDot,

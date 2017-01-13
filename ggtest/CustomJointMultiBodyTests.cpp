@@ -76,15 +76,15 @@ struct CustomJointTypeRevoluteX : public CustomJoint {
                       const Math::VectorNd &q,
                       const Math::VectorNd &qdot)
   {
-    model.X_J[joint_id] = Xrotx(q[model.mJoints[joint_id].q_index]);
-    model.v_J[joint_id][0] = qdot[model.mJoints[joint_id].q_index];
+    model_data.X_J[joint_id] = Xrotx(q[model.mJoints[joint_id].q_index]);
+    model_data.v_J[joint_id][0] = qdot[model.mJoints[joint_id].q_index];
   }
 
   virtual void jcalc_X_lambda_S ( Model &model,
                                   unsigned int joint_id,
                                   const Math::VectorNd &q)
   {
-    model.X_lambda[joint_id] =
+    model_data.X_lambda[joint_id] =
         Xrotx (q[model.mJoints[joint_id].q_index])
         * model.X_T[joint_id];
 
@@ -119,7 +119,7 @@ struct CustomEulerZYXJoint : public CustomJoint {
     double s2 = sin (q2);
     double c2 = cos (q2);
 
-    model.X_J[joint_id].E = Matrix3d(
+    model_data.X_J[joint_id].E = Matrix3d(
                        c0 * c1,                s0 * c1,     -s1,
         c0 * s1 * s2 - s0 * c2, s0 * s1 * s2 + c0 * c2, c1 * s2,
         c0 * s1 * c2 + s0 * s2, s0 * s1 * c2 - c0 * s2, c1 * c2
@@ -139,9 +139,9 @@ struct CustomEulerZYXJoint : public CustomJoint {
     double qdot1 = qdot[model.mJoints[joint_id].q_index + 1];
     double qdot2 = qdot[model.mJoints[joint_id].q_index + 2];
 
-    model.v_J[joint_id] = S * Vector3d (qdot0, qdot1, qdot2);
+    model_data.v_J[joint_id] = S * Vector3d (qdot0, qdot1, qdot2);
 
-    model.c_J[joint_id].set(
+    model_data.c_J[joint_id].set(
         -c1*qdot0*qdot1,
         -s1*s2*qdot0*qdot1 + c1*c2*qdot0*qdot2 - s2*qdot1*qdot2,
         -s1*c2*qdot0*qdot1 - c1*s2*qdot0*qdot2 - c2*qdot1*qdot2,
@@ -167,7 +167,7 @@ struct CustomEulerZYXJoint : public CustomJoint {
       double c2 = cos (q2);
 
 
-      model.X_lambda[joint_id] = SpatialTransformd (
+      model_data.X_lambda[joint_id] = SpatialTransformd (
           Matrix3d(
                            c0 * c1,                s0 * c1,     -s1,
             c0 * s1 * s2 - s0 * c2, s0 * s1 * s2 + c0 * c2, c1 * s2,

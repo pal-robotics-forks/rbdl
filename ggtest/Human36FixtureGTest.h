@@ -8,6 +8,11 @@
 
 class Human36 : public ::testing::Test {
 protected:
+
+ RigidBodyDynamics::ModelData *model_data;
+ RigidBodyDynamics::ModelData *model_emulated_data;
+ RigidBodyDynamics::ModelData *model_3dof_data;
+
   RigidBodyDynamics::Model *model;
   RigidBodyDynamics::Model *model_emulated;
   RigidBodyDynamics::Model *model_3dof;
@@ -401,9 +406,15 @@ protected:
     using namespace RigidBodyDynamics::Math;
 
     initParameters();
-    model_emulated = new RigidBodyDynamics::Model();
-    model_3dof = new RigidBodyDynamics::Model();
+
+    model_emulated_data = new ModelData;
+    model_3dof_data = new ModelData;
+
+    model_emulated = new RigidBodyDynamics::Model(*model_emulated_data);
+    model_3dof = new RigidBodyDynamics::Model(*model_3dof_data);
     model = model_emulated;
+    model_data = model_emulated_data;
+
     generate();
     initConstraintSets();
 

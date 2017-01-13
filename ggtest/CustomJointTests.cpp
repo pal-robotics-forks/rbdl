@@ -41,7 +41,7 @@ struct CustomEulerZYXJoint : public CustomJoint {
     double s2 = sin (q2);
     double c2 = cos (q2);
 
-    model.X_J[joint_id].E = Matrix3d(
+    model_data.X_J[joint_id].E = Matrix3d(
         c0 * c1, s0 * c1, -s1,
         c0 * s1 * s2 - s0 * c2, s0 * s1 * s2 + c0 * c2, c1 * s2,
         c0 * s1 * c2 + s0 * s2, s0 * s1 * c2 - c0 * s2, c1 * c2
@@ -60,9 +60,9 @@ struct CustomEulerZYXJoint : public CustomJoint {
     double qdot1 = qdot[model.mJoints[joint_id].q_index + 1];
     double qdot2 = qdot[model.mJoints[joint_id].q_index + 2];
 
-    model.v_J[joint_id] = S * Vector3d (qdot0, qdot1, qdot2);
+    model_data.v_J[joint_id] = S * Vector3d (qdot0, qdot1, qdot2);
 
-    model.c_J[joint_id].set(
+    model_data.c_J[joint_id].set(
         - c1 * qdot0 * qdot1,
         -s1 * s2 * qdot0 * qdot1 + c1 * c2 * qdot0 * qdot2 - s2 * qdot1 * qdot2,
         -s1 * c2 * qdot0 * qdot1 - c1 * s2 * qdot0 * qdot2 - c2 * qdot1 * qdot2,
@@ -123,11 +123,11 @@ TEST_F ( CustomJointFixture, UpdateKinematics ) {
   UpdateKinematics (reference_model, q, qdot, qddot);
   UpdateKinematics (custom_model, q, qdot, qddot);
 
-  EXPECT_TRUE(EIGEN_MATRIX_EQUAL_DOUBLE (reference_model.X_base[reference_body_id].E, custom_model.X_base[custom_body_id].E));
+  EXPECT_TRUE(EIGEN_MATRIX_EQUAL_DOUBLE (reference_model_data.X_base[reference_body_id].E, custom_model_data.X_base[custom_body_id].E));
 
-  EXPECT_TRUE(EIGEN_MATRIX_EQUAL_DOUBLE (reference_model.model_data.v[reference_body_id], custom_model.model_data.v[custom_body_id]));
+  EXPECT_TRUE(EIGEN_MATRIX_EQUAL_DOUBLE (reference_model_data.v[reference_body_id], custom_model_data.v[custom_body_id]));
 
-  EXPECT_TRUE(EIGEN_MATRIX_EQUAL_DOUBLE (reference_model.model_data.a[reference_body_id], custom_model.model_data.a[custom_body_id]));
+  EXPECT_TRUE(EIGEN_MATRIX_EQUAL_DOUBLE (reference_model_data.a[reference_body_id], custom_model_data.a[custom_body_id]));
 }
 
 // TODO: implement test for UpdateKinematicsCustom
