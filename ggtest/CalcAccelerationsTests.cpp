@@ -209,7 +209,7 @@ TEST_F(FixedBase3DoF, TestCalcPointRotationFixedJoint) {
 TEST_F(FixedBase3DoF, TestCalcPointRotationFixedJointRotatedTransform) {
   Body fixed_body(1., Vector3d (1., 0.4, 0.4), Vector3d (1., 1., 1.));
 
-  SpatialTransform fixed_transform = Xtrans (Vector3d (1., -1., 0.)) * Xrotz(M_PI * 0.5);
+  SpatialTransformd  fixed_transform = Xtrans (Vector3d (1., -1., 0.)) * Xrotz(M_PI * 0.5);
   unsigned int fixed_body_id = model->AddBody (body_c_id, fixed_transform, Joint(JointTypeFixed), fixed_body, "fixed_body");
 
   QDot[0] = 1.;

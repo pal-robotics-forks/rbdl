@@ -104,7 +104,7 @@ SET ( RBDL_SOURCES
 	src/Joint.cc
 	src/Model.cc
 	src/Kinematics.cc
-  src/Energy.cc
+        src/Energy.cc
 	)
 
 # Static / dynamic builds

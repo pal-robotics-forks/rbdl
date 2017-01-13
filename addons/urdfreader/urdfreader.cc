@@ -58,11 +58,11 @@ namespace RigidBodyDynamics {
         // create the joint
         Joint rbdl_joint;
         if ((urdf_joint->type == urdf::Joint::REVOLUTE || urdf_joint->type == urdf::Joint::CONTINUOUS) && !urdf_joint->mimic) {
-          rbdl_joint = Joint (SpatialVector (urdf_joint->axis.x, urdf_joint->axis.y, urdf_joint->axis.z, 0., 0., 0.));
+          rbdl_joint = Joint (SpatialVectord (urdf_joint->axis.x, urdf_joint->axis.y, urdf_joint->axis.z, 0., 0., 0.));
 
         }
         else if (urdf_joint->type == urdf::Joint::PRISMATIC && !urdf_joint->mimic) {
-          rbdl_joint = Joint (SpatialVector (0., 0., 0., urdf_joint->axis.x, urdf_joint->axis.y, urdf_joint->axis.z));
+          rbdl_joint = Joint (SpatialVectord (0., 0., 0., urdf_joint->axis.x, urdf_joint->axis.y, urdf_joint->axis.z));
         }
         else if (urdf_joint->type == urdf::Joint::FIXED || urdf_joint->mimic) {
           rbdl_joint = Joint (JointTypeFixed);
@@ -77,7 +77,7 @@ namespace RigidBodyDynamics {
               urdf_joint->parent_to_joint_origin_transform.position.y,
               urdf_joint->parent_to_joint_origin_transform.position.z
               );
-        SpatialTransform rbdl_joint_frame =
+        SpatialTransformd rbdl_joint_frame =
             Xrot (joint_rpy[0], Vector3d (1., 0., 0.))
             * Xrot (joint_rpy[1], Vector3d (0., 1., 0.))
             * Xrot (joint_rpy[2], Vector3d (0., 0., 1.))
@@ -170,9 +170,9 @@ namespace RigidBodyDynamics {
 
             ROS_DEBUG_STREAM("CREATING PLANAR FLOATING BASE");
             Joint floating_base_joint (
-                  SpatialVector (0., 0., 0., 1., 0., 0.),
-                  SpatialVector (0., 0., 0., 0., 1., 0.),
-                  SpatialVector (0., 0., 1., 0., 0., 0.)
+                  SpatialVectord (0., 0., 0., 1., 0., 0.),
+                  SpatialVectord (0., 0., 0., 0., 1., 0.),
+                  SpatialVectord (0., 0., 1., 0., 0., 0.)
                   );
 
             new_id = rbdl_model.AddBody (0, Xtrans (Vector3d (0., 0., 0.)), floating_base_joint, base, urdf_link->name);
@@ -181,12 +181,12 @@ namespace RigidBodyDynamics {
 
             ROS_DEBUG_STREAM("Creating 6D FLOATING BASE");
             Joint floating_base_joint (
-                  SpatialVector (0., 0., 0., 1., 0., 0.),
-                  SpatialVector (0., 0., 0., 0., 1., 0.),
-                  SpatialVector (0., 0., 0., 0., 0., 1.),
-                  SpatialVector (0., 0., 1., 0., 0., 0.),
-                  SpatialVector (0., 1., 0., 0., 0., 0.),
-                  SpatialVector (1., 0., 0., 0., 0., 0.)
+                  SpatialVectord (0., 0., 0., 1., 0., 0.),
+                  SpatialVectord (0., 0., 0., 0., 1., 0.),
+                  SpatialVectord (0., 0., 0., 0., 0., 1.),
+                  SpatialVectord (0., 0., 1., 0., 0., 0.),
+                  SpatialVectord (0., 1., 0., 0., 0., 0.),
+                  SpatialVectord (1., 0., 0., 0., 0., 0.)
                   );
 
             new_id = rbdl_model.AddBody(0, Xtrans (Vector3d (0., 0., 0.)), floating_base_joint, base, urdf_link->name);
@@ -196,7 +196,7 @@ namespace RigidBodyDynamics {
             ROS_DEBUG_STREAM("Creating 6D QUATERNION FLOATING BASE");
             Joint root_joint = JointTypeFloatingBase;
 
-            SpatialTransform root_joint_frame = SpatialTransform ();
+            SpatialTransformd root_joint_frame = SpatialTransformd ();
 
             new_id = rbdl_model.AddBody(0, root_joint_frame,
                                         root_joint,
@@ -229,10 +229,10 @@ namespace RigidBodyDynamics {
         // create the joint
         Joint rbdl_joint;
         if ((urdf_joint->type == urdf::Joint::REVOLUTE || urdf_joint->type == urdf::Joint::CONTINUOUS)  && !urdf_joint->mimic) {
-          rbdl_joint = Joint (SpatialVector (urdf_joint->axis.x, urdf_joint->axis.y, urdf_joint->axis.z, 0., 0., 0.));
+          rbdl_joint = Joint (SpatialVectord (urdf_joint->axis.x, urdf_joint->axis.y, urdf_joint->axis.z, 0., 0., 0.));
         }
         else if (urdf_joint->type == urdf::Joint::PRISMATIC && !urdf_joint->mimic) {
-          rbdl_joint = Joint (SpatialVector (0., 0., 0., urdf_joint->axis.x, urdf_joint->axis.y, urdf_joint->axis.z));
+          rbdl_joint = Joint (SpatialVectord (0., 0., 0., urdf_joint->axis.x, urdf_joint->axis.y, urdf_joint->axis.z));
         }
         else if (urdf_joint->type == urdf::Joint::FIXED || urdf_joint->mimic) {
           rbdl_joint = Joint (JointTypeFixed);
@@ -247,7 +247,7 @@ namespace RigidBodyDynamics {
               urdf_joint->parent_to_joint_origin_transform.position.y,
               urdf_joint->parent_to_joint_origin_transform.position.z
               );
-        SpatialTransform rbdl_joint_frame =
+        SpatialTransformd rbdl_joint_frame =
             Xrot (joint_rpy[0], Vector3d (1., 0., 0.))
             * Xrot (joint_rpy[1], Vector3d (0., 1., 0.))
             * Xrot (joint_rpy[2], Vector3d (0., 0., 1.))
@@ -340,9 +340,9 @@ namespace RigidBodyDynamics {
 
             ROS_DEBUG_STREAM("CREATING PLANAR FLOATING BASE");
             Joint floating_base_joint (
-                  SpatialVector (0., 0., 0., 1., 0., 0.),
-                  SpatialVector (0., 0., 0., 0., 1., 0.),
-                  SpatialVector (0., 0., 1., 0., 0., 0.)
+                  SpatialVectord (0., 0., 0., 1., 0., 0.),
+                  SpatialVectord (0., 0., 0., 0., 1., 0.),
+                  SpatialVectord (0., 0., 1., 0., 0., 0.)
                   );
 
             new_id = rbdl_model.AddBody (0, Xtrans (Vector3d (0., 0., 0.)), floating_base_joint, base, urdf_link->name);
@@ -351,12 +351,12 @@ namespace RigidBodyDynamics {
 
             ROS_DEBUG_STREAM("Creating 6D FLOATING BASE");
             Joint floating_base_joint (
-                  SpatialVector (0., 0., 0., 1., 0., 0.),
-                  SpatialVector (0., 0., 0., 0., 1., 0.),
-                  SpatialVector (0., 0., 0., 0., 0., 1.),
-                  SpatialVector (0., 0., 1., 0., 0., 0.),
-                  SpatialVector (0., 1., 0., 0., 0., 0.),
-                  SpatialVector (1., 0., 0., 0., 0., 0.)
+                  SpatialVectord (0., 0., 0., 1., 0., 0.),
+                  SpatialVectord (0., 0., 0., 0., 1., 0.),
+                  SpatialVectord (0., 0., 0., 0., 0., 1.),
+                  SpatialVectord (0., 0., 1., 0., 0., 0.),
+                  SpatialVectord (0., 1., 0., 0., 0., 0.),
+                  SpatialVectord (1., 0., 0., 0., 0., 0.)
                   );
 
             new_id = rbdl_model.AddBody(0, Xtrans (Vector3d (0., 0., 0.)), floating_base_joint, base, urdf_link->name);
@@ -366,7 +366,7 @@ namespace RigidBodyDynamics {
             ROS_DEBUG_STREAM("Creating 6D QUATERNION FLOATING BASE");
             Joint root_joint = JointTypeFloatingBase;
 
-            SpatialTransform root_joint_frame = SpatialTransform ();
+            SpatialTransformd root_joint_frame = SpatialTransformd ();
 
             new_id = rbdl_model.AddBody(0, root_joint_frame,
                                         root_joint,
@@ -481,7 +481,7 @@ namespace RigidBodyDynamics {
           root_joint = JointTypeFloatingBase;
         }
 
-        SpatialTransform root_joint_frame = SpatialTransform ();
+        SpatialTransformd root_joint_frame = SpatialTransformd ();
 
         if (verbose) {
           cout << "+ Adding Root Body " << endl;
@@ -556,20 +556,20 @@ namespace RigidBodyDynamics {
         // create the joint
         Joint rbdl_joint;
         if (urdf_joint->type == urdf::Joint::REVOLUTE || urdf_joint->type == urdf::Joint::CONTINUOUS) {
-          rbdl_joint = Joint (SpatialVector (urdf_joint->axis.x, urdf_joint->axis.y, urdf_joint->axis.z, 0., 0., 0.));
+          rbdl_joint = Joint (SpatialVectord (urdf_joint->axis.x, urdf_joint->axis.y, urdf_joint->axis.z, 0., 0., 0.));
         } else if (urdf_joint->type == urdf::Joint::PRISMATIC) {
-          rbdl_joint = Joint (SpatialVector (0., 0., 0., urdf_joint->axis.x, urdf_joint->axis.y, urdf_joint->axis.z));
+          rbdl_joint = Joint (SpatialVectord (0., 0., 0., urdf_joint->axis.x, urdf_joint->axis.y, urdf_joint->axis.z));
         } else if (urdf_joint->type == urdf::Joint::FIXED) {
           rbdl_joint = Joint (JointTypeFixed);
         } else if (urdf_joint->type == urdf::Joint::FLOATING) {
           // todo: what order of DoF should be used?
           rbdl_joint = Joint (
-                SpatialVector (0., 0., 0., 1., 0., 0.),
-                SpatialVector (0., 0., 0., 0., 1., 0.),
-                SpatialVector (0., 0., 0., 0., 0., 1.),
-                SpatialVector (1., 0., 0., 0., 0., 0.),
-                SpatialVector (0., 1., 0., 0., 0., 0.),
-                SpatialVector (0., 0., 1., 0., 0., 0.));
+                SpatialVectord (0., 0., 0., 1., 0., 0.),
+                SpatialVectord (0., 0., 0., 0., 1., 0.),
+                SpatialVectord (0., 0., 0., 0., 0., 1.),
+                SpatialVectord (1., 0., 0., 0., 0., 0.),
+                SpatialVectord (0., 1., 0., 0., 0., 0.),
+                SpatialVectord (0., 0., 1., 0., 0., 0.));
         } else if (urdf_joint->type == urdf::Joint::PLANAR) {
           // todo: which two directions should be used that are perpendicular
           // to the specified axis?
@@ -586,7 +586,7 @@ namespace RigidBodyDynamics {
               urdf_joint->parent_to_joint_origin_transform.position.y,
               urdf_joint->parent_to_joint_origin_transform.position.z
               );
-        SpatialTransform rbdl_joint_frame =
+        SpatialTransformd rbdl_joint_frame =
             Xrot (joint_rpy[0], Vector3d (1., 0., 0.))
             * Xrot (joint_rpy[1], Vector3d (0., 1., 0.))
             * Xrot (joint_rpy[2], Vector3d (0., 0., 1.))
@@ -652,7 +652,7 @@ namespace RigidBodyDynamics {
           rbdl_model->AddBody (rbdl_parent_id, rbdl_joint_frame, joint_txtytz, null_body, trans_body_name);
 
           Joint joint_euler_zyx (JointTypeEulerXYZ);
-          rbdl_model->AppendBody (SpatialTransform(), joint_euler_zyx, rbdl_body, urdf_child->name);
+          rbdl_model->AppendBody (SpatialTransformd(), joint_euler_zyx, rbdl_body, urdf_child->name);
         } else {
           rbdl_model->AddBody (rbdl_parent_id, rbdl_joint_frame, rbdl_joint, rbdl_body, urdf_child->name);
         }

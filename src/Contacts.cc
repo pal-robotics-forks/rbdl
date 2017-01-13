@@ -102,16 +102,16 @@ bool ConstraintSet::Bind (const Model &model) {
   QDDot_t.setZero();
   QDDot_0.conservativeResize (model.dof_count);
   QDDot_0.setZero();
-  f_t.resize (n_constr, SpatialVectorZero);
-  f_ext_constraints.resize (model.mBodies.size(), SpatialVectorZero);
+  f_t.resize (n_constr, SpatialVectord::Zero());
+  f_ext_constraints.resize (model.mBodies.size(), SpatialVectord::Zero());
   point_accel_0.resize (n_constr, Vector3d::Zero());
 
-  d_pA = std::vector<SpatialVector> (model.mBodies.size(), SpatialVectorZero);
-  d_a = std::vector<SpatialVector> (model.mBodies.size(), SpatialVectorZero);
+  d_pA = std::vector<SpatialVectord> (model.mBodies.size(), SpatialVectord::Zero());
+  d_a = std::vector<SpatialVectord> (model.mBodies.size(), SpatialVectord::Zero());
   d_u = VectorNd::Zero (model.mBodies.size());
 
-  d_IA = std::vector<SpatialMatrix> (model.mBodies.size(), SpatialMatrixIdentity);
-  d_U = std::vector<SpatialVector> (model.mBodies.size(), SpatialVectorZero);
+  d_IA = std::vector<SpatialMatrixd> (model.mBodies.size(), SpatialMatrixd::Identity());
+  d_U = std::vector<SpatialVectord> (model.mBodies.size(), SpatialVectord::Zero());
   d_d = VectorNd::Zero (model.mBodies.size());
 
   d_multdof3_u = std::vector<Math::Vector3d> (model.mBodies.size(), Math::Vector3d::Zero());
@@ -542,7 +542,7 @@ void ForwardDynamicsApplyConstraintForces (
     model.IA[i] = model.I[i].toMatrix();;
     model.pA[i] = crossf(model.v[i],model.I[i] * model.v[i]);
 
-    if (CS.f_ext_constraints[i] != SpatialVectorZero) {
+    if (CS.f_ext_constraints[i] != SpatialVectord::Zero()) {
       LOG << "External force (" << i << ") = " << model.X_base[i].toMatrixAdjoint() * CS.f_ext_constraints[i] << std::endl;
       model.pA[i] -= model.X_base[i].toMatrixAdjoint() * CS.f_ext_constraints[i];
     }
@@ -564,11 +564,11 @@ void ForwardDynamicsApplyConstraintForces (
         - model.multdof3_S[i].transpose() * model.pA[i];
 
       if (lambda != 0) {
-        SpatialMatrix Ia = model.IA[i] - (model.multdof3_U[i] 
+        SpatialMatrixd Ia = model.IA[i] - (model.multdof3_U[i]
             * model.multdof3_Dinv[i] 
             * model.multdof3_U[i].transpose());
 
-        SpatialVector pa = model.pA[i] + Ia * model.c[i] 
+        SpatialVectord pa = model.pA[i] + Ia * model.c[i]
           + model.multdof3_U[i] * model.multdof3_Dinv[i] * model.multdof3_u[i];
 
 #ifdef EIGEN_CORE_H
@@ -589,9 +589,9 @@ void ForwardDynamicsApplyConstraintForces (
 
       unsigned int lambda = model.lambda[i];
       if (lambda != 0) {
-        SpatialMatrix Ia = model.IA[i] 
+        SpatialMatrixd Ia = model.IA[i]
           - model.U[i] * (model.U[i] / model.d[i]).transpose();
-        SpatialVector pa =  model.pA[i] + Ia * model.c[i] 
+        SpatialVectord pa =  model.pA[i] + Ia * model.c[i]
           + model.U[i] * model.u[i] / model.d[i];
 #ifdef EIGEN_CORE_H
         model.IA[lambda].noalias() += (model.X_lambda[i].toMatrixTranspose() 
@@ -621,12 +621,12 @@ void ForwardDynamicsApplyConstraintForces (
             * model.pA[i]);
 
       if (lambda != 0) {
-        SpatialMatrix Ia = model.IA[i]
+        SpatialMatrixd Ia = model.IA[i]
           - (   model.mCustomJoints[kI]->U
               * model.mCustomJoints[kI]->Dinv
               * model.mCustomJoints[kI]->U.transpose());
 
-        SpatialVector pa = model.pA[i] + Ia * model.c[i]
+        SpatialVectord pa = model.pA[i] + Ia * model.c[i]
           + (   model.mCustomJoints[kI]->U
               * model.mCustomJoints[kI]->Dinv
               * model.mCustomJoints[kI]->u);
@@ -647,12 +647,12 @@ void ForwardDynamicsApplyConstraintForces (
     }
   }
 
-  model.a[0] = SpatialVector (0., 0., 0., -model.gravity[0], -model.gravity[1], -model.gravity[2]);
+  model.a[0] = SpatialVectord (0., 0., 0., -model.gravity[0], -model.gravity[1], -model.gravity[2]);
 
   for (i = 1; i < model.mBodies.size(); i++) {
     unsigned int q_index = model.mJoints[i].q_index;
     unsigned int lambda = model.lambda[i];
-    SpatialTransform X_lambda = model.X_lambda[i];
+    SpatialTransformd X_lambda = model.X_lambda[i];
 
     model.a[i] = X_lambda.apply(model.a[lambda]) + model.c[i];
     LOG << "a'[" << i << "] = " << model.a[i].transpose() << std::endl;
@@ -704,7 +704,7 @@ void ForwardDynamicsAccelerationDeltas (
     ConstraintSet &CS,
     VectorNd &QDDot_t,
     const unsigned int body_id,
-    const std::vector<SpatialVector> &f_t
+    const std::vector<SpatialVectord> &f_t
     ) {
   LOG << "-------- " << __func__ << " ------" << std::endl;
 
@@ -788,7 +788,7 @@ void ForwardDynamicsAccelerationDeltas (
     unsigned int q_index = model.mJoints[i].q_index;
     unsigned int lambda = model.lambda[i];
 
-    SpatialVector Xa = model.X_lambda[i].apply(CS.d_a[lambda]);
+    SpatialVectord Xa = model.X_lambda[i].apply(CS.d_a[lambda]);
 
     if (model.mJoints[i].mDoFCount == 3
         && model.mJoints[i].mJointType != JointTypeCustom) {
@@ -827,7 +827,7 @@ void ForwardDynamicsAccelerationDeltas (
   }
 }
 
-inline void set_zero (std::vector<SpatialVector> &spatial_values) {
+inline void set_zero (std::vector<SpatialVectord> &spatial_values) {
   for (unsigned int i = 0; i < spatial_values.size(); i++)
     spatial_values[i].setZero();
 }
@@ -906,7 +906,7 @@ void ForwardDynamicsContactsKokkevis (
     Vector3d point_global = CalcBodyToBaseCoordinates (model, Q, body_id, point, false);
     LOG << "point_global = " << point_global.transpose() << std::endl;
 
-    CS.f_t[ci] = SpatialTransform (Matrix3d::Identity(), -point_global).applyAdjoint (SpatialVector (0., 0., 0., -normal[0], -normal[1], -normal[2]));
+    CS.f_t[ci] = SpatialTransformd (Matrix3d::Identity(), -point_global).applyAdjoint (SpatialVectord (0., 0., 0., -normal[0], -normal[1], -normal[2]));
     CS.f_ext_constraints[movable_body_id] = CS.f_t[ci];
     LOG << "f_t[" << movable_body_id << "] = " << CS.f_t[ci].transpose() << std::endl;
 

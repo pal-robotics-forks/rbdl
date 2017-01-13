@@ -39,12 +39,12 @@ TEST(UtilsTests, TestPotentialEnergy) {
   Matrix3d inertia = Matrix3d::Zero(3,3);
   Body body (0.5, Vector3d (0., 0., 0.), inertia);
   Joint joint (
-      SpatialVector (0., 0., 0., 1., 0., 0.),
-      SpatialVector (0., 0., 0., 0., 1., 0.),
-      SpatialVector (0., 0., 0., 0., 0., 1.)
+      SpatialVectord (0., 0., 0., 1., 0., 0.),
+      SpatialVectord (0., 0., 0., 0., 1., 0.),
+      SpatialVectord (0., 0., 0., 0., 0., 1.)
       );
 
-  model.AppendBody (Xtrans (Vector3d::Zero()), joint, body);
+  model.AppendBody (Xtrans<double> (Vector3d::Zero()), joint, body);
 
   VectorNd q = VectorNd::Zero(model.q_size);
   double potential_energy_zero = Utils::CalcPotentialEnergy (model, q);
@@ -60,12 +60,12 @@ TEST(UtilsTests, TestCOMSimple) {
   Matrix3d inertia = Matrix3d::Zero(3,3);
   Body body (123., Vector3d (0., 0., 0.), inertia);
   Joint joint (
-      SpatialVector (0., 0., 0., 1., 0., 0.),
-      SpatialVector (0., 0., 0., 0., 1., 0.),
-      SpatialVector (0., 0., 0., 0., 0., 1.)
+      SpatialVectord (0., 0., 0., 1., 0., 0.),
+      SpatialVectord (0., 0., 0., 0., 1., 0.),
+      SpatialVectord (0., 0., 0., 0., 0., 1.)
       );
 
-  model.AppendBody (Xtrans (Vector3d::Zero()), joint, body);
+  model.AppendBody (Xtrans<double> (Vector3d::Zero()), joint, body);
 
   VectorNd q = VectorNd::Zero(model.q_size);
   VectorNd qdot = VectorNd::Zero(model.qdot_size);
@@ -99,9 +99,9 @@ TEST(UtilsTests, TestAngularMomentumSimple) {
 
   Body body (0.5, Vector3d (1., 0., 0.), inertia);
   Joint joint (
-      SpatialVector (1., 0., 0., 0., 0., 0.),
-      SpatialVector (0., 1., 0., 0., 0., 0.),
-      SpatialVector (0., 0., 1., 0., 0., 0.)
+      SpatialVectord (1., 0., 0., 0., 0., 0.),
+      SpatialVectord (0., 1., 0., 0., 0., 0.),
+      SpatialVectord (0., 0., 1., 0., 0., 0.)
       );
 
   model.AppendBody (Xtrans (Vector3d(0., 0., 0.)), joint, body);

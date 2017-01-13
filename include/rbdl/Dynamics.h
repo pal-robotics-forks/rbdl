@@ -48,7 +48,7 @@ RBDL_DLLAPI void InverseDynamics (
     const Math::VectorNd &QDot,
     const Math::VectorNd &QDDot,
     Math::VectorNd &Tau,
-    std::vector<Math::SpatialVector> *f_ext = NULL
+    std::vector<Math::SpatialVectord> *f_ext = NULL
     );
 
 /** \brief Computes the coriolis forces
@@ -112,7 +112,7 @@ RBDL_DLLAPI void ForwardDynamics (
     const Math::VectorNd &QDot,
     const Math::VectorNd &Tau,
     Math::VectorNd &QDDot,
-    std::vector<Math::SpatialVector> *f_ext = NULL
+    std::vector<Math::SpatialVectord> *f_ext = NULL
     );
 
 /** \brief Computes forward dynamics by building and solving the full Lagrangian equation
@@ -140,7 +140,7 @@ RBDL_DLLAPI void ForwardDynamicsLagrangian (
     const Math::VectorNd &Tau,
     Math::VectorNd &QDDot,
     Math::LinearSolver linear_solver = Math::LinearSolverColPivHouseholderQR,
-    std::vector<Math::SpatialVector> *f_ext = NULL,
+    std::vector<Math::SpatialVectord> *f_ext = NULL,
     Math::MatrixNd *H = NULL,
     Math::VectorNd *C = NULL	
     );

@@ -23,17 +23,17 @@ protected:
     model = new Model;
 
     body_a = Body (1., Vector3d (1., 0., 0.), Vector3d (1., 1., 1.));
-    Joint joint_a ( SpatialVector (0., 0., 1., 0., 0., 0.));
+    Joint joint_a ( SpatialVectord (0., 0., 1., 0., 0., 0.));
 
     body_a_id = model->AddBody(0, Xtrans(Vector3d(0., 0., 0.)), joint_a, body_a);
 
     body_b = Body (1., Vector3d (0., 1., 0.), Vector3d (1., 1., 1.));
-    Joint joint_b ( SpatialVector (0., 1., 0., 0., 0., 0.));
+    Joint joint_b ( SpatialVectord (0., 1., 0., 0., 0., 0.));
 
     body_b_id = model->AddBody(1, Xtrans(Vector3d(1., 0., 0.)), joint_b, body_b);
 
     body_c = Body (1., Vector3d (1., 0., 0.), Vector3d (1., 1., 1.));
-    Joint joint_c ( SpatialVector (1., 0., 0., 0., 0., 0.));
+    Joint joint_c ( SpatialVectord (1., 0., 0., 0., 0., 0.));
 
     body_c_id = model->AddBody(2, Xtrans(Vector3d(0., 1., 0.)), joint_c, body_c);
 
@@ -171,10 +171,10 @@ TEST(CalcVelocitiesTest, FixedJointCalcPointVelocity ) {
 
   Model model;
 
-  Joint joint_rot_z ( SpatialVector (0., 0., 1., 0., 0., 0.));
+  Joint joint_rot_z ( SpatialVectord (0., 0., 1., 0., 0., 0.));
   model.AddBody (0, Xtrans(Vector3d(0., 0., 0.)), joint_rot_z, body);
 
-  SpatialTransform transform = Xtrans (Vector3d (1., 0., 0.));
+  SpatialTransformd  transform = Xtrans (Vector3d (1., 0., 0.));
   unsigned int fixed_body_id = model.AppendBody (transform, Joint(JointTypeFixed), fixed_body, "fixed_body");
 
   VectorNd Q = VectorNd::Zero (model.dof_count);
@@ -198,10 +198,10 @@ TEST (CalcVelocitiesTest, FixedJointCalcPointVelocityRotated ) {
 
   Model model;
 
-  Joint joint_rot_z ( SpatialVector (0., 0., 1., 0., 0., 0.));
+  Joint joint_rot_z ( SpatialVectord (0., 0., 1., 0., 0., 0.));
   model.AddBody (0, Xtrans(Vector3d(0., 0., 0.)), joint_rot_z, body);
 
-  SpatialTransform transform = Xtrans (Vector3d (1., 0., 0.));
+  SpatialTransformd  transform = Xtrans (Vector3d (1., 0., 0.));
   unsigned int fixed_body_id = model.AppendBody (transform, Joint(JointTypeFixed), fixed_body, "fixed_body");
 
   VectorNd Q = VectorNd::Zero (model.dof_count);

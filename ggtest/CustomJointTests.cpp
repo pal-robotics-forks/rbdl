@@ -85,8 +85,8 @@ protected:
 
     Matrix3d inertia = Matrix3d::Identity(3,3);
     body = Body (1., Vector3d (1.1, 1.2, 1.3), inertia);
-    reference_body_id = reference_model.AddBody (0,SpatialTransform(), Joint(JointTypeEulerZYX), body);
-    custom_body_id = custom_model.AddBodyCustomJoint (0, SpatialTransform(), custom_joint, body);
+    reference_body_id = reference_model.AddBody (0,SpatialTransformd(), Joint(JointTypeEulerZYX), body);
+    custom_body_id = custom_model.AddBodyCustomJoint (0, SpatialTransformd(), custom_joint, body);
 
     q = VectorNd::Zero (reference_model.q_size);
     qdot = VectorNd::Zero (reference_model.qdot_size);

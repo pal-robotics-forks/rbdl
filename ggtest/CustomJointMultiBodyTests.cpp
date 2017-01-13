@@ -167,7 +167,7 @@ struct CustomEulerZYXJoint : public CustomJoint {
       double c2 = cos (q2);
 
 
-      model.X_lambda[joint_id] = SpatialTransform (
+      model.X_lambda[joint_id] = SpatialTransformd (
           Matrix3d(
                            c0 * c1,                s0 * c1,     -s1,
             c0 * s1 * s2 - s0 * c2, s0 * s1 * s2 + c0 * c2, c1 * s2,
@@ -260,38 +260,38 @@ protected:
 
     unsigned int reference_body_id10 =
        reference1.AddBody (0,
-                SpatialTransform(),
+                SpatialTransformd(),
                 Joint(JointTypeRevoluteX),
                 body11);
 
     unsigned int reference_body_id11 =
        reference1.AddBody (reference_body_id10,
-                SpatialTransform(rm1,r1),
+                SpatialTransformd(rm1,r1),
                 Joint(JointTypeEulerZYX),
                 body12);
 
     unsigned int reference_body_id12 =
        reference1.AddBody (reference_body_id11,
-                SpatialTransform(rm2,r2),
+                SpatialTransformd(rm2,r2),
                 Joint(JointTypeRevoluteX),
                 body13);
 
 
     unsigned int custom_body_id10 =
        custom1.AddBody (  0,
-                SpatialTransform(),
+                SpatialTransformd(),
                 Joint(JointTypeRevoluteX),
                 body11);
 
     unsigned int custom_body_id11 =
        custom1.AddBody (  custom_body_id10,
-                SpatialTransform(rm1,r1),
+                SpatialTransformd(rm1,r1),
                 Joint(JointTypeEulerZYX),
                 body12);
 
     unsigned int custom_body_id12 =
        custom1.AddBodyCustomJoint (  custom_body_id11,
-                SpatialTransform(rm2,r2),
+                SpatialTransformd(rm2,r2),
                 &custom_rx_joint1,
                 body13);
 
@@ -333,37 +333,37 @@ protected:
 
     unsigned int reference_body_id20 =
        reference2.AddBody (0,
-                SpatialTransform(),
+                SpatialTransformd(),
                 Joint(JointTypeRevoluteX),
                 body11);
 
     unsigned int reference_body_id21 =
        reference2.AddBody (reference_body_id20,
-                SpatialTransform(rm2,r2),
+                SpatialTransformd(rm2,r2),
                 Joint(JointTypeRevoluteX),
                 body12);
 
     unsigned int reference_body_id22 =
        reference2.AddBody (reference_body_id21,
-                SpatialTransform(rm1,r1),
+                SpatialTransformd(rm1,r1),
                 Joint(JointTypeEulerZYX),
                 body13);
 
     unsigned int custom_body_id20 =
        custom2.AddBody (  0,
-                SpatialTransform(),
+                SpatialTransformd(),
                 Joint(JointTypeRevoluteX),
                 body11);
 
     unsigned int custom_body_id21 =
        custom2.AddBodyCustomJoint (  custom_body_id20,
-                SpatialTransform(rm2,r2),
+                SpatialTransformd(rm2,r2),
                 &custom_rx_joint1,
                 body12);
 
     unsigned int custom_body_id22 =
        custom2.AddBody (  custom_body_id21,
-                SpatialTransform(rm1,r1),
+                SpatialTransformd(rm1,r1),
                 Joint(JointTypeEulerZYX),
                 body13);
 
@@ -405,37 +405,37 @@ protected:
 
     unsigned int reference_body_id30 =
        reference3.AddBody (0,
-                SpatialTransform(),
+                SpatialTransformd(),
                 Joint(JointTypeRevoluteX),
                 body11);
 
     unsigned int reference_body_id31 =
        reference3.AddBody (reference_body_id30,
-                SpatialTransform(rm1,r1),
+                SpatialTransformd(rm1,r1),
                 Joint(JointTypeEulerZYX),
                 body12);
 
     unsigned int reference_body_id32 =
        reference3.AddBody (reference_body_id31,
-                SpatialTransform(rm2,r2),
+                SpatialTransformd(rm2,r2),
                 Joint(JointTypeRevoluteX),
                 body13);
 
     unsigned int custom_body_id30 =
        custom3.AddBodyCustomJoint (  0,
-                SpatialTransform(),
+                SpatialTransformd(),
                 &custom_rx_joint1,
                 body11);
 
     unsigned int custom_body_id31 =
        custom3.AddBody (  custom_body_id30,
-                SpatialTransform(rm1,r1),
+                SpatialTransformd(rm1,r1),
                 Joint(JointTypeEulerZYX),
                 body12);
 
     unsigned int custom_body_id32 =
        custom3.AddBody (  custom_body_id31,
-                SpatialTransform(rm2,r2),
+                SpatialTransformd(rm2,r2),
                 Joint(JointTypeRevoluteX),
                 body13);
 

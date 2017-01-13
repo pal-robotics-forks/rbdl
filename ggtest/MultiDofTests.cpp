@@ -30,14 +30,14 @@ protected:
     body = Body (1., Vector3d (1., 0., 0.), Vector3d (1., 1., 1.));
 
     joint_rot_zyx = Joint (
-        SpatialVector (0., 0., 1., 0., 0., 0.),
-        SpatialVector (0., 1., 0., 0., 0., 0.),
-        SpatialVector (1., 0., 0., 0., 0., 0.)
+        SpatialVectord (0., 0., 1., 0., 0., 0.),
+        SpatialVectord (0., 1., 0., 0., 0., 0.),
+        SpatialVectord (1., 0., 0., 0., 0., 0.)
         );
     joint_spherical = Joint (JointTypeSpherical);
     joint_eulerzyx = Joint (JointTypeEulerZYX);
 
-    joint_rot_y = Joint (SpatialVector (0., 1., 0., 0., 0., 0.));
+    joint_rot_y = Joint (SpatialVectord (0., 1., 0., 0., 0., 0.));
 
     emulated_model.AppendBody (Xtrans(Vector3d (0., 0., 0.)), joint_rot_y, body);
     emu_body_id = emulated_model.AppendBody (Xtrans (Vector3d (1., 0., 0.)), joint_rot_zyx, body);
@@ -106,7 +106,7 @@ void ConvertQAndQDotFromEmulated (
     unsigned int q_index = multdof3_model.mJoints[i].q_index;
 
     if (multdof3_model.mJoints[i].mJointType == JointTypeSpherical) {
-      Quaternion quat = Quaternion::fromZYXAngles ( Vector3d (
+      Quaterniond quat = Quaterniond::fromZYXAngles ( Vector3d (
             q_emulated[q_index + 0], q_emulated[q_index + 1], q_emulated[q_index + 2]));
       multdof3_model.SetQuaternion (i, quat, (*q_spherical));
 
@@ -131,11 +131,11 @@ TEST(MultiDofTests, TestQuaternionIntegration ) {
   Vector3d zyx_angles_t0 (0.1, 0.2, 0.3);
   Vector3d zyx_rates (3., 5., 2.);
   Vector3d zyx_angles_t1 = zyx_angles_t0 + timestep * zyx_rates;
-  Quaternion q_zyx_t1 = Quaternion::fromZYXAngles (zyx_angles_t1);
+  Quaterniond q_zyx_t1 = Quaterniond::fromZYXAngles (zyx_angles_t1);
 
-  Quaternion q_t0 = Quaternion::fromZYXAngles (zyx_angles_t0);
+  Quaterniond q_t0 = Quaterniond::fromZYXAngles (zyx_angles_t0);
   Vector3d w_base = global_angular_velocity_from_rates (zyx_angles_t0, zyx_rates);
-  Quaternion q_t1 = q_t0.timeStep (w_base, timestep);
+  Quaterniond q_t1 = q_t0.timeStep (w_base, timestep);
 
   // Note: we test with a rather crude precision. My guess for the error is
   // that we compare two different things:
@@ -190,12 +190,12 @@ TEST_F (SphericalJoint, TestGetQuaternion) {
   sphQ[8] = 4.;
   sphQ[9] = -9.;
 
-  Quaternion reference_1 (0., 1., 2., 4.);
-  Quaternion quat_1 = multdof3_model.GetQuaternion (2, sphQ);
+  Quaterniond reference_1 (0., 1., 2., 4.);
+  Quaterniond quat_1 = multdof3_model.GetQuaternion (2, sphQ);
   EXPECT_TRUE(EIGEN_MATRIX_EQUAL_DOUBLE (reference_1, quat_1));
 
-  Quaternion reference_3 (-6., -7., -8., -9.);
-  Quaternion quat_3 = multdof3_model.GetQuaternion (4, sphQ);
+  Quaterniond reference_3 (-6., -7., -8., -9.);
+  Quaterniond quat_3 = multdof3_model.GetQuaternion (4, sphQ);
   EXPECT_TRUE(EIGEN_MATRIX_EQUAL_DOUBLE (reference_3, quat_3));
 }
 
@@ -207,12 +207,12 @@ TEST_F (SphericalJoint, TestSetQuaternion) {
   sphQDDot = VectorNd::Zero ((size_t) multdof3_model.qdot_size);
   sphTau = VectorNd::Zero ((size_t) multdof3_model.qdot_size);
 
-  Quaternion reference_1 (0., 1., 2., 3.);
+  Quaterniond reference_1 (0., 1., 2., 3.);
   multdof3_model.SetQuaternion (2, reference_1, sphQ);
-  Quaternion test = multdof3_model.GetQuaternion (2, sphQ);
+  Quaterniond test = multdof3_model.GetQuaternion (2, sphQ);
   EXPECT_TRUE(EIGEN_MATRIX_EQUAL_DOUBLE (reference_1, test));
 
-  Quaternion reference_2 (11., 22., 33., 44.);
+  Quaterniond reference_2 (11., 22., 33., 44.);
   multdof3_model.SetQuaternion (4, reference_2, sphQ);
   test = multdof3_model.GetQuaternion (4, sphQ);
   EXPECT_TRUE(EIGEN_MATRIX_EQUAL_DOUBLE (reference_2, test));
@@ -228,9 +228,9 @@ TEST_F (SphericalJoint, TestOrientation) {
     sphQ[i] = emuQ[i];
   }
 
-  Quaternion quat =  Quaternion::fromAxisAngle (Vector3d (1., 0., 0.), emuQ[2])
-    * Quaternion::fromAxisAngle (Vector3d (0., 1., 0.), emuQ[1])
-    * Quaternion::fromAxisAngle (Vector3d (0., 0., 1.), emuQ[0]);
+  Quaterniond quat =  Quaterniond::fromAxisAngle (Vector3d (1., 0., 0.), emuQ[2])
+    * Quaterniond::fromAxisAngle (Vector3d (0., 1., 0.), emuQ[1])
+    * Quaterniond::fromAxisAngle (Vector3d (0., 0., 1.), emuQ[0]);
   multdof3_model.SetQuaternion (2, quat, sphQ);
 
   Matrix3d emu_orientation = CalcBodyWorldOrientation (emulated_model, emuQ, emu_child_id);
@@ -612,14 +612,14 @@ TEST (MultiDofTests, TestJointTypeTranslationZYX ) {
 
   Body body (1., Vector3d (1., 2., 1.), Matrix3d (1., 0., 0, 0., 1., 0., 0., 0., 1.));
   Joint joint_emulated (
-      SpatialVector (0., 0., 0., 1., 0., 0.),
-      SpatialVector (0., 0., 0., 0., 1., 0.),
-      SpatialVector (0., 0., 0., 0., 0., 1.)
+      SpatialVectord (0., 0., 0., 1., 0., 0.),
+      SpatialVectord (0., 0., 0., 0., 1., 0.),
+      SpatialVectord (0., 0., 0., 0., 0., 1.)
       );
   Joint joint_3dof (JointTypeTranslationXYZ);
 
-  model_emulated.AppendBody (SpatialTransform (), joint_emulated, body);
-  model_3dof.AppendBody (SpatialTransform (), joint_3dof, body);
+  model_emulated.AppendBody (SpatialTransformd (), joint_emulated, body);
+  model_3dof.AppendBody (SpatialTransformd (), joint_3dof, body);
 
   VectorNd q (VectorNd::Zero (model_emulated.q_size));
   VectorNd qdot (VectorNd::Zero (model_emulated.qdot_size));
@@ -661,14 +661,14 @@ TEST (MultiDofTests, TestJointTypeEulerXYZ ) {
 
   Body body (1., Vector3d (1., 2., 1.), Matrix3d (1., 0., 0, 0., 1., 0., 0., 0., 1.));
   Joint joint_emulated (
-      SpatialVector (1., 0., 0., 0., 0., 0.),
-      SpatialVector (0., 1., 0., 0., 0., 0.),
-      SpatialVector (0., 0., 1., 0., 0., 0.)
+      SpatialVectord (1., 0., 0., 0., 0., 0.),
+      SpatialVectord (0., 1., 0., 0., 0., 0.),
+      SpatialVectord (0., 0., 1., 0., 0., 0.)
       );
   Joint joint_3dof (JointTypeEulerXYZ);
 
-  model_emulated.AppendBody (SpatialTransform (), joint_emulated, body);
-  model_3dof.AppendBody (SpatialTransform (), joint_3dof, body);
+  model_emulated.AppendBody (SpatialTransformd (), joint_emulated, body);
+  model_3dof.AppendBody (SpatialTransformd (), joint_3dof, body);
 
   VectorNd q (VectorNd::Zero (model_emulated.q_size));
   VectorNd qdot (VectorNd::Zero (model_emulated.qdot_size));
@@ -710,14 +710,14 @@ TEST (MultiDofTests, TestJointTypeEulerYXZ ) {
 
   Body body (1., Vector3d (1., 2., 1.), Matrix3d (1., 0., 0, 0., 1., 0., 0., 0., 1.));
   Joint joint_emulated (
-      SpatialVector (0., 1., 0., 0., 0., 0.),
-      SpatialVector (1., 0., 0., 0., 0., 0.),
-      SpatialVector (0., 0., 1., 0., 0., 0.)
+      SpatialVectord (0., 1., 0., 0., 0., 0.),
+      SpatialVectord (1., 0., 0., 0., 0., 0.),
+      SpatialVectord (0., 0., 1., 0., 0., 0.)
       );
   Joint joint_3dof (JointTypeEulerYXZ);
 
-  model_emulated.AppendBody (SpatialTransform (), joint_emulated, body);
-  model_3dof.AppendBody (SpatialTransform (), joint_3dof, body);
+  model_emulated.AppendBody (SpatialTransformd (), joint_emulated, body);
+  model_3dof.AppendBody (SpatialTransformd (), joint_3dof, body);
 
   VectorNd q (VectorNd::Zero (model_emulated.q_size));
   VectorNd qdot (VectorNd::Zero (model_emulated.qdot_size));

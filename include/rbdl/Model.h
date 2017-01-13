@@ -146,7 +146,7 @@ public:
   /** \brief The size of the \f$\mathbf{q}\f$-vector. 
    * For models without spherical joints the value is the same as
    * Model::dof_count, otherwise additional values for the w-component of the
-   * Quaternion is stored at the end of \f$\mathbf{q}\f$. 
+   * Quaterniond is stored at the end of \f$\mathbf{q}\f$.
    *
    * \sa \ref joint_description for more details.
    */
@@ -168,14 +168,14 @@ public:
 
   // State information
   /// \brief The spatial velocity of the bodies
-  std::vector<Math::SpatialVector> v;
+  std::vector<Math::SpatialVectord> v;
   /// \brief The spatial acceleration of the bodies
-  std::vector<Math::SpatialVector> a;
+  std::vector<Math::SpatialVectord> a;
   /// \brief The spatial bias acceleration of the bodies
-  std::vector<Math::SpatialVector> a_bias;
+  std::vector<Math::SpatialVectord> a_bias;
 
   /// \brief For computing COM jacobian efficiently
-  std::vector<Math::SpatialMatrix> acumulated_mass;
+  std::vector<Math::SpatialMatrixd> acumulated_mass;
 
   ////////////////////////////////////
   // Joints
@@ -184,18 +184,18 @@ public:
 
   std::vector<Joint> mJoints;
   /// \brief The joint axis for joint i
-  std::vector<Math::SpatialVector> S;
+  std::vector<Math::SpatialVectord> S;
 
   // Joint state variables
-  std::vector<Math::SpatialTransform> X_J;
-  std::vector<Math::SpatialVector> v_J;
-  std::vector<Math::SpatialVector> c_J;
+  std::vector<Math::SpatialTransformd> X_J;
+  std::vector<Math::SpatialVectord> v_J;
+  std::vector<Math::SpatialVectord> c_J;
 
   std::vector<unsigned int> mJointUpdateOrder;
 
   /// \brief Transformations from the parent body to the frame of the joint.
   // It is expressed in the coordinate frame of the parent.
-  std::vector<Math::SpatialTransform> X_T;
+  std::vector<Math::SpatialTransformd> X_T;
   /// \brief The number of fixed joints that have been declared before 
   ///  each joint.
   std::vector<unsigned int> mFixedJointCount;
@@ -203,8 +203,8 @@ public:
   ////////////////////////////////////
   // Special variables for joints with 3 degrees of freedom
   /// \brief Motion subspace for joints with 3 degrees of freedom
-  std::vector<Math::Matrix63> multdof3_S;
-  std::vector<Math::Matrix63> multdof3_U;
+  std::vector<Math::Matrix63d> multdof3_S;
+  std::vector<Math::Matrix63d> multdof3_U;
   std::vector<Math::Matrix3d> multdof3_Dinv;
   std::vector<Math::Vector3d> multdof3_u;
   std::vector<unsigned int> multdof3_w_index;
@@ -215,24 +215,24 @@ public:
   // Dynamics variables
 
   /// \brief The velocity dependent spatial acceleration
-  std::vector<Math::SpatialVector> c;
+  std::vector<Math::SpatialVectord> c;
   /// \brief The spatial inertia of the bodies 
-  std::vector<Math::SpatialMatrix> IA;
+  std::vector<Math::SpatialMatrixd> IA;
   /// \brief The spatial bias force
-  std::vector<Math::SpatialVector> pA;
+  std::vector<Math::SpatialVectord> pA;
   /// \brief Temporary variable U_i (RBDA p. 130)
-  std::vector<Math::SpatialVector> U;
+  std::vector<Math::SpatialVectord> U;
   /// \brief Temporary variable D_i (RBDA p. 130)
   Math::VectorNd d;
   /// \brief Temporary variable u (RBDA p. 130)
   Math::VectorNd u;
   /// \brief Internal forces on the body (used only InverseDynamics())
-  std::vector<Math::SpatialVector> f;
+  std::vector<Math::SpatialVectord> f;
   /// \brief The spatial inertia of body i (used only in 
   ///  CompositeRigidBodyAlgorithm())
-  std::vector<Math::SpatialRigidBodyInertia> I;
-  std::vector<Math::SpatialRigidBodyInertia> Ic;
-  std::vector<Math::SpatialVector> hc;
+  std::vector<Math::SpatialRigidBodyInertiad> I;
+  std::vector<Math::SpatialRigidBodyInertiad> Ic;
+  std::vector<Math::SpatialVectord> hc;
 
   ////////////////////////////////////
   // Bodies
@@ -242,9 +242,9 @@ public:
    *	X_{\lambda(i)} = {}^{i} X_{\lambda(i)}
    * \f]
    */
-  std::vector<Math::SpatialTransform> X_lambda;
+  std::vector<Math::SpatialTransformd> X_lambda;
   /// \brief Transformation from the base to bodies reference frame
-  std::vector<Math::SpatialTransform> X_base;
+  std::vector<Math::SpatialTransformd> X_base;
 
   /// \brief All bodies that are attached to a body via a fixed joint.
   std::vector<FixedBody> mFixedBodies;
@@ -306,7 +306,7 @@ public:
    */
   unsigned int AddBody (
       const unsigned int parent_id,
-      const Math::SpatialTransform &joint_frame,
+      const Math::SpatialTransformd &joint_frame,
       const Joint &joint,
       const Body &body,
       std::string body_name = "" 
@@ -314,7 +314,7 @@ public:
 
   unsigned int AddBodySphericalJoint (
       const unsigned int parent_id,
-      const Math::SpatialTransform &joint_frame,
+      const Math::SpatialTransformd &joint_frame,
       const Joint &joint,
       const Body &body,
       std::string body_name = "" 
@@ -327,7 +327,7 @@ public:
    * most recently added body (or body 0) is taken as parent.
    */
   unsigned int AppendBody (
-      const Math::SpatialTransform &joint_frame,
+      const Math::SpatialTransformd &joint_frame,
       const Joint &joint,
       const Body &body,
       std::string body_name = "" 
@@ -335,7 +335,7 @@ public:
 
   unsigned int AddBodyCustomJoint (
       const unsigned int parent_id,
-      const Math::SpatialTransform &joint_frame,
+      const Math::SpatialTransformd &joint_frame,
       CustomJoint *custom_joint,
       const Body &body,
       std::string body_name = "" 
@@ -450,7 +450,7 @@ public:
   /** Returns the joint frame transformtion, i.e. the second argument to 
     Model::AddBody().
     */
-  Math::SpatialTransform GetJointFrame (unsigned int id) {
+  Math::SpatialTransformd GetJointFrame (unsigned int id) {
     if (id >= fixed_body_discriminator) {
       return mFixedBodies[id - fixed_body_discriminator].mParentTransform;
     }
@@ -471,7 +471,7 @@ public:
     ::AddBody().
     */
   void SetJointFrame (unsigned int id, 
-      const Math::SpatialTransform &transform) {
+      const Math::SpatialTransformd &transform) {
     if (id >= fixed_body_discriminator) {
       std::cerr << "Error: setting of parent transform "
         << "not supported for fixed bodies!" << std::endl;
@@ -491,28 +491,28 @@ public:
     }
   }
 
-  /** Gets the quaternion for body i (only valid if body i is connected by
+  /** Gets the Quaterniond for body i (only valid if body i is connected by
    * a JointTypeSpherical joint)
    *
    * See \ref joint_singularities for details.
    */
-  Math::Quaternion GetQuaternion (unsigned int i, 
+  Math::Quaterniond GetQuaternion (unsigned int i,
       const Math::VectorNd &Q) const {
     assert (mJoints[i].mJointType == JointTypeSpherical);
     unsigned int q_index = mJoints[i].q_index;
-    return Math::Quaternion ( Q[q_index], 
+    return Math::Quaterniond ( Q[q_index],
         Q[q_index + 1], 
         Q[q_index + 2], 
         Q[multdof3_w_index[i]]);
   }
 
-  /** Sets the quaternion for body i (only valid if body i is connected by
+  /** Sets the Quaterniond for body i (only valid if body i is connected by
    * a JointTypeSpherical joint)
    *
    * See \ref joint_singularities for details.
    */
-  void SetQuaternion (unsigned int i, 
-      const Math::Quaternion &quat, 
+  void SetQuaternion (unsigned int i,
+      const Math::Quaterniond &quat,
       Math::VectorNd &Q) const {
     assert (mJoints[i].mJointType == JointTypeSpherical);
     unsigned int q_index = mJoints[i].q_index;

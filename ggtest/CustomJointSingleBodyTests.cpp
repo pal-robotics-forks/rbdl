@@ -191,7 +191,7 @@ struct CustomEulerZYXJoint : public CustomJoint
     double c2 = cos (q2);
 
 
-    model.X_lambda[joint_id] = SpatialTransform (
+    model.X_lambda[joint_id] = SpatialTransformd (
                                  Matrix3d(
                                    c0 * c1, s0 * c1, -s1,
                                    c0 * s1 * s2 - s0 * c2, s0 * s1 * s2 + c0 * c2, c1 * s2,
@@ -251,13 +251,13 @@ protected:
 
     unsigned int reference_body_id0 =
         reference0.AddBody ( 0,
-                             SpatialTransform(),
+                             SpatialTransformd(),
                              Joint(JointTypeEulerZYX),
                              body0);
 
     unsigned int custom_body_id0 =
         custom0.AddBodyCustomJoint (  0,
-                                      SpatialTransform(),
+                                      SpatialTransformd(),
                                       &custom_joint0,
                                       body0);
 
@@ -290,13 +290,13 @@ protected:
 
     unsigned int reference_body_id1 =
         reference1.AddBody ( 0,
-                             SpatialTransform(),
+                             SpatialTransformd(),
                              Joint(JointTypeRevoluteX),
                              body0);
 
     unsigned int custom_body_id1 =
         custom1.AddBodyCustomJoint (0,
-                                    SpatialTransform(),
+                                    SpatialTransformd(),
                                     &custom_joint1,
                                     body0);
 

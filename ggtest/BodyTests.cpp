@@ -23,7 +23,7 @@ TEST(BodyTests, TestComputeSpatialInertiaFromAbsoluteRadiiGyration)
         0., 2., 0.,
         0., 0., 3.);
 
-  SpatialMatrix reference_inertia (
+  SpatialMatrixd reference_inertia (
         4.843, -1.98, -2.145, 0, -1.43, 1.32,
         -1.98, 6.334, -1.716, 1.43, 0, -1.65,
         -2.145, -1.716, 7.059, -1.32, 1.65, 0,
@@ -34,7 +34,7 @@ TEST(BodyTests, TestComputeSpatialInertiaFromAbsoluteRadiiGyration)
 
   //	cout << LogOutput.str() << endl;
 
-  SpatialRigidBodyInertia body_rbi = SpatialRigidBodyInertia::createFromMassComInertiaC (body.mMass, body.mCenterOfMass, body.mInertia);
+  SpatialRigidBodyInertiad body_rbi = SpatialRigidBodyInertiad::createFromMassComInertiaC (body.mMass, body.mCenterOfMass, body.mInertia);
 
   EXPECT_TRUE(EIGEN_MATRIX_NEAR(reference_inertia, body_rbi.toMatrix(), TEST_PREC));
   EXPECT_TRUE(EIGEN_MATRIX_NEAR(inertia_C, body.mInertia, TEST_PREC));
@@ -51,7 +51,7 @@ TEST (BodyTests, TestBodyConstructorMassComInertia ) {
 
   Body body (mass, com, inertia_C);
 
-  SpatialMatrix reference_inertia (
+  SpatialMatrixd reference_inertia (
         11.729, -5.94, -6.435, 0, -1.43, 1.32,
         -5.94, 15.002, -5.148, 1.43, 0, -1.65,
         -6.435, -5.148, 15.177, -1.32, 1.65, 0,
@@ -60,7 +60,7 @@ TEST (BodyTests, TestBodyConstructorMassComInertia ) {
         1.32, -1.65, 0, 0, 0, 1.1
         );
 
-  SpatialRigidBodyInertia body_rbi = SpatialRigidBodyInertia::createFromMassComInertiaC (body.mMass, body.mCenterOfMass, body.mInertia);
+  SpatialRigidBodyInertiad body_rbi = SpatialRigidBodyInertiad::createFromMassComInertiaC (body.mMass, body.mCenterOfMass, body.mInertia);
   EXPECT_TRUE(EIGEN_MATRIX_NEAR(reference_inertia, body_rbi.toMatrix(), TEST_PREC));
   EXPECT_TRUE(EIGEN_MATRIX_NEAR(inertia_C, body.mInertia, TEST_PREC));
 }
@@ -73,8 +73,8 @@ TEST (BodyTests, TestBodyJoinNullbody ) {
   Body joined_body = body;
   joined_body.Join (Xtrans(Vector3d (0., 0., 0.)), nullbody);
 
-  SpatialRigidBodyInertia body_rbi (body.mMass, body.mCenterOfMass, body.mInertia);
-  SpatialRigidBodyInertia joined_body_rbi (joined_body.mMass, joined_body.mCenterOfMass, joined_body.mInertia);
+  SpatialRigidBodyInertiad body_rbi (body.mMass, body.mCenterOfMass, body.mInertia);
+  SpatialRigidBodyInertiad joined_body_rbi (joined_body.mMass, joined_body.mCenterOfMass, joined_body.mInertia);
 
   EXPECT_EQ(1.1, body.mMass);
   EXPECT_TRUE(EIGEN_MATRIX_NEAR(body.mCenterOfMass, joined_body.mCenterOfMass, TEST_PREC));
@@ -89,9 +89,9 @@ TEST (BodyTests, TestBodyJoinTwoBodies ) {
   Body body_joined (body_a);
   body_joined.Join (Xtrans(Vector3d (0., 0., 0.)), body_b);
 
-  SpatialRigidBodyInertia body_joined_rbi = SpatialRigidBodyInertia::createFromMassComInertiaC (body_joined.mMass, body_joined.mCenterOfMass, body_joined.mInertia);
+  SpatialRigidBodyInertiad body_joined_rbi = SpatialRigidBodyInertiad::createFromMassComInertiaC (body_joined.mMass, body_joined.mCenterOfMass, body_joined.mInertia);
 
-  SpatialMatrix reference_inertia (
+  SpatialMatrixd reference_inertia (
         9.918, 0, 0, 0, -0, 2.86,
         0, 9.062, 0, 0, 0, -0,
         0, 0, 12.98, -2.86, 0, 0,
@@ -113,9 +113,9 @@ TEST (BodyTests, TestBodyJoinTwoBodiesDisplaced ) {
   Body body_joined (body_a);
   body_joined.Join (Xtrans(Vector3d (1.1, 1.3, 0.)), body_b);
 
-  SpatialRigidBodyInertia body_joined_rbi = SpatialRigidBodyInertia::createFromMassComInertiaC (body_joined.mMass, body_joined.mCenterOfMass, body_joined.mInertia);
+  SpatialRigidBodyInertiad body_joined_rbi = SpatialRigidBodyInertiad::createFromMassComInertiaC (body_joined.mMass, body_joined.mCenterOfMass, body_joined.mInertia);
 
-  SpatialMatrix reference_inertia (
+  SpatialMatrixd reference_inertia (
         9.918, 0, 0, 0, -0, 2.86,
         0, 9.062, 0, 0, 0, -0,
         0, 0, 12.98, -2.86, 0, 0,
@@ -139,9 +139,9 @@ TEST (BodyTests, TestBodyJoinTwoBodiesRotated ) {
   Body body_joined (body_a);
   body_joined.Join (Xrotx(-M_PI*0.5), body_b);
 
-  SpatialRigidBodyInertia body_joined_rbi (body_joined.mMass, body_joined.mCenterOfMass, body_joined.mInertia);
+  SpatialRigidBodyInertiad body_joined_rbi (body_joined.mMass, body_joined.mCenterOfMass, body_joined.mInertia);
 
-  SpatialMatrix reference_inertia (
+  SpatialMatrixd reference_inertia (
         6.2, 0., 0., 0., 0., 0.,
         0., 6.4, 0., 0., 0., 0.,
         0., 0., 6.6, 0., 0., 0.,
@@ -163,9 +163,9 @@ TEST (BodyTests, TestBodyJoinTwoBodiesRotatedAndTranslated ) {
   Body body_joined (body_a);
   body_joined.Join (Xrotz(M_PI*0.5) * Xtrans(Vector3d (1., 1., 0.)), body_b);
 
-  SpatialRigidBodyInertia body_joined_rbi (body_joined.mMass, body_joined.mCenterOfMass, body_joined.mInertia);
+  SpatialRigidBodyInertiad body_joined_rbi (body_joined.mMass, body_joined.mCenterOfMass, body_joined.mInertia);
 
-  SpatialMatrix reference_inertia (
+  SpatialMatrixd reference_inertia (
         6.2, 0., 0., 0., 0., 0.,
         0., 6.4, 0., 0., 0., 0.,
         0., 0., 6.6, 0., 0., 0.,
@@ -179,45 +179,45 @@ TEST (BodyTests, TestBodyJoinTwoBodiesRotatedAndTranslated ) {
   EXPECT_TRUE(EIGEN_MATRIX_NEAR(reference_inertia, body_joined_rbi.toMatrix(), TEST_PREC));
 }
 
-TEST (BodyTests, TestBodyConstructorSpatialRigidBodyInertiaMultiplyMotion ) {
+TEST (BodyTests, TestBodyConstructorSpatialRigidBodyInertiadMultiplyMotion ) {
   Body body(1.1, Vector3d (1.5, 1.2, 1.3), Vector3d (1.4, 2., 3.));
 
-  SpatialRigidBodyInertia rbi = SpatialRigidBodyInertia(
+  SpatialRigidBodyInertiad rbi = SpatialRigidBodyInertiad(
                                   body.mMass,
                                   body.mCenterOfMass * body.mMass,
                                   body.mInertia
                                   );
 
-  SpatialVector mv (1.1, 1.2, 1.3, 1.4, 1.5, 1.6);
-  SpatialVector fv_matrix = rbi.toMatrix() * mv;
-  SpatialVector fv_rbi = rbi * mv;
+  SpatialVectord  mv (1.1, 1.2, 1.3, 1.4, 1.5, 1.6);
+  SpatialVectord  fv_matrix = rbi.toMatrix() * mv;
+  SpatialVectord  fv_rbi = rbi * mv;
 
   EXPECT_TRUE(EIGEN_MATRIX_NEAR(fv_matrix, fv_rbi, TEST_PREC));
 }
 
-TEST (BodyTests, TestBodyConstructorSpatialRigidBodyInertia ) {
+TEST (BodyTests, TestBodyConstructorSpatialRigidBodyInertiad ) {
   Body body(1.1, Vector3d (1.5, 1.2, 1.3), Vector3d (1.4, 2., 3.));
 
-  SpatialRigidBodyInertia rbi = SpatialRigidBodyInertia(
+  SpatialRigidBodyInertiad rbi = SpatialRigidBodyInertiad(
                                   body.mMass,
                                   body.mCenterOfMass * body.mMass,
                                   body.mInertia
                                   );
-  SpatialMatrix spatial_inertia = rbi.toMatrix();
+  SpatialMatrixd spatial_inertia = rbi.toMatrix();
 
   EXPECT_TRUE(EIGEN_MATRIX_NEAR(spatial_inertia, rbi.toMatrix(), TEST_PREC));
 }
 
-TEST (BodyTests, TestBodyConstructorCopySpatialRigidBodyInertia ){
+TEST (BodyTests, TestBodyConstructorCopySpatialRigidBodyInertiad ){
   Body body(1.1, Vector3d (1.5, 1.2, 1.3), Vector3d (1.4, 2., 3.));
 
-  SpatialRigidBodyInertia rbi = SpatialRigidBodyInertia(
+  SpatialRigidBodyInertiad rbi = SpatialRigidBodyInertiad(
                                   body.mMass,
                                   body.mCenterOfMass * body.mMass,
                                   body.mInertia
                                   );
 
-  SpatialRigidBodyInertia rbi_from_matrix;
+  SpatialRigidBodyInertiad rbi_from_matrix;
   rbi_from_matrix.createFromMatrix (rbi.toMatrix());
 
   //	cout << "Spatial Inertia = " << endl << spatial_inertia << endl;

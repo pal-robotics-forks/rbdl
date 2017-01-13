@@ -56,7 +56,7 @@ namespace RigidBodyDynamics {
 //                              bool update_kinematics = true);
 
   /// @todo: Document
-  Math::SpatialVector CalcEnergy_inefficient (
+  Math::SpatialVectord CalcEnergy_inefficient (
       Model &model,
       const Math::VectorNd &Q,
       const Math::VectorNd &QDot,

@@ -230,7 +230,7 @@ namespace RigidBodyDynamics {
   //  }
 
   /// @todo: Document
-  Math::SpatialVector CalcEnergy_inefficient (
+  SpatialVectord CalcEnergy_inefficient(
       Model &model,
       const Math::VectorNd &Q,
       const Math::VectorNd &QDot,
@@ -243,7 +243,7 @@ namespace RigidBodyDynamics {
       RigidBodyDynamics::UpdateKinematicsCustom(model, &Q, &QDot, NULL);
     }
 
-    SpatialVector spatial_moment = RigidBodyDynamics::Math::SpatialVectorZero;
+    SpatialVectord spatial_moment = RigidBodyDynamics::Math::SpatialVectord::Zero();
 
     /// @todo: Is there a problem with the floating base when calculation COM, is the base_link COM getting stuck at the origin
     /// of the inertial frame?

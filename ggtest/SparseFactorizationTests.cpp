@@ -118,27 +118,27 @@ TEST (SparseFactiorizationTests, TestSparseFactorizationMultiDof) {
 
   Body body (1., Vector3d (1., 2., 1.), Matrix3d (1., 0., 0, 0., 1., 0., 0., 0., 1.));
   Joint joint_emulated (
-      SpatialVector (0., 1., 0., 0., 0., 0.),
-      SpatialVector (1., 0., 0., 0., 0., 0.),
-      SpatialVector (0., 0., 1., 0., 0., 0.)
+      SpatialVectord (0., 1., 0., 0., 0., 0.),
+      SpatialVectord (1., 0., 0., 0., 0., 0.),
+      SpatialVectord (0., 0., 1., 0., 0., 0.)
       );
   Joint joint_3dof (JointTypeEulerYXZ);
 
   Joint joint_rot_y (
-      SpatialVector (0., 1., 0., 0., 0., 0.)
+      SpatialVectord (0., 1., 0., 0., 0., 0.)
       );
 
-  model_emulated.AppendBody (SpatialTransform (Matrix3d::Identity(), Vector3d::Zero()), joint_rot_y, body);
-  unsigned int multdof_body_id_emulated = model_emulated.AppendBody (SpatialTransform (Matrix3d::Identity(), Vector3d::Zero()), joint_emulated, body);
-  model_emulated.AppendBody (SpatialTransform (Matrix3d::Identity(), Vector3d::Zero()), joint_emulated, body);
-  model_emulated.AddBody (multdof_body_id_emulated, SpatialTransform (Matrix3d::Identity(), Vector3d::Zero()), joint_rot_y, body);
-  model_emulated.AppendBody (SpatialTransform (Matrix3d::Identity(), Vector3d::Zero()), joint_emulated, body);
+  model_emulated.AppendBody (SpatialTransformd (Matrix3d::Identity(), Vector3d::Zero()), joint_rot_y, body);
+  unsigned int multdof_body_id_emulated = model_emulated.AppendBody (SpatialTransformd (Matrix3d::Identity(), Vector3d::Zero()), joint_emulated, body);
+  model_emulated.AppendBody (SpatialTransformd (Matrix3d::Identity(), Vector3d::Zero()), joint_emulated, body);
+  model_emulated.AddBody (multdof_body_id_emulated, SpatialTransformd (Matrix3d::Identity(), Vector3d::Zero()), joint_rot_y, body);
+  model_emulated.AppendBody (SpatialTransformd (Matrix3d::Identity(), Vector3d::Zero()), joint_emulated, body);
 
-  model_3dof.AppendBody (SpatialTransform (Matrix3d::Identity(), Vector3d::Zero()), joint_rot_y, body);
-  unsigned int multdof_body_id_3dof = model_3dof.AppendBody (SpatialTransform (Matrix3d::Identity(), Vector3d::Zero()), joint_3dof, body);
-  model_3dof.AppendBody (SpatialTransform (Matrix3d::Identity(), Vector3d::Zero()), joint_3dof, body);
-  model_3dof.AddBody (multdof_body_id_3dof, SpatialTransform (Matrix3d::Identity(), Vector3d::Zero()), joint_rot_y, body);
-  model_3dof.AppendBody (SpatialTransform (Matrix3d::Identity(), Vector3d::Zero()), joint_3dof, body);
+  model_3dof.AppendBody (SpatialTransformd (Matrix3d::Identity(), Vector3d::Zero()), joint_rot_y, body);
+  unsigned int multdof_body_id_3dof = model_3dof.AppendBody (SpatialTransformd (Matrix3d::Identity(), Vector3d::Zero()), joint_3dof, body);
+  model_3dof.AppendBody (SpatialTransformd (Matrix3d::Identity(), Vector3d::Zero()), joint_3dof, body);
+  model_3dof.AddBody (multdof_body_id_3dof, SpatialTransformd (Matrix3d::Identity(), Vector3d::Zero()), joint_rot_y, body);
+  model_3dof.AppendBody (SpatialTransformd (Matrix3d::Identity(), Vector3d::Zero()), joint_3dof, body);
 
   VectorNd q (VectorNd::Zero (model_emulated.q_size));
   VectorNd qdot (VectorNd::Zero (model_emulated.qdot_size));
@@ -195,25 +195,25 @@ TEST (SparseFactiorizationTests, TestSparseFactorizationMultiDofAndFixed) {
 
   Body body (1., Vector3d (1., 2., 1.), Matrix3d (1., 0., 0, 0., 1., 0., 0., 0., 1.));
   Joint joint_emulated (
-      SpatialVector (0., 1., 0., 0., 0., 0.),
-      SpatialVector (1., 0., 0., 0., 0., 0.),
-      SpatialVector (0., 0., 1., 0., 0., 0.)
+      SpatialVectord (0., 1., 0., 0., 0., 0.),
+      SpatialVectord (1., 0., 0., 0., 0., 0.),
+      SpatialVectord (0., 0., 1., 0., 0., 0.)
       );
   Joint joint_3dof (JointTypeEulerYXZ);
 
   Joint joint_rot_y (
-      SpatialVector (0., 1., 0., 0., 0., 0.)
+      SpatialVectord (0., 1., 0., 0., 0., 0.)
       );
 
-  SpatialTransform translate_x (Matrix3d::Identity(), Vector3d (1., 0., 0.));
+  SpatialTransformd translate_x (Matrix3d::Identity(), Vector3d (1., 0., 0.));
 
-  model_emulated.AppendBody (SpatialTransform(Matrix3d::Identity(), Vector3d::Zero()), joint_rot_y, body);
+  model_emulated.AppendBody (SpatialTransformd(Matrix3d::Identity(), Vector3d::Zero()), joint_rot_y, body);
   unsigned int multdof_body_id_emulated = model_emulated.AppendBody (translate_x, joint_emulated, body);
   model_emulated.AppendBody (translate_x, joint_emulated, body);
   model_emulated.AddBody(multdof_body_id_emulated, translate_x, Joint(JointTypeFixed), body);
   model_emulated.AppendBody (translate_x, joint_emulated, body);
 
-  model_3dof.AppendBody (SpatialTransform(Matrix3d::Identity(), Vector3d::Zero()), joint_rot_y, body);
+  model_3dof.AppendBody (SpatialTransformd(Matrix3d::Identity(), Vector3d::Zero()), joint_rot_y, body);
   unsigned int multdof_body_id_3dof = model_3dof.AppendBody (translate_x, joint_3dof, body);
   model_3dof.AppendBody (translate_x, joint_3dof, body);
   model_3dof.AddBody (multdof_body_id_3dof, translate_x, Joint(JointTypeFixed), body);

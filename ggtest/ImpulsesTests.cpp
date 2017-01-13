@@ -32,9 +32,9 @@ protected:
         Vector3d (1., 1., 1.)
         );
     joint_rotzyx = Joint (
-        SpatialVector (0., 0., 1., 0., 0., 0.),
-        SpatialVector (0., 1., 0., 0., 0., 0.),
-        SpatialVector (1., 0., 0., 0., 0., 0.)
+        SpatialVectord (0., 0., 1., 0., 0., 0.),
+        SpatialVectord (0., 1., 0., 0., 0., 0.),
+        SpatialVectord (1., 0., 0., 0., 0., 0.)
         );
     base_id = model->AddBody (0, Xtrans (Vector3d (0., 0., 0.)), joint_rotzyx, base);
 

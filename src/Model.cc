@@ -25,7 +25,7 @@ Model::Model() {
   Joint root_joint;
 
   Vector3d zero_position (0., 0., 0.);
-  SpatialVector zero_spatial (0., 0., 0., 0., 0., 0.);
+  SpatialVectord zero_spatial (0., 0., 0., 0., 0., 0.);
 
   // structural information
   lambda.push_back(0);
@@ -42,28 +42,28 @@ Model::Model() {
   v.push_back(zero_spatial);
   a.push_back(zero_spatial);
   a_bias.push_back(zero_spatial);
-  SpatialMatrix zero_spatial_matrix; zero_spatial_matrix.setZero();
+  SpatialMatrixd zero_spatial_matrix; zero_spatial_matrix.setZero();
   acumulated_mass.push_back(zero_spatial_matrix);
 
   // Joints
   mJoints.push_back(root_joint);
   S.push_back (zero_spatial);
-  X_T.push_back(SpatialTransform());
+  X_T.push_back(SpatialTransformd());
 
-  X_J.push_back (SpatialTransform());
+  X_J.push_back (SpatialTransformd());
   v_J.push_back (zero_spatial);
   c_J.push_back (zero_spatial);
 
   // Spherical joints
-  multdof3_S.push_back (Matrix63::Zero());
-  multdof3_U.push_back (Matrix63::Zero());
+  multdof3_S.push_back (Matrix63d::Zero());
+  multdof3_U.push_back (Matrix63d::Zero());
   multdof3_Dinv.push_back (Matrix3d::Zero());
   multdof3_u.push_back (Vector3d::Zero());
   multdof3_w_index.push_back (0);
 
   // Dynamic variables
   c.push_back(zero_spatial);
-  IA.push_back(SpatialMatrixIdentity);
+  IA.push_back(SpatialMatrixd::Identity());
   pA.push_back(zero_spatial);
   U.push_back(zero_spatial);
 
@@ -71,7 +71,7 @@ Model::Model() {
   d = VectorNd::Zero(1);
 
   f.push_back (zero_spatial);
-  SpatialRigidBodyInertia rbi(0.,
+  SpatialRigidBodyInertiad rbi(0.,
       Vector3d (0., 0., 0.),
       Matrix3d::Zero(3,3));
   Ic.push_back (rbi);
@@ -79,8 +79,8 @@ Model::Model() {
   hc.push_back (zero_spatial);
 
   // Bodies
-  X_lambda.push_back(SpatialTransform());
-  X_base.push_back(SpatialTransform());
+  X_lambda.push_back(SpatialTransformd());
+  X_base.push_back(SpatialTransformd());
 
   mBodies.push_back(root_body);
   mBodyNameMap["ROOT"] = 0;
@@ -91,7 +91,7 @@ Model::Model() {
 unsigned int AddBodyFixedJoint (
     Model &model,
     const unsigned int parent_id,
-    const SpatialTransform &joint_frame,
+    const SpatialTransformd &joint_frame,
     const Joint &joint,
     const Body &body,
     std::string body_name) {
@@ -112,7 +112,7 @@ unsigned int AddBodyFixedJoint (
   parent_body.Join (fbody.mParentTransform, body);
   model.mBodies[fbody.mMovableParent] = parent_body;
   model.I[fbody.mMovableParent] =
-    SpatialRigidBodyInertia::createFromMassComInertiaC (
+    SpatialRigidBodyInertiad::createFromMassComInertiaC (
         parent_body.mMass,
         parent_body.mCenterOfMass,
         parent_body.mInertia);
@@ -150,7 +150,7 @@ unsigned int AddBodyFixedJoint (
 unsigned int AddBodyMultiDofJoint (
     Model &model,
     const unsigned int parent_id,
-    const SpatialTransform &joint_frame,
+    const SpatialTransformd &joint_frame,
     const Joint &joint,
     const Body &body,
     std::string body_name) {
@@ -185,7 +185,7 @@ unsigned int AddBodyMultiDofJoint (
   null_body.mIsVirtual = true;
 
   unsigned int null_parent = parent_id;
-  SpatialTransform joint_frame_transform;
+  SpatialTransformd joint_frame_transform;
 
   if (joint.mJointType == JointTypeFloatingBase) {
     null_parent = model.AddBody (parent_id,
@@ -194,7 +194,7 @@ unsigned int AddBodyMultiDofJoint (
         null_body);
 
     return model.AddBody (null_parent,
-        SpatialTransform(),
+        SpatialTransformd(),
         JointTypeSpherical,
         body,
         body_name);
@@ -237,7 +237,7 @@ unsigned int AddBodyMultiDofJoint (
     if (j == 0)
       joint_frame_transform = joint_frame;
     else
-      joint_frame_transform = SpatialTransform();
+      joint_frame_transform = SpatialTransformd();
 
     if (j == joint_count - 1)
       // if we are at the last we must add the real body
@@ -260,7 +260,7 @@ unsigned int AddBodyMultiDofJoint (
 
 unsigned int Model::AddBody(
     const unsigned int parent_id,
-    const SpatialTransform &joint_frame,
+    const SpatialTransformd &joint_frame,
     const Joint &joint,
     const Body &body,
     std::string body_name) {
@@ -302,7 +302,7 @@ unsigned int Model::AddBody(
   // If we add the body to a fixed body we have to make sure that we
   // actually add it to its movable parent.
   unsigned int movable_parent_id = parent_id;
-  SpatialTransform movable_parent_transform;
+  SpatialTransformd movable_parent_transform;
 
   if (IsFixedBodyId(parent_id)) {
     unsigned int fbody_id = parent_id - fixed_body_discriminator;
@@ -330,8 +330,8 @@ unsigned int Model::AddBody(
   mu.at(movable_parent_id).push_back(mBodies.size());
 
   // Bodies
-  X_lambda.push_back(SpatialTransform());
-  X_base.push_back(SpatialTransform());
+  X_lambda.push_back(SpatialTransformd());
+  X_base.push_back(SpatialTransformd());
   mBodies.push_back(body);
 
   if (body_name.size() != 0) {
@@ -347,10 +347,10 @@ unsigned int Model::AddBody(
   }
 
   // state information
-  v.push_back(SpatialVector(0., 0., 0., 0., 0., 0.));
-  a.push_back(SpatialVector(0., 0., 0., 0., 0., 0.));
-  a_bias.push_back(SpatialVector(0., 0., 0., 0., 0., 0.));
-  SpatialMatrix zero_spatial_matrix; zero_spatial_matrix.setZero();
+  v.push_back(SpatialVectord(0., 0., 0., 0., 0., 0.));
+  a.push_back(SpatialVectord(0., 0., 0., 0., 0., 0.));
+  a_bias.push_back(SpatialVectord(0., 0., 0., 0., 0., 0.));
+  SpatialMatrixd zero_spatial_matrix; zero_spatial_matrix.setZero();
   acumulated_mass.push_back(zero_spatial_matrix);
 
   // Joints
@@ -368,13 +368,13 @@ unsigned int Model::AddBody(
   S.push_back (joint.mJointAxes[0]);
 
   // Joint state variables
-  X_J.push_back (SpatialTransform());
+  X_J.push_back (SpatialTransformd());
   v_J.push_back (joint.mJointAxes[0]);
-  c_J.push_back (SpatialVector(0., 0., 0., 0., 0., 0.));
+  c_J.push_back (SpatialVectord(0., 0., 0., 0., 0., 0.));
 
   // workspace for joints with 3 dof
-  multdof3_S.push_back (Matrix63::Zero(6,3));
-  multdof3_U.push_back (Matrix63::Zero());
+  multdof3_S.push_back (Matrix63d::Zero(6,3));
+  multdof3_U.push_back (Matrix63d::Zero());
   multdof3_Dinv.push_back (Matrix3d::Zero());
   multdof3_u.push_back (Vector3d::Zero());
   multdof3_w_index.push_back (0);
@@ -402,24 +402,24 @@ unsigned int Model::AddBody(
   X_T.push_back(joint_frame * movable_parent_transform);
 
   // Dynamic variables
-  c.push_back(SpatialVector(0., 0., 0., 0., 0., 0.));
-  IA.push_back(SpatialMatrix::Zero(6,6));
-  pA.push_back(SpatialVector(0., 0., 0., 0., 0., 0.));
-  U.push_back(SpatialVector(0., 0., 0., 0., 0., 0.));
+  c.push_back(SpatialVectord(0., 0., 0., 0., 0., 0.));
+  IA.push_back(SpatialMatrixd::Zero());
+  pA.push_back(SpatialVectord(0., 0., 0., 0., 0., 0.));
+  U.push_back(SpatialVectord(0., 0., 0., 0., 0., 0.));
 
   d = VectorNd::Zero (mBodies.size());
   u = VectorNd::Zero (mBodies.size());
 
-  f.push_back (SpatialVector (0., 0., 0., 0., 0., 0.));
+  f.push_back (SpatialVectord (0., 0., 0., 0., 0., 0.));
 
-  SpatialRigidBodyInertia rbi =
-    SpatialRigidBodyInertia::createFromMassComInertiaC (body.mMass,
+  SpatialRigidBodyInertiad rbi =
+    SpatialRigidBodyInertiad::createFromMassComInertiaC (body.mMass,
         body.mCenterOfMass,
         body.mInertia);
 
   Ic.push_back (rbi);
   I.push_back (rbi);
-  hc.push_back (SpatialVector(0., 0., 0., 0., 0., 0.));
+  hc.push_back (SpatialVectord(0., 0., 0., 0., 0., 0.));
 
   if (mBodies.size() == fixed_body_discriminator) {
     std::cerr << "Error: cannot add more than "
@@ -470,7 +470,7 @@ unsigned int Model::AddBody(
 }
 
 unsigned int Model::AppendBody (
-    const Math::SpatialTransform &joint_frame,
+    const Math::SpatialTransformd &joint_frame,
     const Joint &joint,
     const Body &body,
     std::string body_name) {
@@ -483,7 +483,7 @@ unsigned int Model::AppendBody (
 
 unsigned int Model::AddBodyCustomJoint (
     const unsigned int parent_id,
-    const Math::SpatialTransform &joint_frame,
+    const Math::SpatialTransformd &joint_frame,
     CustomJoint *custom_joint,
     const Body &body,
     std::string body_name) {

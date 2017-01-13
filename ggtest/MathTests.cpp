@@ -76,7 +76,7 @@ TEST (MathTests,Dynamic_2D_initialize_value) {
 }
 
 TEST (MathTests, SpatialMatrix_Multiplication) {
-  SpatialMatrix X_1 (
+  SpatialMatrixd X_1 (
       1.,  2.,  3.,  4.,  5.,  6.,
       11., 12., 13., 14., 15., 16.,
       21., 22., 23., 24., 25., 26.,
@@ -85,11 +85,11 @@ TEST (MathTests, SpatialMatrix_Multiplication) {
       51., 52., 53., 54., 55., 56.
       );
 
-  SpatialMatrix X_2 (X_1);
+  SpatialMatrixd X_2 (X_1);
 
   X_2 *= 2;
 
-  SpatialMatrix correct_result (
+  SpatialMatrixd correct_result (
       1442,    1484,    1526,    1568,    1610,    1652,
       4562,    4724,    4886,    5048,    5210,    5372,
       7682,    7964,    8246,    8528,    8810,    9092,
@@ -98,7 +98,7 @@ TEST (MathTests, SpatialMatrix_Multiplication) {
       17042,   17684,   18326,   18968,   19610,   20252
       );
 
-  SpatialMatrix test_result = X_1 * X_2;
+  SpatialMatrixd test_result = X_1 * X_2;
 
   EXPECT_TRUE(EIGEN_MATRIX_NEAR (correct_result, test_result, TEST_PREC));
 

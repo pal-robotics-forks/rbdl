@@ -33,13 +33,39 @@ enum RBDL_DLLAPI LinearSolver {
   LinearSolverLast,
 };
 
-extern RBDL_DLLAPI Vector3d Vector3dZero;
-extern RBDL_DLLAPI Matrix3d Matrix3dIdentity;
-extern RBDL_DLLAPI Matrix3d Matrix3dZero;
+/*
+RBDL_DLLAPI  Vector3d Vector3dZero (0., 0., 0.);
+RBDL_DLLAPI inline Matrix3d Matrix3dIdentity (
+    1., 0., 0.,
+    0., 1., 0.,
+    0., 0., 1
+    );
+RBDL_DLLAPI inline Matrix3d Matrix3dZero (
+    0., 0., 0.,
+    0., 0., 0.,
+    0., 0., 0.
+    );
 
-extern RBDL_DLLAPI SpatialVector SpatialVectorZero;
-extern RBDL_DLLAPI SpatialMatrix SpatialMatrixIdentity;
-extern RBDL_DLLAPI SpatialMatrix SpatialMatrixZero;
+RBDL_DLLAPI inline SpatialVectordd SpatialVectordZero ( 0., 0., 0., 0., 0., 0.);
+
+RBDL_DLLAPI inline SpatialMatrixdd SpatialMatrixdIdentity (
+    1., 0., 0., 0., 0., 0.,
+    0., 1., 0., 0., 0., 0.,
+    0., 0., 1., 0., 0., 0.,
+    0., 0., 0., 1., 0., 0.,
+    0., 0., 0., 0., 1., 0.,
+    0., 0., 0., 0., 0., 1.
+    );
+
+RBDL_DLLAPI inline SpatialMatrixdd SpatialMatrixdZero (
+    0., 0., 0., 0., 0., 0.,
+    0., 0., 0., 0., 0., 0.,
+    0., 0., 0., 0., 0., 0.,
+    0., 0., 0., 0., 0., 0.,
+    0., 0., 0., 0., 0., 0.,
+    0., 0., 0., 0., 0., 0.
+    );
+*/
 
 RBDL_DLLAPI inline VectorNd VectorFromPtr (unsigned int n, double *ptr) {
   // TODO: use memory mapping operators for Eigen
@@ -76,12 +102,12 @@ RBDL_DLLAPI inline MatrixNd MatrixFromPtr (unsigned int rows, unsigned int cols,
 RBDL_DLLAPI bool LinSolveGaussElimPivot (MatrixNd A, VectorNd b, VectorNd &x);
 
 // \todo write test 
-RBDL_DLLAPI void SpatialMatrixSetSubmatrix(SpatialMatrix &dest, unsigned int row, unsigned int col, const Matrix3d &matrix);
+RBDL_DLLAPI void SpatialMatrixdSetSubmatrix(SpatialMatrixd &dest, unsigned int row, unsigned int col, const Matrix3d &matrix);
 
-RBDL_DLLAPI bool SpatialMatrixCompareEpsilon (const SpatialMatrix &matrix_a,
-    const SpatialMatrix &matrix_b, double epsilon);
-RBDL_DLLAPI bool SpatialVectorCompareEpsilon (const SpatialVector &vector_a,
-    const SpatialVector &vector_b, double epsilon);
+RBDL_DLLAPI bool SpatialMatrixdCompareEpsilon (const SpatialMatrixd &matrix_a,
+    const SpatialMatrixd &matrix_b, double epsilon);
+RBDL_DLLAPI bool SpatialVectordCompareEpsilon (const SpatialVectord &vector_a,
+    const SpatialVectord &vector_b, double epsilon);
 
 /** \brief Translates the inertia matrix to a new center. */
 RBDL_DLLAPI Matrix3d parallel_axis (const Matrix3d &inertia, double mass, const Vector3d &com);
@@ -96,7 +122,7 @@ RBDL_DLLAPI Matrix3d parallel_axis (const Matrix3d &inertia, double mass, const 
  *
  * \param displacement The displacement as a 3D vector
  */
-RBDL_DLLAPI SpatialMatrix Xtrans_mat (const Vector3d &displacement);
+RBDL_DLLAPI SpatialMatrixd Xtrans_mat (const Vector3d &displacement);
 
 /** \brief Creates a rotational transformation around the Z-axis
  *
@@ -105,7 +131,7 @@ RBDL_DLLAPI SpatialMatrix Xtrans_mat (const Vector3d &displacement);
  *
  * \param zrot Rotation angle in radians.
  */
-RBDL_DLLAPI SpatialMatrix Xrotz_mat (const double &zrot);
+RBDL_DLLAPI SpatialMatrixd Xrotz_mat (const double &zrot);
 
 /** \brief Creates a rotational transformation around the Y-axis
  *
@@ -114,7 +140,7 @@ RBDL_DLLAPI SpatialMatrix Xrotz_mat (const double &zrot);
  *
  * \param yrot Rotation angle in radians.
  */
-RBDL_DLLAPI SpatialMatrix Xroty_mat (const double &yrot);
+RBDL_DLLAPI SpatialMatrixd Xroty_mat (const double &yrot);
 
 /** \brief Creates a rotational transformation around the X-axis
  *
@@ -123,7 +149,7 @@ RBDL_DLLAPI SpatialMatrix Xroty_mat (const double &yrot);
  *
  * \param xrot Rotation angle in radians.
  */
-RBDL_DLLAPI SpatialMatrix Xrotx_mat (const double &xrot);
+RBDL_DLLAPI SpatialMatrixd Xrotx_mat (const double &xrot);
 
 /** \brief Creates a spatial transformation for given parameters 
  *
@@ -134,7 +160,7 @@ RBDL_DLLAPI SpatialMatrix Xrotx_mat (const double &xrot);
  * \param zyx_euler The orientation of the new coordinate system, specifyed
  * by ZYX-Euler angles.
  */
-RBDL_DLLAPI SpatialMatrix XtransRotZYXEuler (const Vector3d &displacement, const Vector3d &zyx_euler);
+RBDL_DLLAPI SpatialMatrixd XtransRotZYXEuler (const Vector3d &displacement, const Vector3d &zyx_euler);
 
 RBDL_DLLAPI inline Matrix3d rotx (const double &xrot) {
   double s, c;

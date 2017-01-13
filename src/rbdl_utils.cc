@@ -21,18 +21,18 @@ namespace Utils {
 using namespace std;
 using namespace Math;
 
-string get_dof_name (const SpatialVector &joint_dof) {
-  if (joint_dof == SpatialVector (1., 0., 0., 0., 0., 0.)) 
+string get_dof_name (const SpatialVectord &joint_dof) {
+  if (joint_dof == SpatialVectord (1., 0., 0., 0., 0., 0.))
     return "RX";
-  else if (joint_dof == SpatialVector (0., 1., 0., 0., 0., 0.))
+  else if (joint_dof == SpatialVectord (0., 1., 0., 0., 0., 0.))
     return "RY";
-  else if (joint_dof == SpatialVector (0., 0., 1., 0., 0., 0.))
+  else if (joint_dof == SpatialVectord (0., 0., 1., 0., 0., 0.))
     return "RZ";
-  else if (joint_dof == SpatialVector (0., 0., 0., 1., 0., 0.))
+  else if (joint_dof == SpatialVectord (0., 0., 0., 1., 0., 0.))
     return "TX";
-  else if (joint_dof == SpatialVector (0., 0., 0., 0., 1., 0.))
+  else if (joint_dof == SpatialVectord (0., 0., 0., 0., 1., 0.))
     return "TY";
-  else if (joint_dof == SpatialVector (0., 0., 0., 0., 0., 1.))
+  else if (joint_dof == SpatialVectord (0., 0., 0., 0., 0., 1.))
     return "TZ";
 
   ostringstream dof_stream(ostringstream::out);
@@ -167,8 +167,8 @@ RBDL_DLLAPI void CalcCenterOfMass (
     model.hc[i] = model.Ic[i].toMatrix() * model.v[i];
   }
 
-  SpatialRigidBodyInertia Itot (0., Vector3d (0., 0., 0.), Matrix3d::Zero(3,3));
-  SpatialVector htot (SpatialVector::Zero(6));
+  SpatialRigidBodyInertiad Itot (0., Vector3d (0., 0., 0.), Matrix3d::Zero(3,3));
+  SpatialVectord htot (SpatialVectord::Zero());
 
   for (size_t i = model.mBodies.size() - 1; i > 0; i--) {
     unsigned int lambda = model.lambda[i];

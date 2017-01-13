@@ -44,7 +44,7 @@ RBDL_DLLAPI void jcalc (
       model.S[joint_id] * qdot[model.mJoints[joint_id].q_index];
   } else if (model.mJoints[joint_id].mJointType == JointTypeSpherical) {
     model.X_J[joint_id] = 
-      SpatialTransform (model.GetQuaternion (joint_id, q).toMatrix(), 
+      SpatialTransformd (model.GetQuaternion(joint_id, q).toMatrix(),
           Vector3d (0., 0., 0.));
 
     model.multdof3_S[joint_id](0,0) = 1.;
@@ -55,7 +55,7 @@ RBDL_DLLAPI void jcalc (
         qdot[model.mJoints[joint_id].q_index+1],
         qdot[model.mJoints[joint_id].q_index+2]);
 
-    model.v_J[joint_id] = SpatialVector (
+    model.v_J[joint_id] = SpatialVectord(
         omega[0], omega[1], omega[2],
         0., 0., 0.);
   } else if (model.mJoints[joint_id].mJointType == JointTypeEulerZYX) {
@@ -209,7 +209,7 @@ RBDL_DLLAPI void jcalc (
   model.X_lambda[joint_id] = model.X_J[joint_id] * model.X_T[joint_id];
 }
 
-RBDL_DLLAPI Math::SpatialTransform jcalc_XJ (
+RBDL_DLLAPI Math::SpatialTransformd jcalc_XJ (
     Model &model,
     unsigned int joint_id,
     const Math::VectorNd &q) {
@@ -238,7 +238,7 @@ RBDL_DLLAPI Math::SpatialTransform jcalc_XJ (
   }
   std::cerr << "Error: invalid joint type!" << std::endl;
   abort();
-  return SpatialTransform();
+  return SpatialTransformd();
 }
 
 RBDL_DLLAPI void jcalc_X_lambda_S (
@@ -268,7 +268,7 @@ RBDL_DLLAPI void jcalc_X_lambda_S (
     // Set the joint axis
     model.S[joint_id] = model.mJoints[joint_id].mJointAxes[0];
   } else if (model.mJoints[joint_id].mJointType == JointTypeSpherical) {
-    model.X_lambda[joint_id] = SpatialTransform (
+    model.X_lambda[joint_id] = SpatialTransformd (
         model.GetQuaternion (joint_id, q).toMatrix(),
         Vector3d (0., 0., 0.))
       * model.X_T[joint_id];
@@ -290,7 +290,7 @@ RBDL_DLLAPI void jcalc_X_lambda_S (
     double s2 = sin (q2);
     double c2 = cos (q2);
 
-    model.X_lambda[joint_id] = SpatialTransform ( 
+    model.X_lambda[joint_id] = SpatialTransformd (
         Matrix3d(
           c0 * c1, s0 * c1, -s1,
           c0 * s1 * s2 - s0 * c2, s0 * s1 * s2 + c0 * c2, c1 * s2,
@@ -321,7 +321,7 @@ RBDL_DLLAPI void jcalc_X_lambda_S (
     double s2 = sin (q2);
     double c2 = cos (q2);
 
-    model.X_lambda[joint_id] = SpatialTransform (
+    model.X_lambda[joint_id] = SpatialTransformd (
         Matrix3d(
           c2 * c1, s2 * c0 + c2 * s1 * s0, s2 * s0 - c2 * s1 * c0,
           -s2 * c1, c2 * c0 - s2 * s1 * s0, c2 * s0 + s2 * s1 * c0,
@@ -352,7 +352,7 @@ RBDL_DLLAPI void jcalc_X_lambda_S (
     double s2 = sin (q2);
     double c2 = cos (q2);
 
-    model.X_lambda[joint_id] = SpatialTransform (
+    model.X_lambda[joint_id] = SpatialTransformd (
         Matrix3d(
           c2 * c0 + s2 * s1 * s0, s2 * c1, -c2 * s0 + s2 * s1 * c0,
           -s2 * c0 + c2 * s1 * s0, c2 * c1, s2 * s0 + c2 * s1 * c0,
@@ -376,7 +376,7 @@ RBDL_DLLAPI void jcalc_X_lambda_S (
     double q1 = q[model.mJoints[joint_id].q_index + 1];
     double q2 = q[model.mJoints[joint_id].q_index + 2];
 
-    model.X_lambda[joint_id] = SpatialTransform (
+    model.X_lambda[joint_id] = SpatialTransformd (
         Matrix3d::Identity (3,3),
         Vector3d (q0, q1, q2))
       * model.X_T[joint_id];

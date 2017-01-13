@@ -34,7 +34,7 @@ RBDL_DLLAPI void UpdateKinematics(
 
   unsigned int i;
 
-  SpatialVector spatial_gravity (0.,
+  SpatialVectord spatial_gravity (0.,
       0.,
       0.,
       model.gravity[0],
@@ -284,8 +284,8 @@ RBDL_DLLAPI void CalcPointJacobian (
     UpdateKinematicsCustom (model, &Q, NULL, NULL);
   }
 
-  SpatialTransform point_trans = 
-    SpatialTransform (Matrix3d::Identity(), 
+  SpatialTransformd point_trans =
+    SpatialTransformd (Matrix3d::Identity(),
         CalcBodyToBaseCoordinates ( model, 
           Q, 
           body_id,
@@ -350,8 +350,8 @@ RBDL_DLLAPI void CalcOrientationJacobian (
     UpdateKinematicsCustom (model, &Q, NULL, NULL);
   }
 
-  SpatialTransform point_trans =
-    SpatialTransform (Matrix3d::Identity(),
+  SpatialTransformd point_trans =
+    SpatialTransformd (Matrix3d::Identity(),
         CalcBodyToBaseCoordinates ( model,
           Q,
           body_id,
@@ -417,8 +417,8 @@ RBDL_DLLAPI void CalcPointJacobian6D (
     UpdateKinematicsCustom (model, &Q, NULL, NULL);
   }
 
-  SpatialTransform point_trans =
-    SpatialTransform (Matrix3d::Identity(),
+  SpatialTransformd point_trans =
+    SpatialTransformd (Matrix3d::Identity(),
         CalcBodyToBaseCoordinates (model,
           Q,
           body_id,
@@ -479,8 +479,8 @@ RBDL_DLLAPI void CalcPointJacobian6DBodyFrame (
     UpdateKinematicsCustom (model, &Q, NULL, NULL);
   }
 
-  SpatialTransform point_trans =
-    SpatialTransform (Matrix3d::Identity(),
+  SpatialTransformd point_trans =
+    SpatialTransformd (Matrix3d::Identity(),
         CalcBodyToBaseCoordinates (model,
           Q,
           body_id,
@@ -529,7 +529,7 @@ RBDL_DLLAPI void CalcPointJacobian6DBodyFrame (
   Eigen::Vector3d zero; zero.setZero();
   Vector3d body_r = CalcBodyToBaseCoordinates(model, Q, body_id, zero, false);
   Matrix3d body_E = CalcBodyWorldOrientation(model, Q, body_id, false);
-  SpatialTransform body_trans(body_E, body_r);
+  SpatialTransformd body_trans(body_E, body_r);
 
   G = point_trans.toMatrix()*(body_trans.toMatrix())*G;
 }
@@ -551,7 +551,7 @@ RBDL_DLLAPI void CalcBodySpatialJacobian (
 
   unsigned int reference_body_id = body_id;
 
-  SpatialTransform base_to_body;
+  SpatialTransformd base_to_body;
 
   if (model.IsFixedBodyId(body_id)) {
     unsigned int fbody_id   = body_id
@@ -630,8 +630,8 @@ RBDL_DLLAPI Vector3d CalcPointVelocity (
       CalcBaseToBodyCoordinates(model, Q, reference_body_id, base_coords,false);
   }
 
-  SpatialVector point_spatial_velocity = 
-    SpatialTransform (
+  SpatialVectord point_spatial_velocity =
+    SpatialTransformd (
         CalcBodyWorldOrientation (model, Q, reference_body_id, false).transpose(), 
         reference_point).apply(model.v[reference_body_id]);
 
@@ -675,8 +675,8 @@ RBDL_DLLAPI Vector3d CalcPointAngularVelocity (
       CalcBaseToBodyCoordinates(model, Q, reference_body_id, base_coords,false);
   }
 
-  SpatialVector point_spatial_velocity =
-    SpatialTransform (
+  SpatialVectord point_spatial_velocity =
+    SpatialTransformd (
         CalcBodyWorldOrientation (model, Q, reference_body_id, false).transpose(),
         reference_point).apply(model.v[reference_body_id]);
 
@@ -687,7 +687,7 @@ RBDL_DLLAPI Vector3d CalcPointAngularVelocity (
       );
 }
 
-RBDL_DLLAPI Math::SpatialVector CalcPointVelocity6D(
+RBDL_DLLAPI Math::SpatialVectord CalcPointVelocity6D(
     Model &model,
     const Math::VectorNd &Q,
     const Math::VectorNd &QDot,
@@ -719,7 +719,7 @@ RBDL_DLLAPI Math::SpatialVector CalcPointVelocity6D(
       CalcBaseToBodyCoordinates(model, Q, reference_body_id, base_coords,false);
   }
 
-  return SpatialTransform (
+  return SpatialTransformd (
       CalcBodyWorldOrientation (model, Q, reference_body_id, false).transpose(), 
       reference_point).apply(model.v[reference_body_id]);
 }
@@ -755,14 +755,14 @@ RBDL_DLLAPI Vector3d CalcPointAcceleration (
       CalcBaseToBodyCoordinates (model, Q, reference_body_id,base_coords,false);
   }
 
-  SpatialTransform p_X_i (
+  SpatialTransformd p_X_i (
       CalcBodyWorldOrientation (model, Q, reference_body_id, false).transpose(),
       reference_point);
 
-  SpatialVector p_v_i = p_X_i.apply(model.v[reference_body_id]);
+  SpatialVectord p_v_i = p_X_i.apply(model.v[reference_body_id]);
   Vector3d a_dash = Vector3d (p_v_i[0], p_v_i[1], p_v_i[2]
       ).cross(Vector3d (p_v_i[3], p_v_i[4], p_v_i[5]));
-  SpatialVector p_a_i = p_X_i.apply(model.a[reference_body_id]);
+  SpatialVectord p_a_i = p_X_i.apply(model.a[reference_body_id]);
 
   return Vector3d (
       p_a_i[3] + a_dash[0],
@@ -802,14 +802,14 @@ RBDL_DLLAPI Vector3d CalcPointAccelerationBias (
       CalcBaseToBodyCoordinates (model, Q, reference_body_id,base_coords,false);
   }
 
-  SpatialTransform p_X_i (
+  SpatialTransformd p_X_i (
       CalcBodyWorldOrientation (model, Q, reference_body_id, false).transpose(),
       reference_point);
 
-  SpatialVector p_v_i = p_X_i.apply(model.v[reference_body_id]);
+  SpatialVectord p_v_i = p_X_i.apply(model.v[reference_body_id]);
   Vector3d a_dash = Vector3d (p_v_i[0], p_v_i[1], p_v_i[2]
       ).cross(Vector3d (p_v_i[3], p_v_i[4], p_v_i[5]));
-  SpatialVector p_a_i = p_X_i.apply(model.a_bias[reference_body_id]);
+  SpatialVectord p_a_i = p_X_i.apply(model.a_bias[reference_body_id]);
 
   return Vector3d (
       p_a_i[3] + a_dash[0],
@@ -819,7 +819,7 @@ RBDL_DLLAPI Vector3d CalcPointAccelerationBias (
 }
 
 
-RBDL_DLLAPI SpatialVector CalcPointAcceleration6D(
+RBDL_DLLAPI SpatialVectord CalcPointAcceleration6D(
     Model &model,
     const VectorNd &Q,
     const VectorNd &QDot,
@@ -850,18 +850,18 @@ RBDL_DLLAPI SpatialVector CalcPointAcceleration6D(
       CalcBaseToBodyCoordinates (model, Q, reference_body_id,base_coords,false);
   }
 
-  SpatialTransform p_X_i (
+  SpatialTransformd p_X_i (
       CalcBodyWorldOrientation (model, Q, reference_body_id, false).transpose(),
       reference_point);
 
-  SpatialVector p_v_i = p_X_i.apply(model.v[reference_body_id]);
+  SpatialVectord p_v_i = p_X_i.apply(model.v[reference_body_id]);
   Vector3d a_dash = Vector3d (p_v_i[0], p_v_i[1], p_v_i[2]
       ).cross(Vector3d (p_v_i[3], p_v_i[4], p_v_i[5]));
   return (p_X_i.apply(model.a[reference_body_id]) 
-      + SpatialVector (0, 0, 0, a_dash[0], a_dash[1], a_dash[2]));
+      + SpatialVectord (0, 0, 0, a_dash[0], a_dash[1], a_dash[2]));
 }
 
-RBDL_DLLAPI SpatialVector CalcPointAcceleration6DBias(
+RBDL_DLLAPI SpatialVectord CalcPointAcceleration6DBias(
     Model &model,
     const VectorNd &Q,
     const VectorNd &QDot,
@@ -891,15 +891,15 @@ RBDL_DLLAPI SpatialVector CalcPointAcceleration6DBias(
       CalcBaseToBodyCoordinates (model, Q, reference_body_id,base_coords,false);
   }
 
-  SpatialTransform p_X_i (
+  SpatialTransformd p_X_i (
       CalcBodyWorldOrientation (model, Q, reference_body_id, false).transpose(),
       reference_point);
 
-  SpatialVector p_v_i = p_X_i.apply(model.v[reference_body_id]);
+  SpatialVectord p_v_i = p_X_i.apply(model.v[reference_body_id]);
   Vector3d a_dash = Vector3d (p_v_i[0], p_v_i[1], p_v_i[2]
       ).cross(Vector3d (p_v_i[3], p_v_i[4], p_v_i[5]));
   return (p_X_i.apply(model.a_bias[reference_body_id])
-      + SpatialVector (0, 0, 0, a_dash[0], a_dash[1], a_dash[2]));
+      + SpatialVectord (0, 0, 0, a_dash[0], a_dash[1], a_dash[2]));
 }
 
 RBDL_DLLAPI bool InverseKinematics (

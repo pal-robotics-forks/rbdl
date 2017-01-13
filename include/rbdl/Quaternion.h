@@ -11,6 +11,7 @@
 #include <cmath>
 #include <assert.h>
 #include <iostream>
+#include <rbdl/rbdl_math.h>
 
 namespace RigidBodyDynamics {
 
@@ -20,16 +21,17 @@ namespace Math {
  *
  * order: x,y,z,w
  */
-class Quaternion : public Vector4d {
+template <typename T>
+class Quaternion : public Vector4<T> {
   public:
     Quaternion () :
-      Vector4d (0., 0., 0., 1.)
+      Vector4<T> (0., 0., 0., 1.)
   {}
-    Quaternion (const Vector4d &vec4) :
-      Vector4d (vec4)
+    Quaternion (const Vector4<T> &vec4) :
+      Vector4<T> (vec4)
   {}
     Quaternion (double x, double y, double z, double w):
-      Vector4d (x, y, z, w)
+      Vector4<T> (x, y, z, w)
   {}
     Quaternion operator* (const double &s) const {
       return Quaternion (
@@ -70,7 +72,7 @@ class Quaternion : public Vector4d {
 
     Quaternion slerp (double alpha, const Quaternion &quat) const {
       // check whether one of the two has 0 length
-      double s = std::sqrt (squaredNorm() * quat.squaredNorm());
+      T s = std::sqrt (this-> template squaredNorm() * quat.squaredNorm());
 
       // division by 0.f is unhealthy!
       assert (s != 0.);
@@ -91,7 +93,7 @@ class Quaternion : public Vector4d {
       return Quaternion( ((*this) * p0 + quat * p1) * d);
     }
 
-    static Quaternion fromAxisAngle (const Vector3d &axis, double angle_rad) {
+    static Quaternion fromAxisAngle (const Vector3<T> &axis, double angle_rad) {
       double d = axis.norm();
       double s2 = std::sin (angle_rad * 0.5) / d;
       return Quaternion (
@@ -102,7 +104,7 @@ class Quaternion : public Vector4d {
           );
     }
 
-    static Quaternion fromMatrix (const Matrix3d &mat) {
+    static Quaternion fromMatrix (const Matrix3<T> &mat) {
       double w = std::sqrt (1. + mat(0,0) + mat(1,1) + mat(2,2)) * 0.5;
       return Quaternion (
           (mat(1,2) - mat(2,1)) / (w * 4.),
@@ -111,18 +113,18 @@ class Quaternion : public Vector4d {
           w);
     }
 
-    static Quaternion fromZYXAngles (const Vector3d &zyx_angles) {
-      return Quaternion::fromAxisAngle (Vector3d (1., 0., 0.), zyx_angles[2]) 
-        * Quaternion::fromAxisAngle (Vector3d (0., 1., 0.), zyx_angles[1])
-        * Quaternion::fromAxisAngle (Vector3d (0., 0., 1.), zyx_angles[0]);
+    static Quaternion fromZYXAngles (const Vector3<T> &zyx_angles) {
+      return Quaternion::fromAxisAngle (Vector3<T> (1., 0., 0.), zyx_angles[2])
+        * Quaternion::fromAxisAngle (Vector3<T> (0., 1., 0.), zyx_angles[1])
+        * Quaternion::fromAxisAngle (Vector3<T> (0., 0., 1.), zyx_angles[0]);
     }
 
-    Matrix3d toMatrix() const {
-      double x = (*this)[0];
-      double y = (*this)[1];
-      double z = (*this)[2];
-      double w = (*this)[3];
-      return Matrix3d (
+    Matrix3<T> toMatrix() const {
+      T x = (*this)[0];
+      T y = (*this)[1];
+      T z = (*this)[2];
+      T w = (*this)[3];
+      return Matrix3<T> (
           1 - 2*y*y - 2*z*z,
           2*x*y + 2*w*z,
           2*x*z - 2*w*y,
@@ -159,21 +161,23 @@ class Quaternion : public Vector4d {
           (*this)[3]);
     }
 
-    Quaternion timeStep (const Vector3d &omega, double dt) {
+    Quaternion timeStep (const Vector3<T> &omega, double dt) {
       double omega_norm = omega.norm();
       return (*this) * Quaternion::fromAxisAngle (omega / omega_norm, dt * omega_norm);
     }
 
-    Vector3d rotate (const Vector3d &vec) const {
-      Vector3d vn (vec);
+    Vector3<T> rotate (const Vector3<T> &vec) const {
+      Vector3<T> vn (vec);
       Quaternion vec_quat (vn[0], vn[1], vn[2], 0.f), res_quat;
 
       res_quat = vec_quat * (*this);
       res_quat = conjugate() * res_quat;
 
-      return Vector3d (res_quat[0], res_quat[1], res_quat[2]);
+      return Vector3<T> (res_quat[0], res_quat[1], res_quat[2]);
     }
 };
+
+using Quaterniond = Quaternion<double>;
 
 }
 

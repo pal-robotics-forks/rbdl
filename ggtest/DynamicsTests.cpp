@@ -34,7 +34,7 @@ protected:
 
 TEST_F(DynamicsFixture, TestCalcDynamicSingleChain) {
   Body body(1., Vector3d (1., 0., 0.), Vector3d (1., 1., 1.));
-  Joint joint ( SpatialVector (0., 0., 1., 0., 0., 0.));
+  Joint joint ( SpatialVectord (0., 0., 1., 0., 0., 0.));
 
   model->AddBody(0, Xtrans(Vector3d(0., 0., 0.)), joint, body);
 
@@ -62,7 +62,7 @@ TEST_F(DynamicsFixture, TestCalcDynamicSpatialInertiaSingleChain) {
   // This function checks the value for a non-trivial spatial inertia
   Body body(1., Vector3d (1.5, 1., 1.), Vector3d (1., 2., 3.));
 
-  Joint joint ( SpatialVector (0., 0., 1., 0., 0., 0.));
+  Joint joint ( SpatialVectord (0., 0., 1., 0., 0., 0.));
 
   model->AddBody(0, Xtrans(Vector3d(0., 0., 0.)), joint, body);
 
@@ -89,12 +89,12 @@ TEST_F(DynamicsFixture, TestCalcDynamicSpatialInertiaSingleChain) {
 
 TEST_F(DynamicsFixture, TestCalcDynamicDoubleChain) {
   Body body_a (1., Vector3d (1., 0., 0.), Vector3d (1., 1., 1.));
-  Joint joint_a ( SpatialVector (0., 0., 1., 0., 0., 0.));
+  Joint joint_a ( SpatialVectord (0., 0., 1., 0., 0., 0.));
 
   model->AddBody(0, Xtrans(Vector3d(0., 0., 0.)), joint_a, body_a);
 
   Body body_b (1., Vector3d (1., 0., 0.), Vector3d (1., 1., 1.));
-  Joint joint_b ( SpatialVector (0., 0., 1., 0., 0., 0.));
+  Joint joint_b ( SpatialVectord (0., 0., 1., 0., 0., 0.));
 
   model->AddBody(1, Xtrans(Vector3d(1., 0., 0.)), joint_b, body_b);
 
@@ -125,17 +125,17 @@ TEST_F(DynamicsFixture, TestCalcDynamicDoubleChain) {
 
 TEST_F(DynamicsFixture, TestCalcDynamicTripleChain) {
   Body body_a (1., Vector3d (1., 0., 0.), Vector3d (1., 1., 1.));
-  Joint joint_a ( SpatialVector (0., 0., 1., 0., 0., 0.));
+  Joint joint_a ( SpatialVectord (0., 0., 1., 0., 0., 0.));
 
   model->AddBody(0, Xtrans(Vector3d(0., 0., 0.)), joint_a, body_a);
 
   Body body_b (1., Vector3d (1., 0., 0.), Vector3d (1., 1., 1.));
-  Joint joint_b ( SpatialVector (0., 0., 1., 0., 0., 0.));
+  Joint joint_b ( SpatialVectord (0., 0., 1., 0., 0., 0.));
 
   model->AddBody(1, Xtrans(Vector3d(1., 0., 0.)), joint_b, body_b);
 
   Body body_c (1., Vector3d (1., 0., 0.), Vector3d (1., 1., 1.));
-  Joint joint_c ( SpatialVector (0., 0., 1., 0., 0., 0.));
+  Joint joint_c ( SpatialVectord (0., 0., 1., 0., 0., 0.));
 
   model->AddBody(2, Xtrans(Vector3d(1., 0., 0.)), joint_c, body_c);
 
@@ -167,12 +167,12 @@ TEST_F(DynamicsFixture, TestCalcDynamicTripleChain) {
 
 TEST_F(DynamicsFixture, TestCalcDynamicDoubleChain3D) {
   Body body_a (1., Vector3d (1., 0., 0.), Vector3d (1., 1., 1.));
-  Joint joint_a ( SpatialVector (0., 0., 1., 0., 0., 0.));
+  Joint joint_a ( SpatialVectord (0., 0., 1., 0., 0., 0.));
 
   model->AddBody(0, Xtrans(Vector3d(0., 0., 0.)), joint_a, body_a);
 
   Body body_b (1., Vector3d (0., 1., 0.), Vector3d (1., 1., 1.));
-  Joint joint_b ( SpatialVector (0., 1., 0., 0., 0., 0.));
+  Joint joint_b ( SpatialVectord (0., 1., 0., 0., 0., 0.));
 
   model->AddBody(1, Xtrans(Vector3d(1., 0., 0.)), joint_b, body_b);
 
@@ -203,27 +203,27 @@ TEST_F(DynamicsFixture, TestCalcDynamicDoubleChain3D) {
 
 TEST_F(DynamicsFixture, TestCalcDynamicSimpleTree3D) {
   Body body_a (1., Vector3d (1., 0., 0.), Vector3d (1., 1., 1.));
-  Joint joint_a ( SpatialVector (0., 0., 1., 0., 0., 0.));
+  Joint joint_a ( SpatialVectord (0., 0., 1., 0., 0., 0.));
 
   model->AddBody(0, Xtrans(Vector3d(0., 0., 0.)), joint_a, body_a);
 
   Body body_b1 (1., Vector3d (0., 1., 0.), Vector3d (1., 1., 1.));
-  Joint joint_b1 ( SpatialVector (0., 1., 0., 0., 0., 0.));
+  Joint joint_b1 ( SpatialVectord (0., 1., 0., 0., 0., 0.));
 
   model->AddBody(1, Xtrans(Vector3d(1., 0., 0.)), joint_b1, body_b1);
 
   Body body_c1 (1., Vector3d (0., 0., 1.), Vector3d (1., 1., 1.));
-  Joint joint_c1 ( SpatialVector (1., 0., 0., 0., 0., 0.));
+  Joint joint_c1 ( SpatialVectord (1., 0., 0., 0., 0., 0.));
 
   model->AddBody(2, Xtrans(Vector3d(0., 1., 0.)), joint_c1, body_c1);
 
   Body body_b2 (1., Vector3d (0., 1., 0.), Vector3d (1., 1., 1.));
-  Joint joint_b2 ( SpatialVector (0., 1., 0., 0., 0., 0.));
+  Joint joint_b2 ( SpatialVectord (0., 1., 0., 0., 0., 0.));
 
   model->AddBody(1, Xtrans(Vector3d(-0.5, 0., 0.)), joint_b2, body_b2);
 
   Body body_c2 (1., Vector3d (0., 0., 1.), Vector3d (1., 1., 1.));
-  Joint joint_c2 ( SpatialVector (1., 0., 0., 0., 0., 0.));
+  Joint joint_c2 ( SpatialVectord (1., 0., 0., 0., 0., 0.));
 
   model->AddBody(4, Xtrans(Vector3d(0., -0.5, 0.)), joint_c2, body_c2);
 
@@ -259,14 +259,14 @@ TEST (DynamicsTests, TestForwardDynamicsLagrangian) {
   Model model;
   Body base_body(1., Vector3d (1., 0., 0.), Vector3d (1., 1., 1.));
 
-  model.AddBody (0, SpatialTransform(),
+  model.AddBody (0, SpatialTransformd(),
       Joint (
-        SpatialVector (0., 0., 0., 1., 0., 0.),
-        SpatialVector (0., 0., 0., 0., 1., 0.),
-        SpatialVector (0., 0., 0., 0., 0., 1.),
-        SpatialVector (0., 0., 1., 0., 0., 0.),
-        SpatialVector (0., 1., 0., 0., 0., 0.),
-        SpatialVector (1., 0., 0., 0., 0., 0.)
+        SpatialVectord (0., 0., 0., 1., 0., 0.),
+        SpatialVectord (0., 0., 0., 0., 1., 0.),
+        SpatialVectord (0., 0., 0., 0., 0., 1.),
+        SpatialVectord (0., 0., 1., 0., 0., 0.),
+        SpatialVectord (0., 1., 0., 0., 0., 0.),
+        SpatialVectord (1., 0., 0., 0., 0., 0.)
         ),
       base_body);
 
@@ -321,9 +321,9 @@ TEST (DynamicsTests, TestForwardDynamics3DoFModel) {
   Body null_body (0., Vector3d(0., 0., 0.), Vector3d (0., 0., 0.));
   Body base_body (1., Vector3d(0., 0.5, 0.), Vector3d (1., 1., 1.));
 
-  Joint joint_rot_z ( SpatialVector (0., 0., 1., 0., 0., 0.));
-  Joint joint_rot_y ( SpatialVector (0., 1., 0., 0., 0., 0.));
-  Joint joint_rot_x ( SpatialVector (1., 0., 0., 0., 0., 0.));
+  Joint joint_rot_z ( SpatialVectord (0., 0., 1., 0., 0., 0.));
+  Joint joint_rot_y ( SpatialVectord (0., 1., 0., 0., 0., 0.));
+  Joint joint_rot_x ( SpatialVectord (1., 0., 0., 0., 0., 0.));
 
   unsigned int base_id_rot_z, base_id_rot_y;
 
@@ -369,9 +369,9 @@ TEST (DynamicsTests, TestForwardDynamics3DoFModelLagrangian) {
   Body null_body (0., Vector3d(0., 0., 0.), Vector3d (0., 0., 0.));
   Body base_body (1., Vector3d(0., 0.5, 0.), Vector3d (1., 1., 1.));
 
-  Joint joint_rot_z ( SpatialVector (0., 0., 1., 0., 0., 0.));
-  Joint joint_rot_y ( SpatialVector (0., 1., 0., 0., 0., 0.));
-  Joint joint_rot_x ( SpatialVector (1., 0., 0., 0., 0., 0.));
+  Joint joint_rot_z ( SpatialVectord (0., 0., 1., 0., 0., 0.));
+  Joint joint_rot_y ( SpatialVectord (0., 1., 0., 0., 0., 0.));
+  Joint joint_rot_x ( SpatialVectord (1., 0., 0., 0., 0., 0.));
 
   unsigned int base_id_rot_z, base_id_rot_y;
 
@@ -440,13 +440,13 @@ TEST (DynamicsTests, TestForwardDynamicsTwoLegModelLagrangian) {
 
   model->gravity = Vector3d (0., -9.81, 0.);
 
-  joint_rot_z = Joint ( SpatialVector (0., 0., 1., 0., 0., 0.));
-  joint_rot_y = Joint ( SpatialVector (0., 1., 0., 0., 0., 0.));
-  joint_rot_x = Joint ( SpatialVector (1., 0., 0., 0., 0., 0.));
+  joint_rot_z = Joint ( SpatialVectord (0., 0., 1., 0., 0., 0.));
+  joint_rot_y = Joint ( SpatialVectord (0., 1., 0., 0., 0., 0.));
+  joint_rot_x = Joint ( SpatialVectord (1., 0., 0., 0., 0., 0.));
 
-  joint_trans_z = Joint ( SpatialVector (0., 0., 0., 0., 0., 1.));
-  joint_trans_y = Joint ( SpatialVector (0., 0., 0., 0., 1., 0.));
-  joint_trans_x = Joint ( SpatialVector (0., 0., 0., 1., 0., 0.));
+  joint_trans_z = Joint ( SpatialVectord (0., 0., 0., 0., 0., 1.));
+  joint_trans_y = Joint ( SpatialVectord (0., 0., 0., 0., 1., 0.));
+  joint_trans_x = Joint ( SpatialVectord (0., 0., 0., 1., 0., 0.));
 
   Body null_body (0., Vector3d (0., 0., 0.), Vector3d (0., 0., 0.));
 

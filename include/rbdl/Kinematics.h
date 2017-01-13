@@ -260,7 +260,7 @@ RBDL_DLLAPI Math::Vector3d CalcPointAngularVelocity (
  * global reference system.
  */
 RBDL_DLLAPI
-  Math::SpatialVector CalcPointVelocity6D (
+  Math::SpatialVectord CalcPointVelocity6D (
       Model &model,
       const Math::VectorNd &Q,
       const Math::VectorNd &QDot,
@@ -335,7 +335,7 @@ RBDL_DLLAPI
  * acceleration has to be added to the result.
  */
 RBDL_DLLAPI
-  Math::SpatialVector CalcPointAcceleration6D (
+  Math::SpatialVectord CalcPointAcceleration6D (
       Model &model,
       const Math::VectorNd &Q,
       const Math::VectorNd &QDot,
@@ -346,7 +346,7 @@ RBDL_DLLAPI
       );
 
 RBDL_DLLAPI
-  Math::SpatialVector CalcPointAcceleration6DBias (
+  Math::SpatialVectord CalcPointAcceleration6DBias (
       Model &model,
       const Math::VectorNd &Q,
       const Math::VectorNd &QDot,

@@ -33,11 +33,11 @@ Body hip_body,
      foot_left_body;
 
   Joint joint_txtyrz (
-      SpatialVector (0., 0., 0., 1., 0., 0.),
-      SpatialVector (0., 0., 0., 0., 1., 0.),
-      SpatialVector (0., 0., 1., 0., 0., 0.)
+      SpatialVectord (0., 0., 0., 1., 0., 0.),
+      SpatialVectord (0., 0., 0., 0., 1., 0.),
+      SpatialVectord (0., 0., 1., 0., 0., 0.)
       );
-  Joint joint_rot_z (SpatialVector (0., 0., 1., 0., 0., 0.));
+  Joint joint_rot_z (SpatialVectord (0., 0., 1., 0., 0., 0.));
 
   VectorNd Q;
   VectorNd QDot;

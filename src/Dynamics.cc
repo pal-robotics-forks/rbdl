@@ -29,7 +29,7 @@ RBDL_DLLAPI void InverseDynamics (
     const VectorNd &QDot,
     const VectorNd &QDDot,
     VectorNd &Tau,
-    std::vector<SpatialVector> *f_ext) {
+    std::vector<SpatialVectord> *f_ext) {
   LOG << "-------- " << __func__ << " --------" << std::endl;
 
   // Reset the velocity of the root body
@@ -111,7 +111,7 @@ RBDL_DLLAPI void NonlinearEffects (
     VectorNd &Tau) {
   LOG << "-------- " << __func__ << " --------" << std::endl;
 
-  SpatialVector spatial_gravity (0., 0., 0., -model.gravity[0], -model.gravity[1], -model.gravity[2]);
+  SpatialVectord spatial_gravity (0., 0., 0., -model.gravity[0], -model.gravity[1], -model.gravity[2]);
 
   // Reset the velocity of the root body
   model.v[0].setZero();
@@ -187,7 +187,7 @@ RBDL_DLLAPI void CompositeRigidBodyAlgorithm (
     if (model.mJoints[i].mDoFCount == 1 
         && model.mJoints[i].mJointType != JointTypeCustom) {
 
-      SpatialVector F             = model.Ic[i] * model.S[i];
+      SpatialVectord F             = model.Ic[i] * model.S[i];
       H(dof_index_i, dof_index_i) = model.S[i].dot(F);
 
       unsigned int j = i;
@@ -230,7 +230,7 @@ RBDL_DLLAPI void CompositeRigidBodyAlgorithm (
       }
     } else if (model.mJoints[i].mDoFCount == 3
         && model.mJoints[i].mJointType != JointTypeCustom) {
-      Matrix63 F_63 = model.Ic[i].toMatrix() * model.multdof3_S[i];
+      Matrix63d F_63 = model.Ic[i].toMatrix() * model.multdof3_S[i];
       H.block<3,3>(dof_index_i, dof_index_i) = model.multdof3_S[i].transpose() * F_63;
 
       unsigned int j = i;
@@ -315,10 +315,10 @@ RBDL_DLLAPI void ForwardDynamics (
     const VectorNd &QDot,
     const VectorNd &Tau,
     VectorNd &QDDot,
-    std::vector<SpatialVector> *f_ext) {
+    std::vector<SpatialVectord> *f_ext) {
   LOG << "-------- " << __func__ << " --------" << std::endl;
 
-  SpatialVector spatial_gravity (0., 0., 0., model.gravity[0], model.gravity[1], model.gravity[2]);
+  SpatialVectord spatial_gravity (0., 0., 0., model.gravity[0], model.gravity[1], model.gravity[2]);
 
   unsigned int i = 0;
 
@@ -355,7 +355,7 @@ RBDL_DLLAPI void ForwardDynamics (
 
     model.pA[i] = crossf(model.v[i],model.I[i] * model.v[i]);
 
-    if (f_ext != NULL && (*f_ext)[i] != SpatialVectorZero) {
+    if (f_ext != NULL && (*f_ext)[i] != SpatialVectord::Zero()) {
       LOG << "External force (" << i << ") = " << model.X_base[i].toMatrixAdjoint() * (*f_ext)[i] << std::endl;
       model.pA[i] -= model.X_base[i].toMatrixAdjoint() * (*f_ext)[i];
     }
@@ -378,11 +378,11 @@ RBDL_DLLAPI void ForwardDynamics (
 
       unsigned int lambda = model.lambda[i];
       if (lambda != 0) {
-        SpatialMatrix Ia =    model.IA[i]
+        SpatialMatrixd Ia =    model.IA[i]
           - model.U[i]
           * (model.U[i] / model.d[i]).transpose();
 
-        SpatialVector pa =  model.pA[i]
+        SpatialVectord pa =  model.pA[i]
           + Ia * model.c[i]
           + model.U[i] * model.u[i] / model.d[i];
 
@@ -422,11 +422,11 @@ RBDL_DLLAPI void ForwardDynamics (
       //                      << model.multdof3_u[i].transpose() << std::endl;
       unsigned int lambda = model.lambda[i];
       if (lambda != 0) {
-        SpatialMatrix Ia = model.IA[i]
+        SpatialMatrixd Ia = model.IA[i]
           - model.multdof3_U[i]
           * model.multdof3_Dinv[i]
           * model.multdof3_U[i].transpose();
-        SpatialVector pa = model.pA[i]
+        SpatialVectord pa = model.pA[i]
           + Ia
           * model.c[i]
           + model.multdof3_U[i]
@@ -478,11 +478,11 @@ RBDL_DLLAPI void ForwardDynamics (
       //      << model.multdof3_u[i].transpose() << std::endl;
       unsigned int lambda = model.lambda[i];
       if (lambda != 0) {
-        SpatialMatrix Ia = model.IA[i]
+        SpatialMatrixd Ia = model.IA[i]
           - (model.mCustomJoints[kI]->U
               * model.mCustomJoints[kI]->Dinv
               * model.mCustomJoints[kI]->U.transpose());
-        SpatialVector pa =  model.pA[i] 
+        SpatialVectord pa =  model.pA[i]
           + Ia * model.c[i]
           + (model.mCustomJoints[kI]->U
               * model.mCustomJoints[kI]->Dinv
@@ -513,7 +513,7 @@ RBDL_DLLAPI void ForwardDynamics (
   for (i = 1; i < model.mBodies.size(); i++) {
     unsigned int q_index = model.mJoints[i].q_index;
     unsigned int lambda = model.lambda[i];
-    SpatialTransform X_lambda = model.X_lambda[i];
+    SpatialTransformd X_lambda = model.X_lambda[i];
 
     model.a[i] = X_lambda.apply(model.a[lambda]) + model.c[i];
     LOG << "a'[" << i << "] = " << model.a[i].transpose() << std::endl;
@@ -557,7 +557,7 @@ RBDL_DLLAPI void ForwardDynamicsLagrangian (
     const VectorNd &Tau,
     VectorNd &QDDot,
     Math::LinearSolver linear_solver,
-    std::vector<SpatialVector> *f_ext,
+    std::vector<SpatialVectord> *f_ext,
     Math::MatrixNd *H,
     Math::VectorNd *C) {
   LOG << "-------- " << __func__ << " --------" << std::endl;
@@ -641,7 +641,7 @@ RBDL_DLLAPI void CalcMInvTimesTau ( Model &model,
       model.v[i].setZero();
       model.c_J[i].setZero();
       model.pA[i].setZero();
-      model.I[i].setSpatialMatrix (model.IA[i]);
+      model.I[i].setSpatialMatrix(model.IA[i]);
     }
   }
 
@@ -664,7 +664,7 @@ RBDL_DLLAPI void CalcMInvTimesTau ( Model &model,
         unsigned int lambda = model.lambda[i];
 
         if (lambda != 0) {
-          SpatialMatrix Ia = model.IA[i] - 
+          SpatialMatrixd Ia = model.IA[i] -
             model.U[i] * (model.U[i] / model.d[i]).transpose();
 #ifdef EIGEN_CORE_H
           model.IA[lambda].noalias() += model.X_lambda[i].toMatrixTranspose()
@@ -694,7 +694,7 @@ RBDL_DLLAPI void CalcMInvTimesTau ( Model &model,
         unsigned int lambda = model.lambda[i];
 
         if (lambda != 0) {
-          SpatialMatrix Ia = model.IA[i]
+          SpatialMatrixd Ia = model.IA[i]
             - ( model.multdof3_U[i]
                 * model.multdof3_Dinv[i]
                 * model.multdof3_U[i].transpose());
@@ -728,7 +728,7 @@ RBDL_DLLAPI void CalcMInvTimesTau ( Model &model,
         unsigned int lambda = model.lambda[i];
 
         if (lambda != 0) {
-          SpatialMatrix Ia = model.IA[i] 
+          SpatialMatrixd Ia = model.IA[i]
             - ( model.mCustomJoints[kI]->U
                 * model.mCustomJoints[kI]->Dinv
                 * model.mCustomJoints[kI]->U.transpose());
@@ -756,7 +756,7 @@ RBDL_DLLAPI void CalcMInvTimesTau ( Model &model,
       // LOG << "u[" << i << "] = " << model.u[i] << std::endl;
       unsigned int lambda = model.lambda[i];
       if (lambda != 0) {
-        SpatialVector pa = model.pA[i] + model.U[i] * model.u[i] / model.d[i];
+        SpatialVectord pa = model.pA[i] + model.U[i] * model.u[i] / model.d[i];
 
 #ifdef EIGEN_CORE_H
         model.pA[lambda].noalias() += model.X_lambda[i].applyTranspose(pa);
@@ -779,7 +779,7 @@ RBDL_DLLAPI void CalcMInvTimesTau ( Model &model,
       unsigned int lambda = model.lambda[i];
 
       if (lambda != 0) {
-        SpatialVector pa = model.pA[i]
+        SpatialVectord pa = model.pA[i]
           + model.multdof3_U[i]
           * model.multdof3_Dinv[i]
           * model.multdof3_u[i];
@@ -808,7 +808,7 @@ RBDL_DLLAPI void CalcMInvTimesTau ( Model &model,
       unsigned int lambda = model.lambda[i];
 
       if (lambda != 0) {
-        SpatialVector pa = model.pA[i]
+        SpatialVectord pa = model.pA[i]
           + (   model.mCustomJoints[kI]->U
               * model.mCustomJoints[kI]->Dinv
               * model.mCustomJoints[kI]->u);
@@ -830,7 +830,7 @@ RBDL_DLLAPI void CalcMInvTimesTau ( Model &model,
   for (unsigned int i = 1; i < model.mBodies.size(); i++) {
     unsigned int q_index = model.mJoints[i].q_index;
     unsigned int lambda = model.lambda[i];
-    SpatialTransform X_lambda = model.X_lambda[i];
+    SpatialTransformd X_lambda = model.X_lambda[i];
 
     model.a[i] = X_lambda.apply(model.a[lambda]) + model.c[i];
     LOG << "a'[" << i << "] = " << model.a[i].transpose() << std::endl;

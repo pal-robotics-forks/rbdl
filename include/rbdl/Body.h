@@ -104,7 +104,7 @@ struct RBDL_DLLAPI Body {
    * original body to the origin of the added body
    * \param other_body The other body that will be merged with *this.
    */
-  void Join (const Math::SpatialTransform &transform, const Body &other_body) {
+  void Join (const Math::SpatialTransformd &transform, const Body &other_body) {
     // nothing to do if we join a massles body to the current.
     if (other_body.mMass == 0. && other_body.mInertia == Math::Matrix3d::Zero()) {
       return;
@@ -135,8 +135,8 @@ struct RBDL_DLLAPI Body {
     // 4. Sum the two inertias
     // 5. Transform the summed inertia to the new COM
 
-    Math::SpatialRigidBodyInertia other_rbi = Math::SpatialRigidBodyInertia::createFromMassComInertiaC (other_body.mMass, other_body.mCenterOfMass, other_body.mInertia);
-    Math::SpatialRigidBodyInertia this_rbi = Math::SpatialRigidBodyInertia::createFromMassComInertiaC (mMass, mCenterOfMass, mInertia);
+    Math::SpatialRigidBodyInertiad other_rbi = Math::SpatialRigidBodyInertiad::createFromMassComInertiaC (other_body.mMass, other_body.mCenterOfMass, other_body.mInertia);
+    Math::SpatialRigidBodyInertiad this_rbi = Math::SpatialRigidBodyInertiad::createFromMassComInertiaC (mMass, mCenterOfMass, mInertia);
 
     Math::Matrix3d inertia_other = other_rbi.toMatrix().block<3,3>(0,0);
     LOG << "inertia_other = " << std::endl << inertia_other << std::endl;
@@ -198,8 +198,8 @@ struct RBDL_DLLAPI FixedBody {
   unsigned int mMovableParent;
   /// \brief Transforms spatial quantities expressed for the parent to the
   // fixed body. 
-  Math::SpatialTransform mParentTransform;
-  Math::SpatialTransform mBaseTransform;
+  Math::SpatialTransformd mParentTransform;
+  Math::SpatialTransformd mBaseTransform;
 
   static FixedBody CreateFromBody (const Body& body) {
     FixedBody fbody;

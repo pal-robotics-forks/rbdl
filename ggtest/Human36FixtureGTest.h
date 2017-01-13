@@ -212,18 +212,18 @@ protected:
     Body null_body (0., Vector3d (0., 0., 0.), zero_matrix);
 
     Joint free_flyer (
-        SpatialVector (0., 0., 0., 1., 0., 0.),
-        SpatialVector (0., 0., 0., 0., 1., 0.),
-        SpatialVector (0., 0., 0., 0., 0., 1.),
-        SpatialVector (0., 1., 0., 0., 0., 0.),
-        SpatialVector (1., 0., 0., 0., 0., 0.),
-        SpatialVector (0., 0., 1., 0., 0., 0.)
+        SpatialVectord  (0., 0., 0., 1., 0., 0.),
+        SpatialVectord  (0., 0., 0., 0., 1., 0.),
+        SpatialVectord  (0., 0., 0., 0., 0., 1.),
+        SpatialVectord  (0., 1., 0., 0., 0., 0.),
+        SpatialVectord  (1., 0., 0., 0., 0., 0.),
+        SpatialVectord  (0., 0., 1., 0., 0., 0.)
         );
 
     Joint rot_yxz_emulated (
-        SpatialVector (0., 1., 0., 0., 0., 0.),
-        SpatialVector (1., 0., 0., 0., 0., 0.),
-        SpatialVector (0., 0., 1., 0., 0., 0.)
+        SpatialVectord  (0., 1., 0., 0., 0., 0.),
+        SpatialVectord  (1., 0., 0., 0., 0., 0.),
+        SpatialVectord  (0., 0., 1., 0., 0., 0.)
         );
 
     Joint trans_xyz = Joint(JointTypeTranslationXYZ);
@@ -231,12 +231,12 @@ protected:
     Joint rot_yxz_3dof = Joint(JointTypeEulerYXZ);
 
     Joint rot_yz (
-        SpatialVector (0., 1., 0., 0., 0., 0.),
-        SpatialVector (0., 0., 1., 0., 0., 0.)
+        SpatialVectord  (0., 1., 0., 0., 0., 0.),
+        SpatialVectord  (0., 0., 1., 0., 0., 0.)
         );
 
     Joint rot_y (
-        SpatialVector (0., 1., 0., 0., 0., 0.)
+        SpatialVectord  (0., 1., 0., 0., 0., 0.)
         );
 
     Joint fixed (JointTypeFixed);
