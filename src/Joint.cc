@@ -212,7 +212,7 @@ RBDL_DLLAPI void jcalc (
 
 RBDL_DLLAPI Math::SpatialTransformd jcalc_XJ (
     const Model &model,
-    Model &model_data,
+    ModelData &model_data,
     unsigned int joint_id,
     const Math::VectorNd &q) {
   // exception if we calculate it for the root body

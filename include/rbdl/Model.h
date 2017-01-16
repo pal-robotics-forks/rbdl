@@ -150,6 +150,9 @@ namespace RigidBodyDynamics {
       // Dynamics variables
       /// \brief The velocity dependent spatial acceleration
       std::vector<Math::SpatialVectord> c;
+
+
+      std::vector<FixedBodyData> mFixedBodiesData;
   };
 
 
@@ -418,7 +421,7 @@ public:
 
   /** \brief Checks whether the body is rigidly attached to another body.
   */
-  bool IsFixedBodyId (unsigned int body_id) {
+  bool IsFixedBodyId (unsigned int body_id) const{
     if (body_id >= fixed_body_discriminator 
         && body_id < std::numeric_limits<unsigned int>::max() 
         && body_id - fixed_body_discriminator < mFixedBodies.size()) {

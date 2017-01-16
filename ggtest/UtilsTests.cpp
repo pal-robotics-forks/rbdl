@@ -26,10 +26,10 @@ TEST_F(FloatingBase12DoF, TestKineticEnergy) {
   }
 
   MatrixNd H = MatrixNd::Zero (model->q_size, model->q_size);
-  CompositeRigidBodyAlgorithm (*model, q, H, true);
+  CompositeRigidBodyAlgorithm (*model, *model_data, q, H, true);
 
   double kinetic_energy_ref = 0.5 * qdot.transpose() * H * qdot;
-  double kinetic_energy = Utils::CalcKineticEnergy (*model, q, qdot);
+  double kinetic_energy = Utils::CalcKineticEnergy (*model, *model_data, q, qdot);
 
   EXPECT_EQ (kinetic_energy_ref, kinetic_energy);
 }
@@ -45,14 +45,14 @@ TEST(UtilsTests, TestPotentialEnergy) {
       SpatialVectord (0., 0., 0., 0., 0., 1.)
       );
 
-  model.AppendBody (Xtrans<double> (Vector3d::Zero()), joint, body);
+  model.AppendBody (model_data, Xtrans<double> (Vector3d::Zero()), joint, body);
 
   VectorNd q = VectorNd::Zero(model.q_size);
-  double potential_energy_zero = Utils::CalcPotentialEnergy (model, q);
+  double potential_energy_zero = Utils::CalcPotentialEnergy (model, model_data, q);
   EXPECT_EQ (0., potential_energy_zero);
 
   q[1] = 1.;
-  double potential_energy_lifted = Utils::CalcPotentialEnergy (model, q);
+  double potential_energy_lifted = Utils::CalcPotentialEnergy (model, model_data, q);
   EXPECT_EQ (4.905, potential_energy_lifted);
 }
 
@@ -67,7 +67,7 @@ TEST(UtilsTests, TestCOMSimple) {
       SpatialVectord (0., 0., 0., 0., 0., 1.)
       );
 
-  model.AppendBody (Xtrans<double> (Vector3d::Zero()), joint, body);
+  model.AppendBody (model_data, Xtrans<double> (Vector3d::Zero()), joint, body);
 
   VectorNd q = VectorNd::Zero(model.q_size);
   VectorNd qdot = VectorNd::Zero(model.qdot_size);
@@ -75,24 +75,25 @@ TEST(UtilsTests, TestCOMSimple) {
   double mass;
   Vector3d com;
   Vector3d com_velocity;
-  Utils::CalcCenterOfMass (model, q, qdot, mass, com, &com_velocity);
+  Utils::CalcCenterOfMass (model, model_data, q, qdot, mass, com, &com_velocity);
 
   EXPECT_EQ (123., mass);
   EXPECT_EQ (Vector3d (0., 0., 0.), com);
   EXPECT_EQ (Vector3d (0., 0., 0.), com_velocity);
 
   q[1] = 1.;
-  Utils::CalcCenterOfMass (model, q, qdot, mass, com, &com_velocity);
+  Utils::CalcCenterOfMass (model, model_data, q, qdot, mass, com, &com_velocity);
   EXPECT_EQ (Vector3d (0., 1., 0.), com);
   EXPECT_EQ (Vector3d (0., 0., 0.), com_velocity);
 
   qdot[1] = 1.;
-  Utils::CalcCenterOfMass (model, q, qdot, mass, com, &com_velocity);
+  Utils::CalcCenterOfMass (model, model_data, q, qdot, mass, com, &com_velocity);
   EXPECT_EQ (Vector3d (0., 1., 0.), com);
   EXPECT_EQ (Vector3d (0., 1., 0.), com_velocity);
 }
 
 TEST(UtilsTests, TestAngularMomentumSimple) {
+  ModelData model_data;
   Model model(model_data);
   Matrix3d inertia = Matrix3d::Zero(3,3);
   inertia(0,0) = 1.1;
@@ -106,7 +107,7 @@ TEST(UtilsTests, TestAngularMomentumSimple) {
       SpatialVectord (0., 0., 1., 0., 0., 0.)
       );
 
-  model.AppendBody (Xtrans (Vector3d(0., 0., 0.)), joint, body);
+  model.AppendBody (model_data, Xtrans (Vector3d(0., 0., 0.)), joint, body);
 
   VectorNd q = VectorNd::Zero(model.q_size);
   VectorNd qdot = VectorNd::Zero(model.qdot_size);
@@ -116,15 +117,15 @@ TEST(UtilsTests, TestAngularMomentumSimple) {
   Vector3d angular_momentum;
 
   qdot << 1., 0., 0.;
-  Utils::CalcCenterOfMass (model, q, qdot, mass, com, NULL, &angular_momentum);
+  Utils::CalcCenterOfMass (model, model_data, q, qdot, mass, com, NULL, &angular_momentum);
   EXPECT_EQ (Vector3d (1.1, 0., 0.), angular_momentum);
 
   qdot << 0., 1., 0.;
-  Utils::CalcCenterOfMass (model, q, qdot, mass, com, NULL, &angular_momentum);
+  Utils::CalcCenterOfMass (model, model_data, q, qdot, mass, com, NULL, &angular_momentum);
   EXPECT_EQ (Vector3d (0., 2.2, 0.), angular_momentum);
 
   qdot << 0., 0., 1.;
-  Utils::CalcCenterOfMass (model, q, qdot, mass, com, NULL, &angular_momentum);
+  Utils::CalcCenterOfMass (model, model_data, q, qdot, mass, com, NULL, &angular_momentum);
   EXPECT_EQ (Vector3d (0., 0., 3.3), angular_momentum);
 }
 
@@ -133,7 +134,7 @@ TEST_F (TwoArms12DoF, TestAngularMomentumSimple) {
   Vector3d com;
   Vector3d angular_momentum;
 
-  Utils::CalcCenterOfMass (*model, q, qdot, mass, com, NULL, &angular_momentum);
+  Utils::CalcCenterOfMass (*model, *model_data, q, qdot, mass, com, NULL, &angular_momentum);
 
   EXPECT_EQ (Vector3d (0., 0., 0.), angular_momentum);
 
@@ -141,7 +142,7 @@ TEST_F (TwoArms12DoF, TestAngularMomentumSimple) {
   qdot[1] = 2.;
   qdot[2] = 3.;
 
-  Utils::CalcCenterOfMass (*model, q, qdot, mass, com, NULL, &angular_momentum);
+  Utils::CalcCenterOfMass (*model, *model_data, q, qdot, mass, com, NULL, &angular_momentum);
 
   // only a rough guess from test calculation
   EXPECT_TRUE(EIGEN_MATRIX_NEAR(Vector3d (3.3, 2.54, 1.5), angular_momentum, 1.0e-1));
@@ -151,7 +152,7 @@ TEST_F (TwoArms12DoF, TestAngularMomentumSimple) {
   qdot[5] = -qdot[2];
 
   ClearLogOutput();
-  Utils::CalcCenterOfMass (*model, q, qdot, mass, com, NULL, &angular_momentum);
+  Utils::CalcCenterOfMass (*model, *model_data, q, qdot, mass, com, NULL, &angular_momentum);
 
   EXPECT_TRUE (angular_momentum[0] == 0);
   EXPECT_TRUE (angular_momentum[1] < 0);

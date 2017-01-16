@@ -454,10 +454,10 @@ protected:
     model_fixed_data = new ModelData;
     model_fixed = new Model(*model_fixed_data);
 
-    body_a_fixed_id = model_fixed->AddBody(0, Xtrans(Vector3d(0., 0., 0.)), joint_a, body_a);
+    body_a_fixed_id = model_fixed->AddBody(*model_fixed_data, 0, Xtrans(Vector3d(0., 0., 0.)), joint_a, body_a);
     Joint joint_fixed (JointTypeFixed);
-    body_b_fixed_id = model_fixed->AddBody(body_a_fixed_id, Xtrans(Vector3d(1., 0., 0.)), joint_fixed, body_b);
-    body_c_fixed_id = model_fixed->AddBody(body_b_fixed_id, Xtrans(Vector3d(0., 1., 0.)), joint_c, body_c);
+    body_b_fixed_id = model_fixed->AddBody(*model_fixed_data, body_a_fixed_id, Xtrans(Vector3d(1., 0., 0.)), joint_fixed, body_b);
+    body_c_fixed_id = model_fixed->AddBody(*model_fixed_data, body_b_fixed_id, Xtrans(Vector3d(0., 1., 0.)), joint_c, body_c);
 
     Q_fixed = VectorNd::Constant ((size_t) model_fixed->dof_count, 0.);
     QDot_fixed = VectorNd::Constant ((size_t) model_fixed->dof_count, 0.);
@@ -539,7 +539,8 @@ protected:
     using namespace RigidBodyDynamics::Math;
 
     ClearLogOutput();
-    model = new Model;
+    model_data = new ModelData;
+    model = new Model(*model_data);
 
     Joint joint_rot_z ( SpatialVectord (0., 0., 1., 0., 0., 0.));
 
@@ -558,8 +559,8 @@ protected:
     fixture_transform_fixed = Xtrans (RigidBodyDynamics::Math::Vector3d(-1., -2., -3.));
 
     body_a_id = model->AddBody (*model_data, 0, fixture_transform_a, joint_rot_z, body_a);
-    body_b_id = model->AppendBody (fixture_transform_b, joint_rot_zyx, body_b);
-    body_fixed_id = model->AppendBody (fixture_transform_fixed, Joint(JointTypeFixed), body_fixed);
+    body_b_id = model->AppendBody (*model_data, fixture_transform_b, joint_rot_zyx, body_b);
+    body_fixed_id = model->AppendBody (*model_data, fixture_transform_fixed, Joint(JointTypeFixed), body_fixed);
 
     ClearLogOutput();
   }
@@ -567,6 +568,7 @@ protected:
     delete model;
   }
 
+  RigidBodyDynamics::ModelData *model_data;
   RigidBodyDynamics::Model *model;
 
   unsigned int body_a_id, body_b_id, body_fixed_id;
@@ -583,7 +585,8 @@ protected:
     using namespace RigidBodyDynamics::Math;
 
     ClearLogOutput();
-    model = new Model;
+    model_data = new ModelData;
+    model = new Model(*model_data);
 
     /* Basically a model like this, where X are the Center of Masses
      * and the CoM of the last (3rd) body comes out of the Y=X=0 plane.
@@ -606,7 +609,7 @@ protected:
         SpatialVectord (1., 0., 0., 0., 0., 0.)
         );
 
-    right_upper_arm = model->AppendBody (Xtrans (Vector3d (0., 0., -0.3)), joint_zyx, body_upper, "RightUpper");
+    right_upper_arm = model->AppendBody (*model_data, Xtrans (Vector3d (0., 0., -0.3)), joint_zyx, body_upper, "RightUpper");
     //		model->AppendBody (Xtrans (Vector3d (0., -0.4, 0.)), joint_zyx, body_lower, "RightLower");
     left_upper_arm = model->AddBody (*model_data, 0, Xtrans (Vector3d (0., 0., 0.3)), joint_zyx, body_upper, "LeftUpper");
     //		model->AppendBody (Xtrans (Vector3d (0., -0.4, 0.)), joint_zyx, body_lower, "LeftLower");
@@ -622,6 +625,7 @@ protected:
     delete model;
   }
 
+  RigidBodyDynamics::ModelData *model_data;
   RigidBodyDynamics::Model *model;
 
   RigidBodyDynamics::Math::VectorNd q;

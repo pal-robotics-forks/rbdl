@@ -649,12 +649,12 @@ namespace RigidBodyDynamics {
           Body null_body (0., Vector3d::Zero(3), zero_matrix);
           Joint joint_txtytz(JointTypeTranslationXYZ);
           string trans_body_name = urdf_child->name + "_Translate";
-          rbdl_model->AddBody (model_data, *model_data, model_data, rbdl_parent_id, rbdl_joint_frame, joint_txtytz, null_body, trans_body_name);
+          rbdl_model->AddBody (model_data, rbdl_parent_id, rbdl_joint_frame, joint_txtytz, null_body, trans_body_name);
 
           Joint joint_euler_zyx (JointTypeEulerXYZ);
           rbdl_model->AppendBody (model_data, SpatialTransformd(), joint_euler_zyx, rbdl_body, urdf_child->name);
         } else {
-          rbdl_model->AddBody (model_data, *model_data, model_data, rbdl_parent_id, rbdl_joint_frame, rbdl_joint, rbdl_body, urdf_child->name);
+          rbdl_model->AddBody (model_data, rbdl_parent_id, rbdl_joint_frame, rbdl_joint, rbdl_body, urdf_child->name);
         }
       }
 

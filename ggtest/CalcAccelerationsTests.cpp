@@ -162,7 +162,7 @@ TEST_F(FixedBase3DoF, TestAccelerationLinearFuncOfQddot) {
   Vector3d acc_2 = CalcPointAcceleration(*model, *model_data, Q, QDot, qddot_2, ref_body_id, point_position);
 
   MatrixNd G = MatrixNd::Zero (3, model->dof_count);
-  CalcPointJacobian (*model, Q, ref_body_id, point_position, G, true);
+  CalcPointJacobian (*model, *model_data, Q, ref_body_id, point_position, G, true);
 
   VectorNd net_acc = G * (qddot_1 - qddot_2);
 
@@ -193,7 +193,7 @@ TEST_F (FloatingBase12DoF, TestAccelerationFloatingBaseWithoutUpdateKinematics )
 
 TEST_F(FixedBase3DoF, TestCalcPointRotationFixedJoint) {
   Body fixed_body(1., Vector3d (1., 0.4, 0.4), Vector3d (1., 1., 1.));
-  unsigned int fixed_body_id = model->AddBody (model_data, *model_data, body_c_id, Xtrans (Vector3d (1., -1., 0.)), Joint(JointTypeFixed), fixed_body, "fixed_body");
+  unsigned int fixed_body_id = model->AddBody (*model_data, body_c_id, Xtrans (Vector3d (1., -1., 0.)), Joint(JointTypeFixed), fixed_body, "fixed_body");
 
   QDot[0] = 1.;
   point_position = Vector3d (0., 0., 0.);
@@ -210,7 +210,7 @@ TEST_F(FixedBase3DoF, TestCalcPointRotationFixedJointRotatedTransform) {
   Body fixed_body(1., Vector3d (1., 0.4, 0.4), Vector3d (1., 1., 1.));
 
   SpatialTransformd  fixed_transform = Xtrans (Vector3d (1., -1., 0.)) * Xrotz(M_PI * 0.5);
-  unsigned int fixed_body_id = model->AddBody (model_data, *model_data, body_c_id, fixed_transform, Joint(JointTypeFixed), fixed_body, "fixed_body");
+  unsigned int fixed_body_id = model->AddBody (*model_data, body_c_id, fixed_transform, Joint(JointTypeFixed), fixed_body, "fixed_body");
 
   QDot[0] = 1.;
   point_position = Vector3d (0., 0., 0.);

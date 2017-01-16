@@ -196,10 +196,8 @@ struct RBDL_DLLAPI FixedBody {
 
   /// \brief Id of the movable body that this fixed body is attached to.
   unsigned int mMovableParent;
-  /// \brief Transforms spatial quantities expressed for the parent to the
-  // fixed body. 
+
   Math::SpatialTransformd mParentTransform;
-  Math::SpatialTransformd mBaseTransform;
 
   static FixedBody CreateFromBody (const Body& body) {
     FixedBody fbody;
@@ -210,6 +208,12 @@ struct RBDL_DLLAPI FixedBody {
 
     return fbody;
   }
+};
+
+struct FixedBodyData{
+  /// \brief Transforms spatial quantities expressed for the parent to the
+  // fixed body.
+  Math::SpatialTransformd mBaseTransform;
 };
 
 }

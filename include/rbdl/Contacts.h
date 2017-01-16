@@ -529,6 +529,7 @@ RBDL_DLLAPI void ForwardDynamicsContactsKokkevis (
  */
 RBDL_DLLAPI void ComputeContactImpulsesDirect (
     Model &model,
+    ModelData &model_data,
     const Math::VectorNd &Q,
     const Math::VectorNd &QDotMinus,
     ConstraintSet &CS,
@@ -602,7 +603,7 @@ RBDL_DLLAPI void SolveContactSystemDirect (
  * \param linear_solver type of solver that should be used to solve the constraint force system
  */
 RBDL_DLLAPI void SolveContactSystemRangeSpaceSparse (
-    Model &model, 
+    Model &model,
     Math::MatrixNd &H, 
     const Math::MatrixNd &G, 
     const Math::VectorNd &c, 

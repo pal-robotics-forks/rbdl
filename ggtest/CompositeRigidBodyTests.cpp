@@ -20,19 +20,21 @@ class CompositeRigidBodyFixture : public ::testing::Test {
 protected:
   virtual void SetUp () {
     ClearLogOutput();
-    model = new Model;
+    model_data = new ModelData;
+    model = new Model(*model_data);
     model->gravity = Vector3d (0., -9.81, 0.);
   }
   virtual void TearDown () {
     delete model;
   }
+  ModelData *model_data;
   Model *model;
 };
 
 TEST_F(CompositeRigidBodyFixture, TestCompositeRigidBodyForwardDynamicsFloatingBase) {
   Body base_body(1., Vector3d (1., 0., 0.), Vector3d (1., 1., 1.));
 
-  model->AddBody (model_data, *model_data, 0, SpatialTransformd(),
+  model->AddBody (*model_data, 0, SpatialTransformd(),
       Joint (
         SpatialVectord  (0., 0., 0., 1., 0., 0.),
         SpatialVectord  (0., 0., 0., 0., 1., 0.),
@@ -76,13 +78,13 @@ TEST_F(CompositeRigidBodyFixture, TestCompositeRigidBodyForwardDynamicsFloatingB
   Tau[4] = 1.2;
   Tau[5] = 1.3;
 
-  ForwardDynamics(*model, Q, QDot, Tau, QDDot);
+  ForwardDynamics(*model, *model_data, Q, QDot, Tau, QDDot);
 
   ClearLogOutput();
-  CompositeRigidBodyAlgorithm (*model, Q, H);
+  CompositeRigidBodyAlgorithm (*model, *model_data, Q, H);
   // cout << LogOutput.str() << endl;
 
-  InverseDynamics (*model, Q, QDot, QDDot_zero, C);
+  InverseDynamics (*model, *model_data, Q, QDot, QDDot_zero, C);
 
   EXPECT_TRUE (LinSolveGaussElimPivot (H, C * -1. + Tau, QDDot_crba));
 
@@ -136,11 +138,11 @@ TEST_F(FloatingBase12DoF, TestCRBAFloatingBase12DoF) {
   Tau[10] =  0.2;
   Tau[11] = -0.3;
 
-  ForwardDynamics(*model, Q, QDot, Tau, QDDot);
+  ForwardDynamics(*model, *model_data, Q, QDot, Tau, QDDot);
   ClearLogOutput();
-  CompositeRigidBodyAlgorithm (*model, Q, H);
+  CompositeRigidBodyAlgorithm (*model, *model_data, Q, H);
   // cout << LogOutput.str() << endl;
-  InverseDynamics (*model, Q, QDot, QDDot_zero, C);
+  InverseDynamics (*model, *model_data, Q, QDot, QDDot_zero, C);
 
   EXPECT_TRUE (LinSolveGaussElimPivot (H, C * -1. + Tau, QDDot_crba));
 
@@ -168,8 +170,8 @@ TEST_F(FloatingBase12DoF, TestCRBAFloatingBase12DoFInverseDynamics) {
 
   assert (model->dof_count == 12);
 
-  UpdateKinematicsCustom (*model, &Q, NULL, NULL);
-  CompositeRigidBodyAlgorithm (*model, Q, H_crba, false);
+  UpdateKinematicsCustom (*model, *model_data, &Q, NULL, NULL);
+  CompositeRigidBodyAlgorithm (*model, *model_data, Q, H_crba, false);
 
   VectorNd H_col = VectorNd::Zero (model->dof_count);
   VectorNd QDDot_zero = VectorNd::Zero (model->dof_count);
@@ -183,11 +185,11 @@ TEST_F(FloatingBase12DoF, TestCRBAFloatingBase12DoFInverseDynamics) {
 
     // compute ID (model, q, qdot, delta_a)
     VectorNd id_delta = VectorNd::Zero (model->dof_count);
-    InverseDynamics (*model, Q, QDot, delta_a, id_delta);
+    InverseDynamics (*model, *model_data, Q, QDot, delta_a, id_delta);
 
     // compute ID (model, q, qdot, zero)
     VectorNd id_zero = VectorNd::Zero (model->dof_count);
-    InverseDynamics (*model, Q, QDot, QDDot_zero, id_zero);
+    InverseDynamics (*model, *model_data, Q, QDot, QDDot_zero, id_zero);
 
     H_col = id_delta - id_zero;
     // cout << "H_col = " << H_col << endl;
@@ -215,8 +217,8 @@ TEST_F(FixedBase6DoF, TestCRBAFloatingBase12DoFInverseDynamics) {
 
   assert (model->dof_count == 6);
 
-  UpdateKinematicsCustom (*model, &Q, NULL, NULL);
-  CompositeRigidBodyAlgorithm (*model, Q, H_crba, false);
+  UpdateKinematicsCustom (*model, *model_data, &Q, NULL, NULL);
+  CompositeRigidBodyAlgorithm (*model, *model_data, Q, H_crba, false);
 
   VectorNd H_col = VectorNd::Zero (model->dof_count);
   VectorNd QDDot_zero = VectorNd::Zero (model->dof_count);
@@ -230,11 +232,11 @@ TEST_F(FixedBase6DoF, TestCRBAFloatingBase12DoFInverseDynamics) {
     ClearLogOutput();
     // compute ID (model, q, qdot, delta_a)
     VectorNd id_delta = VectorNd::Zero (model->dof_count);
-    InverseDynamics (*model, Q, QDot, delta_a, id_delta);
+    InverseDynamics (*model, *model_data, Q, QDot, delta_a, id_delta);
 
     // compute ID (model, q, qdot, zero)
     VectorNd id_zero = VectorNd::Zero (model->dof_count);
-    InverseDynamics (*model, Q, QDot, QDDot_zero, id_zero);
+    InverseDynamics (*model, *model_data, Q, QDot, QDDot_zero, id_zero);
 
     H_col.setZero();
     H_col = id_delta - id_zero;
@@ -248,11 +250,11 @@ TEST_F(FixedBase6DoF, TestCRBAFloatingBase12DoFInverseDynamics) {
 TEST_F(CompositeRigidBodyFixture, TestCompositeRigidBodyForwardDynamicsSpherical) {
   Body base_body(1., Vector3d (0., 0., 0.), Vector3d (1., 2., 3.));
 
-  model->AddBody(*model_data,*model_data, *model_data, 0, SpatialTransformd(), Joint(JointTypeSpherical), base_body);
+  model->AddBody(*model_data, 0, SpatialTransformd(), Joint(JointTypeSpherical), base_body);
   VectorNd Q = VectorNd::Constant ((size_t) model->q_size, 0.);
   model->SetQuaternion (1, Quaterniond(), Q);
   MatrixNd H = MatrixNd::Constant ((size_t) model->qdot_size, (size_t) model->qdot_size, 0.);
-  CompositeRigidBodyAlgorithm (*model, Q, H, true);
+  CompositeRigidBodyAlgorithm (*model, *model_data, Q, H, true);
 
   Matrix3d H_ref (
       1., 0., 0.,

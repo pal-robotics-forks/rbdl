@@ -204,7 +204,7 @@ RBDL_DLLAPI double CalcPotentialEnergy (
     bool update_kinematics) {
   double mass;
   Vector3d com;
-  CalcCenterOfMass (model, q, VectorNd::Zero (model.qdot_size), mass, com, NULL, NULL, update_kinematics);
+  CalcCenterOfMass (model, model_data, q, VectorNd::Zero (model.qdot_size), mass, com, NULL, NULL, update_kinematics);
 
   Vector3d g = - Vector3d (model.gravity[0], model.gravity[1], model.gravity[2]);
   LOG << "pot_energy: " << " mass = " << mass << " com = " << com.transpose() << std::endl;

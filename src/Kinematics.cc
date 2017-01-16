@@ -185,7 +185,7 @@ RBDL_DLLAPI void UpdateKinematicsCustom(
 }
 
 RBDL_DLLAPI Vector3d CalcBodyToBaseCoordinates (
-    Model &model,
+    const Model &model,
     ModelData &model_data,
     const VectorNd &Q,
     unsigned int body_id,
@@ -219,7 +219,7 @@ RBDL_DLLAPI Vector3d CalcBodyToBaseCoordinates (
 }
 
 RBDL_DLLAPI Vector3d CalcBaseToBodyCoordinates (
-    Model &model,
+    const Model &model,
     ModelData &model_data,
     const VectorNd &Q,
     unsigned int body_id,
@@ -252,7 +252,7 @@ RBDL_DLLAPI Vector3d CalcBaseToBodyCoordinates (
 }
 
 RBDL_DLLAPI Matrix3d CalcBodyWorldOrientation(
-    Model &model,
+    const Model &model,
     ModelData &model_data,
     const VectorNd &Q,
     const unsigned int body_id,
@@ -264,11 +264,11 @@ RBDL_DLLAPI Matrix3d CalcBodyWorldOrientation(
 
   if (body_id >= model.fixed_body_discriminator) {
     unsigned int fbody_id = body_id - model.fixed_body_discriminator;
-    model.mFixedBodies[fbody_id].mBaseTransform = 
+    model_data.mFixedBodiesData[fbody_id].mBaseTransform =
       model.mFixedBodies[fbody_id].mParentTransform 
       * model_data.X_base[model.mFixedBodies[fbody_id].mMovableParent];
 
-    return model.mFixedBodies[fbody_id].mBaseTransform.E;
+    return model_data.mFixedBodiesData[fbody_id].mBaseTransform.E;
   }
 
   return model_data.X_base[body_id].E;
@@ -738,7 +738,7 @@ RBDL_DLLAPI Math::SpatialVectord CalcPointVelocity6D(
 }
 
 RBDL_DLLAPI Vector3d CalcPointAcceleration (
-    Model &model,
+    const Model &model,
     ModelData &model_data,
     const VectorNd &Q,
     const VectorNd &QDot,
@@ -787,7 +787,7 @@ RBDL_DLLAPI Vector3d CalcPointAcceleration (
 
 
 RBDL_DLLAPI Vector3d CalcPointAccelerationBias (
-    Model &model,
+    const Model &model,
     ModelData &model_data,
     const VectorNd &Q,
     const VectorNd &QDot,

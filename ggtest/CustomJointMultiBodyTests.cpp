@@ -71,7 +71,8 @@ struct CustomJointTypeRevoluteX : public CustomJoint {
     d_u = MatrixNd::Zero(mDoFCount,1);
   }
 
-  virtual void jcalc (Model &model,
+  virtual void jcalc (const Model &model,
+                      ModelData &model_data,
                       unsigned int joint_id,
                       const Math::VectorNd &q,
                       const Math::VectorNd &qdot)
@@ -80,7 +81,8 @@ struct CustomJointTypeRevoluteX : public CustomJoint {
     model_data.v_J[joint_id][0] = qdot[model.mJoints[joint_id].q_index];
   }
 
-  virtual void jcalc_X_lambda_S ( Model &model,
+  virtual void jcalc_X_lambda_S ( const Model &model,
+                                  ModelData &model_data,
                                   unsigned int joint_id,
                                   const Math::VectorNd &q)
   {
@@ -104,6 +106,7 @@ struct CustomEulerZYXJoint : public CustomJoint {
   }
 
   virtual void jcalc (Model &model,
+                      ModelData &model_data,
                       unsigned int joint_id,
                       const Math::VectorNd &q,
                       const Math::VectorNd &qdot)
@@ -150,6 +153,7 @@ struct CustomEulerZYXJoint : public CustomJoint {
   }
 
   virtual void jcalc_X_lambda_S ( Model &model,
+                                  ModelData &model_data,
                                   unsigned int joint_id,
                                   const Math::VectorNd &q)
   {
@@ -234,7 +238,11 @@ protected:
     Body body12 = Body (2., Vector3d (2.1, 2.2, 2.3), inertia1);
     Body body13 = Body (3., Vector3d (3.1, 3.2, 3.3), inertia1);
 
-    Model reference1, custom1;
+    ModelData reference1_data;
+    Model reference1(reference1_data);
+
+    ModelData custom1_data;
+    Model custom1(custom1_data);
 
     Vector3d r1 = Vector3d(0.78,-0.125,0.37);
 
@@ -259,38 +267,38 @@ protected:
 
 
     unsigned int reference_body_id10 =
-       reference1.AddBody (0,
+       reference1.AddBody (reference1_data, 0,
                 SpatialTransformd(),
                 Joint(JointTypeRevoluteX),
                 body11);
 
     unsigned int reference_body_id11 =
-       reference1.AddBody (reference_body_id10,
+       reference1.AddBody (reference1_data, reference_body_id10,
                 SpatialTransformd(rm1,r1),
                 Joint(JointTypeEulerZYX),
                 body12);
 
     unsigned int reference_body_id12 =
-       reference1.AddBody (reference_body_id11,
+       reference1.AddBody (reference1_data, reference_body_id11,
                 SpatialTransformd(rm2,r2),
                 Joint(JointTypeRevoluteX),
                 body13);
 
 
     unsigned int custom_body_id10 =
-       custom1.AddBody (  0,
+       custom1.AddBody (custom1_data,   0,
                 SpatialTransformd(),
                 Joint(JointTypeRevoluteX),
                 body11);
 
     unsigned int custom_body_id11 =
-       custom1.AddBody (  custom_body_id10,
+       custom1.AddBody (custom1_data,   custom_body_id10,
                 SpatialTransformd(rm1,r1),
                 Joint(JointTypeEulerZYX),
                 body12);
 
     unsigned int custom_body_id12 =
-       custom1.AddBodyCustomJoint (  custom_body_id11,
+       custom1.AddBodyCustomJoint (custom1_data,  custom_body_id11,
                 SpatialTransformd(rm2,r2),
                 &custom_rx_joint1,
                 body13);
@@ -328,8 +336,11 @@ protected:
     //Test Model 2: Rx - custom - multidof3
     //========================================================
 
+    ModelData reference2_data;
+    Model reference2(reference2_data);
 
-    Model reference2, custom2;
+    ModelData custom2_data;
+    ModelData custom2(custom2_data);
 
     unsigned int reference_body_id20 =
        reference2.AddBody (0,
