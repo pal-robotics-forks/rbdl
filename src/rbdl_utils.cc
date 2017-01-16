@@ -52,7 +52,7 @@ string get_body_name (const RigidBodyDynamics::Model &model, unsigned int body_i
   return model.GetBodyName(body_id);
 }
 
-RBDL_DLLAPI std::string GetModelDOFOverview (const Model &model, const ModelData &model_data) {
+RBDL_DLLAPI std::string GetModelDOFOverview (const Model &model, const ModelDatad &model_data) {
   stringstream result ("");
 
   unsigned int q_index = 0;
@@ -71,7 +71,7 @@ RBDL_DLLAPI std::string GetModelDOFOverview (const Model &model, const ModelData
   return result.str();
 }
 
-std::string print_hierarchy (const RigidBodyDynamics::Model &model, const RigidBodyDynamics::ModelData &model_data,
+std::string print_hierarchy (const RigidBodyDynamics::Model &model, const RigidBodyDynamics::ModelDatad &model_data,
                              unsigned int body_index = 0, int indent = 0) {
   stringstream result ("");
 
@@ -123,7 +123,7 @@ std::string print_hierarchy (const RigidBodyDynamics::Model &model, const RigidB
   return result.str();
 }
 
-RBDL_DLLAPI std::string GetModelHierarchy (const Model &model, const ModelData &model_data) {
+RBDL_DLLAPI std::string GetModelHierarchy (const Model &model, const ModelDatad &model_data) {
   stringstream result ("");
 
   result << print_hierarchy (model, model_data);
@@ -131,7 +131,7 @@ RBDL_DLLAPI std::string GetModelHierarchy (const Model &model, const ModelData &
   return result.str();
 }
 
-RBDL_DLLAPI std::string GetNamedBodyOriginsOverview (Model &model, ModelData &model_data) {
+RBDL_DLLAPI std::string GetNamedBodyOriginsOverview (Model &model, ModelDatad &model_data) {
   stringstream result ("");
 
   VectorNd Q (VectorNd::Zero(model.dof_count));
@@ -153,7 +153,7 @@ RBDL_DLLAPI std::string GetNamedBodyOriginsOverview (Model &model, ModelData &mo
 
 RBDL_DLLAPI void CalcCenterOfMass (
     Model &model, 
-    ModelData &model_data,
+    ModelDatad &model_data,
     const Math::VectorNd &q, 
     const Math::VectorNd &qdot, 
     double &mass, 
@@ -199,7 +199,7 @@ RBDL_DLLAPI void CalcCenterOfMass (
 
 RBDL_DLLAPI double CalcPotentialEnergy (
     Model &model,
-    ModelData &model_data,
+    ModelDatad &model_data,
     const Math::VectorNd &q, 
     bool update_kinematics) {
   double mass;
@@ -214,7 +214,7 @@ RBDL_DLLAPI double CalcPotentialEnergy (
 
 RBDL_DLLAPI double CalcKineticEnergy (
     Model &model, 
-    ModelData &model_data,
+    ModelDatad &model_data,
     const Math::VectorNd &q, 
     const Math::VectorNd &qdot, 
     bool update_kinematics) {

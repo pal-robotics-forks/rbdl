@@ -25,7 +25,7 @@ using namespace Math;
 
 RBDL_DLLAPI void InverseDynamics (
     Model &model,
-    ModelData &model_data,
+    ModelDatad &model_data,
     const VectorNd &Q,
     const VectorNd &QDot,
     const VectorNd &QDDot,
@@ -107,7 +107,7 @@ RBDL_DLLAPI void InverseDynamics (
 
 RBDL_DLLAPI void NonlinearEffects ( 
     Model &model,
-    ModelData &model_data,
+    ModelDatad &model_data,
     const VectorNd &Q,
     const VectorNd &QDot,
     VectorNd &Tau) {
@@ -164,7 +164,7 @@ RBDL_DLLAPI void NonlinearEffects (
 
 RBDL_DLLAPI void CompositeRigidBodyAlgorithm (
     Model& model,
-    ModelData &model_data,
+    ModelDatad &model_data,
     const VectorNd &Q,
     MatrixNd &H,
     bool update_kinematics) {
@@ -314,7 +314,7 @@ RBDL_DLLAPI void CompositeRigidBodyAlgorithm (
 
 RBDL_DLLAPI void ForwardDynamics (
     Model &model,
-    ModelData &model_data,
+    ModelDatad &model_data,
     const VectorNd &Q,
     const VectorNd &QDot,
     const VectorNd &Tau,
@@ -556,7 +556,7 @@ RBDL_DLLAPI void ForwardDynamics (
 
 RBDL_DLLAPI void ForwardDynamicsLagrangian (
     Model &model,
-    ModelData &model_data,
+    ModelDatad &model_data,
     const VectorNd &Q,
     const VectorNd &QDot,
     const VectorNd &Tau,
@@ -626,7 +626,7 @@ RBDL_DLLAPI void ForwardDynamicsLagrangian (
 }
 
 RBDL_DLLAPI void CalcMInvTimesTau ( Model &model,
-    ModelData &model_data,
+    ModelDatad &model_data,
     const VectorNd &Q,
     const VectorNd &Tau,
     VectorNd &QDDot,

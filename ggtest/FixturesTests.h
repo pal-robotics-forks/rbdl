@@ -57,7 +57,7 @@ protected:
     delete model;
   }
 
-  RigidBodyDynamics::ModelData *model_data;
+  RigidBodyDynamics::ModelDatad *model_data;
   RigidBodyDynamics::Model *model;
 
   unsigned int body_a_id, body_b_id, body_c_id, ref_body_id;

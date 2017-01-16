@@ -22,7 +22,7 @@ using namespace Math;
 
 RBDL_DLLAPI void UpdateKinematics(
     const Model &model,
-    ModelData &model_data,
+    ModelDatad &model_data,
     const VectorNd &Q,
     const VectorNd &QDot,
     const VectorNd &QDDot) {
@@ -95,7 +95,7 @@ RBDL_DLLAPI void UpdateKinematics(
 
 RBDL_DLLAPI void UpdateKinematicsCustom(
     const Model &model,
-    ModelData &model_data,
+    ModelDatad &model_data,
     const VectorNd *Q,
     const VectorNd *QDot,
     const VectorNd *QDDot) {
@@ -186,7 +186,7 @@ RBDL_DLLAPI void UpdateKinematicsCustom(
 
 RBDL_DLLAPI Vector3d CalcBodyToBaseCoordinates (
     const Model &model,
-    ModelData &model_data,
+    ModelDatad &model_data,
     const VectorNd &Q,
     unsigned int body_id,
     const Vector3d &point_body_coordinates,
@@ -220,7 +220,7 @@ RBDL_DLLAPI Vector3d CalcBodyToBaseCoordinates (
 
 RBDL_DLLAPI Vector3d CalcBaseToBodyCoordinates (
     const Model &model,
-    ModelData &model_data,
+    ModelDatad &model_data,
     const VectorNd &Q,
     unsigned int body_id,
     const Vector3d &point_base_coordinates,
@@ -253,7 +253,7 @@ RBDL_DLLAPI Vector3d CalcBaseToBodyCoordinates (
 
 RBDL_DLLAPI Matrix3d CalcBodyWorldOrientation(
     const Model &model,
-    ModelData &model_data,
+    ModelDatad &model_data,
     const VectorNd &Q,
     const unsigned int body_id,
     bool update_kinematics) {
@@ -276,7 +276,7 @@ RBDL_DLLAPI Matrix3d CalcBodyWorldOrientation(
 
 RBDL_DLLAPI void CalcPointJacobian (
     Model &model,
-    ModelData &model_data,
+    ModelDatad &model_data,
     const VectorNd &Q,
     unsigned int body_id,
     const Vector3d &point_position,
@@ -342,7 +342,7 @@ RBDL_DLLAPI void CalcPointJacobian (
 
 RBDL_DLLAPI void CalcOrientationJacobian (
     Model &model,
-    ModelData &model_data,
+    ModelDatad &model_data,
     const VectorNd &Q,
     unsigned int body_id,
     MatrixNd &G,
@@ -409,7 +409,7 @@ RBDL_DLLAPI void CalcOrientationJacobian (
 
 RBDL_DLLAPI void CalcPointJacobian6D (
     Model &model,
-    ModelData &model_data,
+    ModelDatad &model_data,
     const VectorNd &Q,
     unsigned int body_id,
     const Vector3d &point_position,
@@ -475,7 +475,7 @@ RBDL_DLLAPI void CalcPointJacobian6D (
 
 RBDL_DLLAPI void CalcPointJacobian6DBodyFrame (
     Model &model,
-    ModelData &model_data,
+    ModelDatad &model_data,
     const VectorNd &Q,
     unsigned int body_id,
     const Vector3d &point_position,
@@ -545,7 +545,7 @@ RBDL_DLLAPI void CalcPointJacobian6DBodyFrame (
 
 RBDL_DLLAPI void CalcBodySpatialJacobian (
     Model &model,
-    ModelData &model_data,
+    ModelDatad &model_data,
     const VectorNd &Q,
     unsigned int body_id,
     MatrixNd &G,
@@ -610,7 +610,7 @@ RBDL_DLLAPI void CalcBodySpatialJacobian (
 
 RBDL_DLLAPI Vector3d CalcPointVelocity (
     Model &model,
-    ModelData &model_data,
+    ModelDatad &model_data,
     const VectorNd &Q,
     const VectorNd &QDot,
     unsigned int body_id,
@@ -656,7 +656,7 @@ RBDL_DLLAPI Vector3d CalcPointVelocity (
 
 RBDL_DLLAPI Vector3d CalcPointAngularVelocity (
     Model &model,
-    ModelData &model_data,
+    ModelDatad &model_data,
     const VectorNd &Q,
     const VectorNd &QDot,
     unsigned int body_id,
@@ -701,7 +701,7 @@ RBDL_DLLAPI Vector3d CalcPointAngularVelocity (
 
 RBDL_DLLAPI Math::SpatialVectord CalcPointVelocity6D(
     Model &model,
-    ModelData &model_data,
+    ModelDatad &model_data,
     const Math::VectorNd &Q,
     const Math::VectorNd &QDot,
     unsigned int body_id,
@@ -739,7 +739,7 @@ RBDL_DLLAPI Math::SpatialVectord CalcPointVelocity6D(
 
 RBDL_DLLAPI Vector3d CalcPointAcceleration (
     const Model &model,
-    ModelData &model_data,
+    ModelDatad &model_data,
     const VectorNd &Q,
     const VectorNd &QDot,
     const VectorNd &QDDot,
@@ -788,7 +788,7 @@ RBDL_DLLAPI Vector3d CalcPointAcceleration (
 
 RBDL_DLLAPI Vector3d CalcPointAccelerationBias (
     const Model &model,
-    ModelData &model_data,
+    ModelDatad &model_data,
     const VectorNd &Q,
     const VectorNd &QDot,
     unsigned int body_id,
@@ -836,7 +836,7 @@ RBDL_DLLAPI Vector3d CalcPointAccelerationBias (
 
 RBDL_DLLAPI SpatialVectord CalcPointAcceleration6D(
     Model &model,
-    ModelData &model_data,
+    ModelDatad &model_data,
     const VectorNd &Q,
     const VectorNd &QDot,
     const VectorNd &QDDot,
@@ -879,7 +879,7 @@ RBDL_DLLAPI SpatialVectord CalcPointAcceleration6D(
 
 RBDL_DLLAPI SpatialVectord CalcPointAcceleration6DBias(
     Model &model,
-    ModelData &model_data,
+    ModelDatad &model_data,
     const VectorNd &Q,
     const VectorNd &QDot,
     unsigned int body_id,
@@ -921,7 +921,7 @@ RBDL_DLLAPI SpatialVectord CalcPointAcceleration6DBias(
 
 RBDL_DLLAPI bool InverseKinematics (
     Model &model,
-    ModelData &model_data,
+    ModelDatad &model_data,
     const VectorNd &Qinit,
     const std::vector<unsigned int>& body_id,
     const std::vector<Vector3d>& body_point,

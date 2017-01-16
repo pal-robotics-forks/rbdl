@@ -20,7 +20,7 @@ using namespace Math;
 
 RBDL_DLLAPI void jcalc (
     const Model &model,
-    ModelData &model_data,
+    ModelDatad &model_data,
     unsigned int joint_id,
     const VectorNd &q,
     const VectorNd &qdot
@@ -212,7 +212,7 @@ RBDL_DLLAPI void jcalc (
 
 RBDL_DLLAPI Math::SpatialTransformd jcalc_XJ (
     const Model &model,
-    ModelData &model_data,
+    ModelDatad &model_data,
     unsigned int joint_id,
     const Math::VectorNd &q) {
   // exception if we calculate it for the root body
@@ -245,7 +245,7 @@ RBDL_DLLAPI Math::SpatialTransformd jcalc_XJ (
 
 RBDL_DLLAPI void jcalc_X_lambda_S (
     const Model &model,
-    ModelData &model_data,
+    ModelDatad &model_data,
     unsigned int joint_id,
     const VectorNd &q
     ) {

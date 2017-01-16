@@ -86,7 +86,7 @@ protected:
     delete model;
   }
 
-  ModelData *model_data;
+  ModelDatad *model_data;
   Model *model;
 
   unsigned int base_id, child_id, child_2_id;
@@ -110,7 +110,7 @@ protected:
 // ForwardDynamicsContactsDirect
 //
 TEST (ContactsTests, TestForwardDynamicsContactsDirectSimple ) {
-  ModelData model_data;
+  ModelDatad model_data;
   Model model(model_data);
   model.gravity = Vector3d  (0., -9.81, 0.);
   Body base_body (1., Vector3d (0., 0., 0.), Vector3d (1., 1., 1.));
@@ -171,7 +171,7 @@ TEST (ContactsTests, TestForwardDynamicsContactsDirectSimple ) {
 }
 
 TEST (ContactsTests, TestForwardDynamicsContactsDirectMoving ) {
-  ModelData model_data;
+  ModelDatad model_data;
   Model model(model_data);
   model.gravity = Vector3d  (0., -9.81, 0.);
   Body base_body (1., Vector3d (0., 0., 0.), Vector3d (1., 1., 1.));

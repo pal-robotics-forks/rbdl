@@ -27,7 +27,7 @@ protected:
   virtual void TearDown () {
     delete model;
   }
-  ModelData *model_data;
+  ModelDatad *model_data;
   Model *model;
 };
 

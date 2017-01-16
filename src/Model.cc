@@ -20,7 +20,7 @@
 using namespace RigidBodyDynamics;
 using namespace RigidBodyDynamics::Math;
 
-Model::Model(ModelData &model_data) {
+Model::Model(ModelDatad &model_data) {
   Body root_body;
   Joint root_joint;
 
@@ -149,7 +149,7 @@ unsigned int AddBodyFixedJoint (
 
 unsigned int AddBodyMultiDofJoint (
     Model &model,
-    ModelData &model_data,
+    ModelDatad &model_data,
     const unsigned int parent_id,
     const SpatialTransformd &joint_frame,
     const Joint &joint,
@@ -260,7 +260,7 @@ unsigned int AddBodyMultiDofJoint (
 }
 
 unsigned int Model::AddBody(
-    ModelData &model_data,
+    ModelDatad &model_data,
     const unsigned int parent_id,
     const SpatialTransformd &joint_frame,
     const Joint &joint,
@@ -472,7 +472,7 @@ unsigned int Model::AddBody(
 }
 
 unsigned int Model::AppendBody (
-    ModelData &model_data,
+    ModelDatad &model_data,
     const Math::SpatialTransformd &joint_frame,
     const Joint &joint,
     const Body &body,
@@ -485,7 +485,7 @@ unsigned int Model::AppendBody (
 }
 
 unsigned int Model::AddBodyCustomJoint (
-    ModelData &model_data,
+    ModelDatad &model_data,
     const unsigned int parent_id,
     const Math::SpatialTransformd &joint_frame,
     CustomJoint *custom_joint,

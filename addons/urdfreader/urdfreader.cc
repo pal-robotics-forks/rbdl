@@ -49,7 +49,7 @@ namespace RigidBodyDynamics {
     typedef map<string, LinkPtr > URDFLinkMap;
     typedef map<string, JointPtr > URDFJointMap;
 
-    bool construct_model(Model &rbdl_model, ModelData &model_data, LinkPtr urdf_link, int parent_id, FloatingBaseType floatingBaseType,
+    bool construct_model(Model &rbdl_model, ModelDatad &model_data, LinkPtr urdf_link, int parent_id, FloatingBaseType floatingBaseType,
                          bool verbose){
 
       int new_id = 0;
@@ -220,7 +220,7 @@ namespace RigidBodyDynamics {
 
 
 
-    bool construct_model(Model &rbdl_model, ModelData &model_data, LinkPtr urdf_link, int parent_id, FloatingBaseType floatingBaseType,
+    bool construct_model(Model &rbdl_model, ModelDatad &model_data, LinkPtr urdf_link, int parent_id, FloatingBaseType floatingBaseType,
                          const std::vector<std::string> &tipLinks, bool verbose){
 
       int new_id = 0;
@@ -407,7 +407,7 @@ namespace RigidBodyDynamics {
     }
 
 
-    bool construct_model_depht_first(Model &rbdl_model, ModelData &model_data, urdf::Model &urdf_model,
+    bool construct_model_depht_first(Model &rbdl_model, ModelDatad &model_data, urdf::Model &urdf_model,
                                      FloatingBaseType floatingBaseType, bool verbose){
 
       boost::shared_ptr<urdf::Link> root(boost::const_pointer_cast<urdf::Link>(urdf_model.getRoot()));
@@ -415,7 +415,7 @@ namespace RigidBodyDynamics {
       return construct_model(rbdl_model, model_data, root, 0, floatingBaseType, verbose);
     }
 
-    bool construct_model_depht_first(Model &rbdl_model, ModelData &model_data, urdf::Model &urdf_model, FloatingBaseType floatingBaseType,
+    bool construct_model_depht_first(Model &rbdl_model, ModelDatad &model_data, urdf::Model &urdf_model, FloatingBaseType floatingBaseType,
                                      const std::vector<std::string> &tipLinks, bool verbose){
 
       boost::shared_ptr<urdf::Link> root(boost::const_pointer_cast<urdf::Link>(urdf_model.getRoot()));
@@ -424,7 +424,7 @@ namespace RigidBodyDynamics {
     }
 
 
-    bool construct_model_breath_first (Model* rbdl_model, ModelData &model_data, urdf::Model &urdf_model, bool floating_base, bool verbose) {
+    bool construct_model_breath_first (Model* rbdl_model, ModelDatad &model_data, urdf::Model &urdf_model, bool floating_base, bool verbose) {
       LinkPtr urdf_root_link;
 
       verbose = true;
@@ -681,7 +681,7 @@ namespace RigidBodyDynamics {
       return URDFReadFromString (model_xml_string.c_str(), model, floatingBaseType, verbose);
     }
 
-    bool URDFReadFromString (const char* model_xml_string, Model* model, ModelData &model_data, FloatingBaseType floatingBaseType, bool verbose) {
+    bool URDFReadFromString (const char* model_xml_string, Model* model, ModelDatad &model_data, FloatingBaseType floatingBaseType, bool verbose) {
 
       urdf::Model urdf_model;
       if (!urdf_model.initString(model_xml_string)){
@@ -699,7 +699,7 @@ namespace RigidBodyDynamics {
       return true;
     }
 
-    bool URDFReadFromParamServer (Model* model, ModelData &model_data, FloatingBaseType floatingBaseType, bool verbose) {
+    bool URDFReadFromParamServer (Model* model, ModelDatad &model_data, FloatingBaseType floatingBaseType, bool verbose) {
 
       urdf::Model urdf_model;
       if (!urdf_model.initParam("robot_description")){
@@ -717,7 +717,7 @@ namespace RigidBodyDynamics {
       return true;
     }
 
-    bool URDFReadFromURDF(urdf::Model &urdf_model, Model* model, ModelData &model_data, FloatingBaseType floatingBaseType, bool verbose){
+    bool URDFReadFromURDF(urdf::Model &urdf_model, Model* model, ModelDatad &model_data, FloatingBaseType floatingBaseType, bool verbose){
 
       if (!construct_model_depht_first (*model, model_data, urdf_model, floatingBaseType, verbose)) {
         cerr << "Error constructing model from urdf file." << endl;
@@ -803,7 +803,7 @@ namespace RigidBodyDynamics {
 
     }
 
-    bool URDFReadFromParamServer(Model* model, ModelData &model_data, FloatingBaseType floatingBaseType,
+    bool URDFReadFromParamServer(Model* model, ModelDatad &model_data, FloatingBaseType floatingBaseType,
                                  std::vector<std::string> &joint_names,
                                  std::vector<double> &position_min,  std::vector<double> &position_max,
                                  std::vector<double> &vel_min,  std::vector<double> &vel_max,
@@ -833,7 +833,7 @@ namespace RigidBodyDynamics {
       return extraOK;
     }
 
-    bool URDFReadFromParamServer(Model* model, ModelData &model_data, FloatingBaseType floatingBaseType, const std::vector<std::string> &tipLinks,
+    bool URDFReadFromParamServer(Model* model, ModelDatad &model_data, FloatingBaseType floatingBaseType, const std::vector<std::string> &tipLinks,
                                  std::vector<std::string> &joint_names,
                                  std::vector<double> &position_min,  std::vector<double> &position_max,
                                  std::vector<double> &vel_min,  std::vector<double> &vel_max,

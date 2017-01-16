@@ -16,7 +16,7 @@ namespace RigidBodyDynamics {
   // We have to acumulate the spatial transforms, it seems that the cross product of acumulationg the
   // com displacements is a wrong assumption
   void CalcAcumulatedMass(Model &model,
-                          ModelData &model_data,
+                          ModelDatad &model_data,
                           const VectorNd &Q){
     assert(model_data.acumulated_mass.size() == model.mBodies.size());
 
@@ -33,7 +33,7 @@ namespace RigidBodyDynamics {
 
 
   Math::Vector3d CalcCOM(Model &model,
-                         ModelData &model_data,
+                         ModelDatad &model_data,
                          const Math::VectorNd &Q,
                          bool update_kinematics){
     // update the Kinematics if necessary
@@ -59,7 +59,7 @@ namespace RigidBodyDynamics {
 
 
   Math::Vector3d CalcCOMVelocity(Model &model,
-                                 ModelData &model_data,
+                                 ModelDatad &model_data,
                                  const Math::VectorNd &Q,
                                  const Math::VectorNd &QDot,
                                  bool update_kinematics){
@@ -86,7 +86,7 @@ namespace RigidBodyDynamics {
   }
 
   Math::Vector3d CalcCOMAcceleartion(Model &model,
-                                     ModelData &model_data,
+                                     ModelDatad &model_data,
                                      const Math::VectorNd &Q,
                                      const Math::VectorNd &QDot,
                                      const Math::VectorNd &QDDot,
@@ -112,7 +112,7 @@ namespace RigidBodyDynamics {
   }
 
   Math::Vector3d CalcCOMAccelerationBias(Model &model,
-                                         ModelData &model_data,
+                                         ModelDatad &model_data,
                                          const Math::VectorNd &Q,
                                          const Math::VectorNd &QDot,
                                          bool update_kinematics){
@@ -140,7 +140,7 @@ namespace RigidBodyDynamics {
 
   void CalcCOMJacobian (
       Model &model,
-      ModelData &model_data,
+      ModelDatad &model_data,
       const Math::VectorNd &Q,
       Math::MatrixNd &COMJ,
       bool update_kinematics){
@@ -196,7 +196,7 @@ namespace RigidBodyDynamics {
 
   void CalcCOMJacobian_inefficient (
       Model &model,
-      ModelData &model_data,
+      ModelDatad &model_data,
       const VectorNd &Q,
       MatrixNd &COMJ,
       bool update_kinematics
@@ -240,7 +240,7 @@ namespace RigidBodyDynamics {
   /// @todo: Document
   SpatialVectord CalcEnergy_inefficient(
       Model &model,
-      ModelData &model_data,
+      ModelDatad &model_data,
       const Math::VectorNd &Q,
       const Math::VectorNd &QDot,
       bool update_kinematics,

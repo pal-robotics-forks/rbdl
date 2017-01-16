@@ -11,10 +11,10 @@
 #include <string>
 #include <rbdl/rbdl_config.h>
 #include <rbdl/rbdl_math.h>
+#include <rbdl/ModelData.h>
 
 namespace RigidBodyDynamics {
 
-struct ModelData;
 struct Model;
 
 /** \brief Namespace that contains optional helper functions */
@@ -40,14 +40,14 @@ RBDL_DLLAPI std::string GetNamedBodyOriginsOverview (Model &model);
  * \param angular_momentum (optional output) angular momentum of the model at the COM in base coordinates 
  * \param update_kinematics (optional input) whether the kinematics should be updated (defaults to true)
  */
-RBDL_DLLAPI void CalcCenterOfMass (Model &model, ModelData &model_data, const Math::VectorNd &q, const Math::VectorNd &qdot, double &mass,
+RBDL_DLLAPI void CalcCenterOfMass (Model &model, ModelDatad &model_data, const Math::VectorNd &q, const Math::VectorNd &qdot, double &mass,
                                    Math::Vector3d &com, Math::Vector3d *com_velocity = NULL, Math::Vector3d *angular_momentum = NULL, bool update_kinematics = true);
 
 /** \brief Computes the potential energy of the full model. */
-RBDL_DLLAPI double CalcPotentialEnergy (Model &model, ModelData &model_data, const Math::VectorNd &q, bool update_kinematics = true);
+RBDL_DLLAPI double CalcPotentialEnergy (Model &model, ModelDatad &model_data, const Math::VectorNd &q, bool update_kinematics = true);
 
 /** \brief Computes the kinetic energy of the full model. */
-RBDL_DLLAPI double CalcKineticEnergy (Model &model, ModelData &model_data, const Math::VectorNd &q, const Math::VectorNd &qdot, bool update_kinematics = true);
+RBDL_DLLAPI double CalcKineticEnergy (Model &model, ModelDatad &model_data, const Math::VectorNd &q, const Math::VectorNd &qdot, bool update_kinematics = true);
 }
 
 }

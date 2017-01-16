@@ -52,7 +52,7 @@ protected:
     delete model;
   }
 
-  ModelData *model_data;
+  ModelDatad *model_data;
   Model *model;
 
   unsigned int body_a_id, body_b_id, body_c_id, ref_body_id;
@@ -171,7 +171,7 @@ TEST(CalcVelocitiesTest, FixedJointCalcPointVelocity ) {
   Body body(1., Vector3d (1., 0.4, 0.4), Vector3d (1., 1., 1.));
   Body fixed_body(1., Vector3d (1., 0.4, 0.4), Vector3d (1., 1., 1.));
 
-  ModelData model_data;
+  ModelDatad model_data;
   Model model(model_data);
 
   Joint joint_rot_z ( SpatialVectord (0., 0., 1., 0., 0., 0.));
@@ -199,7 +199,7 @@ TEST (CalcVelocitiesTest, FixedJointCalcPointVelocityRotated ) {
   Body body(1., Vector3d (1., 0.4, 0.4), Vector3d (1., 1., 1.));
   Body fixed_body(1., Vector3d (1., 0.4, 0.4), Vector3d (1., 1., 1.));
 
-  ModelData model_data;
+  ModelDatad model_data;
   Model model(model_data);
 
   Joint joint_rot_z ( SpatialVectord (0., 0., 1., 0., 0., 0.));

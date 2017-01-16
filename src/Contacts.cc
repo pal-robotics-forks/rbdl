@@ -308,7 +308,7 @@ void SolveContactSystemNullSpace (
 RBDL_DLLAPI
 void CalcContactJacobian(
     Model &model,
-    ModelData &model_data,
+    ModelDatad &model_data,
     const Math::VectorNd &Q,
     const ConstraintSet &CS,
     Math::MatrixNd &G,
@@ -343,7 +343,7 @@ void CalcContactJacobian(
 RBDL_DLLAPI
 void CalcContactSystemVariables (
     Model &model,
-    ModelData &model_data,
+    ModelDatad &model_data,
     const Math::VectorNd &Q,
     const Math::VectorNd &QDot,
     const Math::VectorNd &Tau,
@@ -389,7 +389,7 @@ void CalcContactSystemVariables (
 RBDL_DLLAPI
 void ForwardDynamicsContactsDirect (
     Model &model,
-    ModelData &model_data,
+    ModelDatad &model_data,
     const VectorNd &Q,
     const VectorNd &QDot,
     const VectorNd &Tau,
@@ -416,7 +416,7 @@ void ForwardDynamicsContactsDirect (
 RBDL_DLLAPI
 void ForwardDynamicsContactsRangeSpaceSparse (
     Model &model,
-    ModelData &model_data,
+    ModelDatad &model_data,
     const Math::VectorNd &Q,
     const Math::VectorNd &QDot,
     const Math::VectorNd &Tau,
@@ -431,7 +431,7 @@ void ForwardDynamicsContactsRangeSpaceSparse (
 RBDL_DLLAPI
 void ForwardDynamicsContactsNullSpace (
     Model &model,
-    ModelData &model_data,
+    ModelDatad &model_data,
     const VectorNd &Q,
     const VectorNd &QDot,
     const VectorNd &Tau,
@@ -458,7 +458,7 @@ void ForwardDynamicsContactsNullSpace (
 RBDL_DLLAPI
 void ComputeContactImpulsesDirect (
     Model &model,
-    ModelData &model_data,
+    ModelDatad &model_data,
     const Math::VectorNd &Q,
     const Math::VectorNd &QDotMinus,
     ConstraintSet &CS,
@@ -486,7 +486,7 @@ void ComputeContactImpulsesDirect (
 RBDL_DLLAPI
 void ComputeContactImpulsesRangeSpaceSparse (
     Model &model,
-    ModelData &model_data,
+    ModelDatad &model_data,
     const Math::VectorNd &Q,
     const Math::VectorNd &QDotMinus,
     ConstraintSet &CS,
@@ -505,7 +505,7 @@ void ComputeContactImpulsesRangeSpaceSparse (
 RBDL_DLLAPI
 void ComputeContactImpulsesNullSpace (
     Model &model,
-    ModelData &model_data,
+    ModelDatad &model_data,
     const Math::VectorNd &Q,
     const Math::VectorNd &QDotMinus,
     ConstraintSet &CS,
@@ -537,7 +537,7 @@ void ComputeContactImpulsesNullSpace (
 RBDL_DLLAPI
 void ForwardDynamicsApplyConstraintForces (
     Model &model,
-    ModelData &model_data,
+    ModelDatad &model_data,
     const VectorNd &Tau,
     ConstraintSet &CS,
     VectorNd &QDDot
@@ -710,7 +710,7 @@ void ForwardDynamicsApplyConstraintForces (
 RBDL_DLLAPI
 void ForwardDynamicsAccelerationDeltas (
     Model &model,
-    ModelData &model_data,
+    ModelDatad &model_data,
     ConstraintSet &CS,
     VectorNd &QDDot_t,
     const unsigned int body_id,
@@ -845,7 +845,7 @@ inline void set_zero (std::vector<SpatialVectord> &spatial_values) {
 RBDL_DLLAPI
 void ForwardDynamicsContactsKokkevis (
     Model &model,
-    ModelData &model_data,
+    ModelDatad &model_data,
     const VectorNd &Q,
     const VectorNd &QDot,
     const VectorNd &Tau,

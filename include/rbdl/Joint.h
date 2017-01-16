@@ -12,11 +12,11 @@
 #include <assert.h>
 #include <iostream>
 #include "rbdl/Logging.h"
+#include "rbdl/ModelData.h"
 
 namespace RigidBodyDynamics {
 
 struct Model;
-struct ModelData;
 
 /** \page joint_description Joint Modeling
  *
@@ -641,7 +641,7 @@ struct RBDL_DLLAPI Joint {
 RBDL_DLLAPI
 void jcalc (
         const Model &model,
-        ModelData &model_data,
+        ModelDatad &model_data,
         unsigned int joint_id,
         const Math::VectorNd &q,
         const Math::VectorNd &qdot
@@ -650,14 +650,14 @@ void jcalc (
 RBDL_DLLAPI
 Math::SpatialTransformd jcalc_XJ (
         const Model &model,
-        ModelData &model_data,
+        ModelDatad &model_data,
         unsigned int joint_id,
         const Math::VectorNd &q);
 
 RBDL_DLLAPI
 void jcalc_X_lambda_S (
         const Model &model,
-        ModelData &model_data,
+        ModelDatad &model_data,
         unsigned int joint_id,
         const Math::VectorNd &q
         );
@@ -668,13 +668,13 @@ struct RBDL_DLLAPI CustomJoint {
     virtual ~CustomJoint() {};
 
     virtual void jcalc (const Model &model,
-                        ModelData &model_data,
+                        ModelDatad &model_data,
                         unsigned int joint_id,
                         const Math::VectorNd &q,
                         const Math::VectorNd &qdot
                         ) = 0;
     virtual void jcalc_X_lambda_S (const Model &model,
-                                   ModelData &model_data,
+                                   ModelDatad &model_data,
                                    unsigned int joint_id,
                                    const Math::VectorNd &q
                                    ) = 0;

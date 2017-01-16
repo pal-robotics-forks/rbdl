@@ -210,12 +210,6 @@ struct RBDL_DLLAPI FixedBody {
   }
 };
 
-struct FixedBodyData{
-  /// \brief Transforms spatial quantities expressed for the parent to the
-  // fixed body.
-  Math::SpatialTransformd mBaseTransform;
-};
-
 }
 
 /* RBDL_BODY_H */

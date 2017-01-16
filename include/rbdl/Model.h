@@ -21,6 +21,7 @@
 #include "rbdl/Logging.h"
 #include "rbdl/Joint.h"
 #include "rbdl/Body.h"
+#include "rbdl/ModelData.h"
 
 // std::vectors containing any objects that have Eigen matrices or vectors
 // as members need to have a special allocater. This can be achieved with
@@ -110,52 +111,6 @@ namespace RigidBodyDynamics {
  * RigidBodyDynamics::Addons::URDFReadFromFile \endlink.
  */
 
-  struct ModelData{
-
-      // State information
-      /// \brief The spatial velocity of the bodies
-      std::vector<Math::SpatialVectord> v;
-      /// \brief The spatial acceleration of the bodies
-      std::vector<Math::SpatialVectord> a;
-      /// \brief The spatial bias acceleration of the bodies
-      std::vector<Math::SpatialVectord> a_bias;
-
-      /// \brief For computing COM jacobian efficiently
-      std::vector<Math::SpatialMatrixd> acumulated_mass;
-
-      /// \brief Transformation from the base to bodies reference frame
-      std::vector<Math::SpatialTransformd> X_base;
-
-      // Joint state variables
-      std::vector<Math::SpatialTransformd> X_J;
-      std::vector<Math::SpatialVectord> v_J;
-      std::vector<Math::SpatialVectord> c_J;
-
-      /// \brief The joint axis for joint i
-      std::vector<Math::SpatialVectord> S;
-
-      // Special variables for joints with 3 degrees of freedom
-      /// \brief Motion subspace for joints with 3 degrees of freedom
-      std::vector<Math::Matrix63d> multdof3_S;
-
-      // Bodies
-
-      /** \brief Transformation from the parent body to the current body
-       * \f[
-       *	X_{\lambda(i)} = {}^{i} X_{\lambda(i)}
-       * \f]
-       */
-      std::vector<Math::SpatialTransformd> X_lambda;
-
-      // Dynamics variables
-      /// \brief The velocity dependent spatial acceleration
-      std::vector<Math::SpatialVectord> c;
-
-
-      std::vector<FixedBodyData> mFixedBodiesData;
-  };
-
-
 /** \brief Contains all information about the rigid body model
  *
  * This class contains all information required to perform the forward
@@ -177,7 +132,7 @@ class RBDL_DLLAPI Model {
 
 public:
 
-  Model(ModelData &model_data);
+  Model(ModelDatad &model_data);
 
   // Structural information
   /// \brief The id of the parents body
@@ -319,7 +274,7 @@ public:
    *
    * \returns id of the added body
    */
-  unsigned int AddBody (ModelData &model_data,
+  unsigned int AddBody (ModelDatad &model_data,
       const unsigned int parent_id,
       const Math::SpatialTransformd &joint_frame,
       const Joint &joint,
@@ -327,7 +282,7 @@ public:
       std::string body_name = ""
       );
 
-  unsigned int AddBodySphericalJoint (ModelData &model_data,
+  unsigned int AddBodySphericalJoint (ModelDatad &model_data,
       const unsigned int parent_id,
       const Math::SpatialTransformd &joint_frame,
       const Joint &joint,
@@ -341,14 +296,14 @@ public:
    * This function is basically the same as Model::AddBody() however the
    * most recently added body (or body 0) is taken as parent.
    */
-  unsigned int AppendBody (ModelData &model_data,
+  unsigned int AppendBody (ModelDatad &model_data,
       const Math::SpatialTransformd &joint_frame,
       const Joint &joint,
       const Body &body,
       std::string body_name = ""
       );
 
-  unsigned int AddBodyCustomJoint (ModelData &model_data,
+  unsigned int AddBodyCustomJoint (ModelDatad &model_data,
       const unsigned int parent_id,
       const Math::SpatialTransformd &joint_frame,
       CustomJoint *custom_joint,
@@ -380,7 +335,7 @@ public:
    *
    *  \returns id of the body with 6 DoF
    */
-  unsigned int SetFloatingBaseBody (ModelData &model_data, const Body &body);
+  unsigned int SetFloatingBaseBody (ModelDatad &model_data, const Body &body);
 
   /** \brief Returns the id of a body that was passed to AddBody()
    *
