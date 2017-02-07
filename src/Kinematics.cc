@@ -93,7 +93,8 @@ RBDL_DLLAPI void UpdateKinematics(
   }
 }
 
-RBDL_DLLAPI void UpdateKinematicsCustom(
+/*
+RBDL_DLLAPI void UpdateKinematicsCustom<double>(
     const Model &model,
     ModelDatad &model_data,
     const VectorNd *Q,
@@ -183,6 +184,7 @@ RBDL_DLLAPI void UpdateKinematicsCustom(
     } 
   }
 }
+*/
 
 RBDL_DLLAPI Vector3d CalcBodyToBaseCoordinates (
     const Model &model,
@@ -193,7 +195,7 @@ RBDL_DLLAPI Vector3d CalcBodyToBaseCoordinates (
     bool update_kinematics) {
   // update the Kinematics if necessary
   if (update_kinematics) {
-    UpdateKinematicsCustom (model, model_data, &Q, NULL, NULL);
+    UpdateKinematicsCustom<double>(model, model_data, &Q, NULL, NULL);
   }
 
   if (body_id >= model.fixed_body_discriminator) {
@@ -226,7 +228,7 @@ RBDL_DLLAPI Vector3d CalcBaseToBodyCoordinates (
     const Vector3d &point_base_coordinates,
     bool update_kinematics) {
   if (update_kinematics) {
-    UpdateKinematicsCustom (model, model_data, &Q, NULL, NULL);
+    UpdateKinematicsCustom<double>(model, model_data, &Q, NULL, NULL);
   }
 
   if (body_id >= model.fixed_body_discriminator) {
@@ -259,7 +261,7 @@ RBDL_DLLAPI Matrix3d CalcBodyWorldOrientation(
     bool update_kinematics) {
   // update the Kinematics if necessary
   if (update_kinematics) {
-    UpdateKinematicsCustom (model, model_data, &Q, NULL, NULL);
+    UpdateKinematicsCustom<double>(model, model_data, &Q, NULL, NULL);
   }
 
   if (body_id >= model.fixed_body_discriminator) {
@@ -287,7 +289,7 @@ RBDL_DLLAPI void CalcPointJacobian (
   G.setZero();
   // update the Kinematics if necessary
   if (update_kinematics) {
-    UpdateKinematicsCustom (model, model_data, &Q, NULL, NULL);
+    UpdateKinematicsCustom<double>(model, model_data, &Q, NULL, NULL);
   }
 
   SpatialTransformd point_trans =
@@ -354,7 +356,7 @@ RBDL_DLLAPI void CalcOrientationJacobian (
 
   // update the Kinematics if necessary
   if (update_kinematics) {
-    UpdateKinematicsCustom (model, model_data, &Q, NULL, NULL);
+    UpdateKinematicsCustom<double>(model, model_data, &Q, NULL, NULL);
   }
 
   SpatialTransformd point_trans =
@@ -422,7 +424,7 @@ RBDL_DLLAPI void CalcPointJacobian6D (
   
   // update the Kinematics if necessary
   if (update_kinematics) {
-    UpdateKinematicsCustom (model, model_data, &Q, NULL, NULL);
+    UpdateKinematicsCustom<double>(model, model_data, &Q, NULL, NULL);
   }
 
   SpatialTransformd point_trans =
@@ -485,7 +487,7 @@ RBDL_DLLAPI void CalcPointJacobian6DBodyFrame (
 
   // update the Kinematics if necessary
   if (update_kinematics) {
-    UpdateKinematicsCustom (model, model_data, &Q, NULL, NULL);
+    UpdateKinematicsCustom<double>(model, model_data, &Q, NULL, NULL);
   }
 
   SpatialTransformd point_trans =
@@ -554,7 +556,7 @@ RBDL_DLLAPI void CalcBodySpatialJacobian (
 
   // update the Kinematics if necessary
   if (update_kinematics) {
-    UpdateKinematicsCustom (model, model_data, &Q, NULL, NULL);
+    UpdateKinematicsCustom<double>(model, model_data, &Q, NULL, NULL);
   }
 
   assert (G.rows() == 6 && G.cols() == model.qdot_size );
@@ -626,7 +628,7 @@ RBDL_DLLAPI Vector3d CalcPointVelocity (
 
   // update the Kinematics with zero acceleration
   if (update_kinematics) {
-    UpdateKinematicsCustom (model, model_data, &Q, &QDot, NULL);
+    UpdateKinematicsCustom<double>(model, model_data, &Q, &QDot, NULL);
   }
 
   unsigned int reference_body_id = body_id;
@@ -672,7 +674,7 @@ RBDL_DLLAPI Vector3d CalcPointAngularVelocity (
 
   // update the Kinematics with zero acceleration
   if (update_kinematics) {
-    UpdateKinematicsCustom (model, model_data, &Q, &QDot, NULL);
+    UpdateKinematicsCustom<double>(model, model_data, &Q, &QDot, NULL);
   }
 
   unsigned int reference_body_id = body_id;
@@ -717,7 +719,7 @@ RBDL_DLLAPI Math::SpatialVectord CalcPointVelocity6D(
 
   // update the Kinematics with zero acceleration
   if (update_kinematics) {
-    UpdateKinematicsCustom (model, model_data, &Q, &QDot, NULL);
+    UpdateKinematicsCustom<double>(model, model_data, &Q, &QDot, NULL);
   }
 
   unsigned int reference_body_id = body_id;
@@ -801,7 +803,7 @@ RBDL_DLLAPI Vector3d CalcPointAccelerationBias (
   model_data.a[0].setZero();
 
   if (update_kinematics)
-    UpdateKinematicsCustom(model, model_data, &Q, &QDot, NULL);
+    UpdateKinematicsCustom<double>(model, model_data, &Q, &QDot, NULL);
 
   LOG << std::endl;
 
@@ -892,7 +894,7 @@ RBDL_DLLAPI SpatialVectord CalcPointAcceleration6DBias(
   model_data.a[0].setZero();
 
   if (update_kinematics)
-    UpdateKinematicsCustom(model, model_data, &Q, &QDot, NULL);
+    UpdateKinematicsCustom<double>(model, model_data, &Q, &QDot, NULL);
 
   LOG << std::endl;
 
@@ -940,7 +942,7 @@ RBDL_DLLAPI bool InverseKinematics (
   Qres = Qinit;
 
   for (unsigned int ik_iter = 0; ik_iter < max_iter; ik_iter++) {
-    UpdateKinematicsCustom (model, model_data, &Qres, NULL, NULL);
+    UpdateKinematicsCustom<double>(model, model_data, &Qres, NULL, NULL);
 
     for (unsigned int k = 0; k < body_id.size(); k++) {
       MatrixNd G (MatrixNd::Zero(3, model.qdot_size));

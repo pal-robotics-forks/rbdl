@@ -135,7 +135,7 @@ RBDL_DLLAPI std::string GetNamedBodyOriginsOverview (Model &model, ModelDatad &m
   stringstream result ("");
 
   VectorNd Q (VectorNd::Zero(model.dof_count));
-  UpdateKinematicsCustom (model, model_data, &Q, NULL, NULL);
+  UpdateKinematicsCustom<double> (model, model_data, &Q, NULL, NULL);
 
   for (unsigned int body_id = 0; body_id < model.mBodies.size(); body_id++) {
     std::string body_name = model.GetBodyName (body_id);
@@ -162,7 +162,7 @@ RBDL_DLLAPI void CalcCenterOfMass (
     Math::Vector3d *angular_momentum,
     bool update_kinematics) {
   if (update_kinematics)
-    UpdateKinematicsCustom (model, model_data, &q, &qdot, NULL);
+    UpdateKinematicsCustom<double> (model, model_data, &q, &qdot, NULL);
 
   for (size_t i = 1; i < model.mBodies.size(); i++) {
     model.Ic[i] = model.I[i];
@@ -219,7 +219,7 @@ RBDL_DLLAPI double CalcKineticEnergy (
     const Math::VectorNd &qdot, 
     bool update_kinematics) {
   if (update_kinematics)
-    UpdateKinematicsCustom (model, model_data, &q, &qdot, NULL);
+    UpdateKinematicsCustom<double> (model, model_data, &q, &qdot, NULL);
 
   double result = 0.;
 

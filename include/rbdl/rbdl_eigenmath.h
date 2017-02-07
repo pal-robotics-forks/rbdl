@@ -26,7 +26,7 @@ class RBDL_TEMPLATE_DLLAPI Vector3_t : public Eigen::Matrix<T, 3, 1>
 
     template<typename OtherDerived>
       Vector3_t(const Eigen::MatrixBase<OtherDerived>& other)
-      : Eigen::Vector3d(other)
+      : Eigen::Matrix<T, 3, 1>(other)
       {}
 
     template<typename OtherDerived>
@@ -40,7 +40,7 @@ class RBDL_TEMPLATE_DLLAPI Vector3_t : public Eigen::Matrix<T, 3, 1>
     {}
 
     EIGEN_STRONG_INLINE Vector3_t(
-        const double& v0, const double& v1, const double& v2
+        const T& v0, const T& v1, const T& v2
         )
     {
       Base::_check_template_params();
@@ -48,7 +48,7 @@ class RBDL_TEMPLATE_DLLAPI Vector3_t : public Eigen::Matrix<T, 3, 1>
       (*this) << v0, v1, v2;
     }
 
-    void set(const double& v0, const double& v1, const double& v2)
+    void set(const T& v0, const T& v1, const T& v2)
     {
       Base::_check_template_params();
 
@@ -64,7 +64,7 @@ class RBDL_TEMPLATE_DLLAPI Matrix3_t : public Eigen::Matrix<T, 3, 3>
 
     template<typename OtherDerived>
       Matrix3_t(const Eigen::MatrixBase<OtherDerived>& other)
-      : Eigen::Matrix3d(other)
+      : Eigen::Matrix<T, 3, 1>(other)
       {}
 
     template<typename OtherDerived>
@@ -78,9 +78,9 @@ class RBDL_TEMPLATE_DLLAPI Matrix3_t : public Eigen::Matrix<T, 3, 3>
     {}
 
     EIGEN_STRONG_INLINE Matrix3_t(
-        const double& m00, const double& m01, const double& m02,
-        const double& m10, const double& m11, const double& m12,
-        const double& m20, const double& m21, const double& m22
+        const T& m00, const T& m01, const T& m02,
+        const T& m10, const T& m11, const T& m12,
+        const T& m20, const T& m21, const T& m22
         )
     {
       Base::_check_template_params();
@@ -101,7 +101,7 @@ class RBDL_TEMPLATE_DLLAPI Vector4_t : public Eigen::Matrix<T, 4, 1>
 
     template<typename OtherDerived>
       Vector4_t(const Eigen::MatrixBase<OtherDerived>& other)
-      : Eigen::Vector4d(other)
+      : Eigen::Matrix<T, 4, 1>(other)
       {}
 
     template<typename OtherDerived>
@@ -115,7 +115,7 @@ class RBDL_TEMPLATE_DLLAPI Vector4_t : public Eigen::Matrix<T, 4, 1>
     {}
 
     EIGEN_STRONG_INLINE Vector4_t(
-        const double& v0, const double& v1, const double& v2, const double& v3
+        const T& v0, const T& v1, const T& v2, const T& v3
         )
     {
       Base::_check_template_params();
@@ -123,7 +123,7 @@ class RBDL_TEMPLATE_DLLAPI Vector4_t : public Eigen::Matrix<T, 4, 1>
       (*this) << v0, v1, v2, v3;
     }
 
-    void set(const double& v0, const double& v1, const double& v2, const double& v3)
+    void set(const T& v0, const T& v1, const T& v2, const T& v3)
     {
       Base::_check_template_params();
 
@@ -139,7 +139,7 @@ class RBDL_TEMPLATE_DLLAPI SpatialVector_t : public Eigen::Matrix<T, 6, 1>
 
     template<typename OtherDerived>
       SpatialVector_t(const Eigen::MatrixBase<OtherDerived>& other)
-      : Eigen::Matrix<double, 6, 1>(other)
+      : Eigen::Matrix<T, 6, 1>(other)
       {}
 
     template<typename OtherDerived>
@@ -153,8 +153,8 @@ class RBDL_TEMPLATE_DLLAPI SpatialVector_t : public Eigen::Matrix<T, 6, 1>
     {}
 
     EIGEN_STRONG_INLINE SpatialVector_t(
-        const double& v0, const double& v1, const double& v2,
-        const double& v3, const double& v4, const double& v5
+        const T& v0, const T& v1, const T& v2,
+        const T& v3, const T& v4, const T& v5
         )
     {
       Base::_check_template_params();
@@ -163,8 +163,8 @@ class RBDL_TEMPLATE_DLLAPI SpatialVector_t : public Eigen::Matrix<T, 6, 1>
     }
 
     void set(
-        const double& v0, const double& v1, const double& v2,
-        const double& v3, const double& v4, const double& v5
+        const T& v0, const T& v1, const T& v2,
+        const T& v3, const T& v4, const T& v5
         )
     {
       Base::_check_template_params();
@@ -185,7 +185,7 @@ class RBDL_TEMPLATE_DLLAPI SpatialMatrix_t : public Eigen::Matrix<T, 6, 6>
 
     template<typename OtherDerived>
       SpatialMatrix_t(const Eigen::MatrixBase<OtherDerived>& other)
-      : Eigen::Matrix<double, 6, 6>(other)
+      : Eigen::Matrix<T, 6, 6>(other)
       {}
 
     template<typename OtherDerived>

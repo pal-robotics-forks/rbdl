@@ -18,6 +18,7 @@ namespace RigidBodyDynamics {
 
 using namespace Math;
 
+/*
 RBDL_DLLAPI void jcalc (
     const Model &model,
     ModelDatad &model_data,
@@ -209,39 +210,40 @@ RBDL_DLLAPI void jcalc (
 
   model_data.X_lambda[joint_id] = model_data.X_J[joint_id] * model.X_T[joint_id];
 }
+*/
 
-RBDL_DLLAPI Math::SpatialTransformd jcalc_XJ (
-    const Model &model,
-    ModelDatad &model_data,
-    unsigned int joint_id,
-    const Math::VectorNd &q) {
-  // exception if we calculate it for the root body
-  assert (joint_id > 0);
+//RBDL_DLLAPI Math::SpatialTransformd jcalc_XJ (
+//    const Model &model,
+//    ModelDatad &model_data,
+//    unsigned int joint_id,
+//    const Math::VectorNd &q) {
+//  // exception if we calculate it for the root body
+//  assert (joint_id > 0);
 
-  if (model.mJoints[joint_id].mDoFCount == 1
-      && model.mJoints[joint_id].mJointType != JointTypeCustom) {
-    if (model.mJoints[joint_id].mJointType == JointTypeRevolute) {
-      return Xrot (q[model.mJoints[joint_id].q_index], Vector3d (
-            model.mJoints[joint_id].mJointAxes[0][0],
-            model.mJoints[joint_id].mJointAxes[0][1],
-            model.mJoints[joint_id].mJointAxes[0][2]
-            ));
-    } else if (model.mJoints[joint_id].mJointType == JointTypePrismatic) {
-      return Xtrans ( Vector3d (
-            model.mJoints[joint_id].mJointAxes[0][3]
-            * q[model.mJoints[joint_id].q_index],
-            model.mJoints[joint_id].mJointAxes[0][4] 
-            * q[model.mJoints[joint_id].q_index],
-            model.mJoints[joint_id].mJointAxes[0][5] 
-            * q[model.mJoints[joint_id].q_index]
-            )
-          );
-    }
-  }
-  std::cerr << "Error: invalid joint type!" << std::endl;
-  abort();
-  return SpatialTransformd();
-}
+//  if (model.mJoints[joint_id].mDoFCount == 1
+//      && model.mJoints[joint_id].mJointType != JointTypeCustom) {
+//    if (model.mJoints[joint_id].mJointType == JointTypeRevolute) {
+//      return Xrot (q[model.mJoints[joint_id].q_index], Vector3d (
+//            model.mJoints[joint_id].mJointAxes[0][0],
+//            model.mJoints[joint_id].mJointAxes[0][1],
+//            model.mJoints[joint_id].mJointAxes[0][2]
+//            ));
+//    } else if (model.mJoints[joint_id].mJointType == JointTypePrismatic) {
+//      return Xtrans ( Vector3d (
+//            model.mJoints[joint_id].mJointAxes[0][3]
+//            * q[model.mJoints[joint_id].q_index],
+//            model.mJoints[joint_id].mJointAxes[0][4]
+//            * q[model.mJoints[joint_id].q_index],
+//            model.mJoints[joint_id].mJointAxes[0][5]
+//            * q[model.mJoints[joint_id].q_index]
+//            )
+//          );
+//    }
+//  }
+//  std::cerr << "Error: invalid joint type!" << std::endl;
+//  abort();
+//  return SpatialTransformd();
+//}
 
 RBDL_DLLAPI void jcalc_X_lambda_S (
     const Model &model,

@@ -295,15 +295,20 @@ struct RBDL_DLLAPI SpatialTransform {
     return result;
   }
 
-  SpatialTransform inverse() const {
+  SpatialTransform<T> inverse() const {
     return SpatialTransform (
         E.transpose(),
         - E * r
         );
   }
 
-  SpatialTransform operator* (const SpatialTransform &XT) const {
+  SpatialTransform<T> operator* (const SpatialTransform<T> &XT) const {
     return SpatialTransform (E * XT.E, XT.r + XT.E.transpose() * r);
+  }
+
+  template <class C>
+  SpatialTransform<T> operator* (const SpatialTransform<C> &XT) const {
+    return SpatialTransform (E * XT.E. template cast<T>(), XT.r. template cast<T>() + XT.E.transpose(). template cast<T>() * r);
   }
 
   void operator*= (const SpatialTransform &XT) {

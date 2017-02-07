@@ -315,7 +315,7 @@ void CalcContactJacobian(
     bool update_kinematics
     ) {
   if (update_kinematics)
-    UpdateKinematicsCustom (model, model_data, &Q, NULL, NULL);
+    UpdateKinematicsCustom<double>(model, model_data, &Q, NULL, NULL);
 
   unsigned int i,j;
 
@@ -370,7 +370,7 @@ void CalcContactSystemVariables (
   Vector3d gamma_i = Vector3d::Zero();
 
   CS.QDDot_0.setZero();
-  UpdateKinematicsCustom (model, model_data, NULL, NULL, &CS.QDDot_0);
+  UpdateKinematicsCustom<double>(model, model_data, NULL, NULL, &CS.QDDot_0);
 
   for (unsigned int i = 0; i < CS.size(); i++) {
     // only compute point accelerations when necessary
@@ -465,7 +465,7 @@ void ComputeContactImpulsesDirect (
     Math::VectorNd &QDotPlus
     ) {
   // Compute H
-  UpdateKinematicsCustom (model, model_data, &Q, NULL, NULL);
+  UpdateKinematicsCustom<double>(model, model_data, &Q, NULL, NULL);
   CompositeRigidBodyAlgorithm (model, model_data, Q, CS.H, false);
 
   // Compute G
@@ -493,7 +493,7 @@ void ComputeContactImpulsesRangeSpaceSparse (
     Math::VectorNd &QDotPlus
     ) {
   // Compute H
-  UpdateKinematicsCustom (model, model_data, &Q, NULL, NULL);
+  UpdateKinematicsCustom<double>(model, model_data, &Q, NULL, NULL);
   CompositeRigidBodyAlgorithm (model, model_data, Q, CS.H, false);
 
   // Compute G
@@ -512,7 +512,7 @@ void ComputeContactImpulsesNullSpace (
     Math::VectorNd &QDotPlus
     ) {
   // Compute H
-  UpdateKinematicsCustom (model, model_data, &Q, NULL, NULL);
+  UpdateKinematicsCustom<double>(model, model_data, &Q, NULL, NULL);
   CompositeRigidBodyAlgorithm (model, model_data, Q, CS.H, false);
 
   // Compute G
@@ -889,7 +889,7 @@ void ForwardDynamicsContactsKokkevis (
     LOG << "QDDot_0 = " << CS.QDDot_0.transpose() << std::endl;
     {
       SUPPRESS_LOGGING;
-      UpdateKinematicsCustom (model, model_data, NULL, NULL, &CS.QDDot_0);
+      UpdateKinematicsCustom<double>(model, model_data, NULL, NULL, &CS.QDDot_0);
       CS.point_accel_0[ci] = CalcPointAcceleration (model, model_data, Q, QDot, CS.QDDot_0, body_id, point, false);
 
       CS.a[ci] = - acceleration + normal.dot(CS.point_accel_0[ci]);
@@ -936,7 +936,7 @@ void ForwardDynamicsContactsKokkevis (
     // compute the resulting acceleration
     {
       SUPPRESS_LOGGING;
-      UpdateKinematicsCustom (model, model_data, NULL, NULL, &CS.QDDot_t);
+      UpdateKinematicsCustom<double>(model, model_data, NULL, NULL, &CS.QDDot_t);
     }
 
     for (unsigned int cj = 0; cj < CS.size(); cj++) {

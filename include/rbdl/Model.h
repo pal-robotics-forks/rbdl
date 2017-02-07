@@ -19,7 +19,7 @@
 #include <stdexcept>
 
 #include "rbdl/Logging.h"
-#include "rbdl/Joint.h"
+//#include "rbdl/Joint.h"
 #include "rbdl/Body.h"
 #include "rbdl/ModelData.h"
 
@@ -28,14 +28,17 @@
 // the following macro.
 
 #ifdef EIGEN_CORE_H
-EIGEN_DEFINE_STL_VECTOR_SPECIALIZATION(RigidBodyDynamics::Joint);
-EIGEN_DEFINE_STL_VECTOR_SPECIALIZATION(RigidBodyDynamics::Body);
-EIGEN_DEFINE_STL_VECTOR_SPECIALIZATION(RigidBodyDynamics::FixedBody);
+//EIGEN_DEFINE_STL_VECTOR_SPECIALIZATION(RigidBodyDynamics::Joint);
+//EIGEN_DEFINE_STL_VECTOR_SPECIALIZATION(RigidBodyDynamics::Body);
+//EIGEN_DEFINE_STL_VECTOR_SPECIALIZATION(RigidBodyDynamics::FixedBody);
 #endif
 
 /** \brief Namespace for all structures of the RigidBodyDynamics library
 */
 namespace RigidBodyDynamics {
+
+  class Joint;
+  class CustomJoint;
 
   enum class FloatingBaseType{
     FixedBase,
@@ -467,14 +470,7 @@ public:
    * See \ref joint_singularities for details.
    */
   Math::Quaterniond GetQuaternion (unsigned int i,
-      const Math::VectorNd &Q) const {
-    assert (mJoints[i].mJointType == JointTypeSpherical);
-    unsigned int q_index = mJoints[i].q_index;
-    return Math::Quaterniond ( Q[q_index],
-        Q[q_index + 1], 
-        Q[q_index + 2], 
-        Q[multdof3_w_index[i]]);
-  }
+      const Math::VectorNd &Q) const ;
 
   /** Sets the Quaterniond for body i (only valid if body i is connected by
    * a JointTypeSpherical joint)
@@ -483,15 +479,7 @@ public:
    */
   void SetQuaternion (unsigned int i,
       const Math::Quaterniond &quat,
-      Math::VectorNd &Q) const {
-    assert (mJoints[i].mJointType == JointTypeSpherical);
-    unsigned int q_index = mJoints[i].q_index;
-
-    Q[q_index] = quat[0];
-    Q[q_index + 1] = quat[1];
-    Q[q_index + 2] = quat[2];
-    Q[multdof3_w_index[i]] = quat[3];
-  }
+      Math::VectorNd &Q) const;
 
 
   /** \brief number of degrees of freedoms of the model

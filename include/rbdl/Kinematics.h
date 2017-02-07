@@ -13,9 +13,11 @@
 #include <iostream>
 #include "rbdl/Logging.h"
 #include "rbdl/Model.h"
+#include <rbdl/Joint.h>
 
 namespace RigidBodyDynamics {
 
+using namespace Math;
 /** \page kinematics_page Kinematics
  * All functions related to kinematics are specified in the \ref
  * kinematics_group "Kinematics Module".
@@ -61,12 +63,95 @@ RBDL_DLLAPI void UpdateKinematics (const Model &model,
  * \param QDot  the generalized velocities of the joints
  * \param QDDot the generalized accelerations of the joints
  */
-RBDL_DLLAPI void UpdateKinematicsCustom (const Model &model,
-                                         ModelDatad  &model_data,
-                                         const Math::VectorNd *Q,
-                                         const Math::VectorNd *QDot,
-                                         const Math::VectorNd *QDDot
-                                         );
+template <typename T>
+void UpdateKinematicsCustom (const Model &model,
+                             ModelData<T>  &model_data,
+                             const Math::VectorN<T> *Q,
+                             const Math::VectorN<T> *QDot,
+                             const Math::VectorN<T> *QDDot
+                             ){
+  unsigned int i;
+
+  if (Q) {
+    assert(Q->rows() == model.q_size);
+    for (i = 1; i < model.mBodies.size(); i++) {
+      unsigned int lambda = model.lambda[i];
+
+      VectorN<T> QDot_zero (VectorN<T>::Zero (model.q_size));
+
+      jcalc<T> (model, model_data, i, (*Q), QDot_zero);
+
+      model_data.X_lambda[i] = model_data.X_J[i] * model.X_T[i];
+
+      if (lambda != 0) {
+        model_data.X_base[i] = model_data.X_lambda[i] * model_data.X_base[lambda];
+      } else {
+        model_data.X_base[i] = model_data.X_lambda[i];
+      }
+    }
+  }
+
+  if (QDot) {
+    assert(Q->rows() == model.q_size);
+    assert(QDot->rows() == model.qdot_size);
+
+    for (i = 1; i < model.mBodies.size(); i++) {
+      unsigned int lambda = model.lambda[i];
+
+      jcalc (model, model_data, i, *Q, *QDot);
+
+      if (lambda != 0) {
+        model_data.v[i] = model_data.X_lambda[i].apply(model_data.v[lambda]) + model_data.v_J[i];
+        model_data.c[i] = model_data.c_J[i] + crossm(model_data.v[i],model_data.v_J[i]);
+        model_data.a_bias[i] = model_data.X_lambda[i].apply(model_data.a_bias[lambda]) + model_data.c[i];
+      } else {
+        model_data.v[i] = model_data.v_J[i];
+        model_data.c[i] = model_data.c_J[i] + crossm(model_data.v[i],model_data.v_J[i]);
+        model_data.a_bias[i] = model_data.X_lambda[i].apply(model_data.a_bias[lambda]) + model_data.c[i];
+      }
+      // LOG << "v[" << i << "] = " << model_data.v[i].transpose() << std::endl;
+    }
+  }
+
+  if (QDDot) {
+    assert(Q->rows() == model.q_size);
+    assert(QDot->rows() == model.qdot_size);
+    assert(QDDot->rows() == model.qdot_size);
+
+    for (i = 1; i < model.mBodies.size(); i++) {
+      unsigned int q_index = model.mJoints[i].q_index;
+
+      unsigned int lambda = model.lambda[i];
+
+      if (lambda != 0) {
+        model_data.a[i] = model_data.X_lambda[i].apply(model_data.a[lambda]) + model_data.c[i];
+      } else {
+        model_data.a[i] = model_data.c[i];
+      }
+
+      if( model.mJoints[i].mJointType != JointTypeCustom){
+        if (model.mJoints[i].mDoFCount == 1) {
+          model_data.a[i] = model_data.a[i] + model_data.S[i] * (*QDDot)[q_index];
+        } else if (model.mJoints[i].mDoFCount == 3) {
+          Vector3<T> omegadot_temp ((*QDDot)[q_index],
+                                    (*QDDot)[q_index + 1],
+              (*QDDot)[q_index + 2]);
+          model_data.a[i] = model_data.a[i]
+                            + model_data.multdof3_S[i] * omegadot_temp;
+        }
+      } else {
+        unsigned int k = model.mJoints[i].custom_joint_index;
+
+        const CustomJoint* custom_joint = model.mCustomJoints[k];
+        unsigned int joint_dof_count = custom_joint->mDoFCount;
+
+        model_data.a[i] = model_data.a[i]
+                          + (  (model.mCustomJoints[k]->S). template cast<T>()
+                               *(QDDot->block(q_index, 0, joint_dof_count, 1)));
+      }
+    }
+  }
+}
 
 /** \brief Returns the base coordinates of a point given in body coordinates.
  *

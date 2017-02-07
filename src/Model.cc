@@ -507,3 +507,26 @@ unsigned int Model::AddBodyCustomJoint (
   return body_id;
 }
 
+
+Math::Quaterniond Model::GetQuaternion (unsigned int i,
+    const Math::VectorNd &Q) const {
+  assert (mJoints[i].mJointType == JointTypeSpherical);
+  unsigned int q_index = mJoints[i].q_index;
+  return Math::Quaterniond ( Q[q_index],
+      Q[q_index + 1],
+      Q[q_index + 2],
+      Q[multdof3_w_index[i]]);
+}
+
+
+void Model::SetQuaternion (unsigned int i,
+    const Math::Quaterniond &quat,
+    Math::VectorNd &Q) const {
+  assert (mJoints[i].mJointType == JointTypeSpherical);
+  unsigned int q_index = mJoints[i].q_index;
+
+  Q[q_index] = quat[0];
+  Q[q_index + 1] = quat[1];
+  Q[q_index + 2] = quat[2];
+  Q[multdof3_w_index[i]] = quat[3];
+}

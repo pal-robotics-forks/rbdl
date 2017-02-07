@@ -38,7 +38,7 @@ namespace RigidBodyDynamics {
                          bool update_kinematics){
     // update the Kinematics if necessary
     if (update_kinematics) {
-      UpdateKinematicsCustom (model, model_data, &Q, NULL, NULL);
+      UpdateKinematicsCustom<double>(model, model_data, &Q, NULL, NULL);
     }
     Eigen::Vector3d com;
     com.setZero();
@@ -66,7 +66,7 @@ namespace RigidBodyDynamics {
 
     // update the Kinematics if necessary
     if (update_kinematics) {
-      UpdateKinematicsCustom (model, model_data, &Q, &QDot, NULL);
+      UpdateKinematicsCustom<double>(model, model_data, &Q, &QDot, NULL);
     }
     Eigen::Vector3d com_vel;
     com_vel.setZero();
@@ -118,7 +118,7 @@ namespace RigidBodyDynamics {
                                          bool update_kinematics){
     // update the Kinematics if necessary
     if (update_kinematics) {
-      UpdateKinematicsCustom(model, model_data, &Q, &QDot, NULL);
+      UpdateKinematicsCustom<double>(model, model_data, &Q, &QDot, NULL);
     }
     Eigen::Vector3d com_acc_bias;
     com_acc_bias.setZero();
@@ -149,7 +149,7 @@ namespace RigidBodyDynamics {
 
     // update the Kinematics if necessary
     if (update_kinematics) {
-      UpdateKinematicsCustom (model, model_data, &Q, NULL, NULL);
+      UpdateKinematicsCustom<double>(model, model_data, &Q, NULL, NULL);
     }
 
     double total_mass = 0;
@@ -206,7 +206,7 @@ namespace RigidBodyDynamics {
 
     // update the Kinematics if necessary
     if (update_kinematics) {
-      UpdateKinematicsCustom (model, model_data, &Q, NULL, NULL);
+      UpdateKinematicsCustom<double>(model, model_data, &Q, NULL, NULL);
     }
 
     double total_mass = 0;
@@ -249,7 +249,7 @@ namespace RigidBodyDynamics {
 
     if (update_kinematics) {
       //Compute energy & COM & mass of the robot;
-      RigidBodyDynamics::UpdateKinematicsCustom(model, model_data, &Q, &QDot, NULL);
+      RigidBodyDynamics::UpdateKinematicsCustom<double>(model, model_data, &Q, &QDot, NULL);
     }
 
     SpatialVectord spatial_moment = RigidBodyDynamics::Math::SpatialVectord::Zero();
