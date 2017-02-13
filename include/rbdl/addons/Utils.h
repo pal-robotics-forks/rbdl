@@ -5,6 +5,33 @@
 #include <exception>
 #include <rbdl/Kinematics.h>
 
+//Transform a spatial velocity vector to linear and angular vel
+inline void spatialVelocity2vector(const RigidBodyDynamics::Math::SpatialVector v0,
+                                   const RigidBodyDynamics::Math::Vector3d &pointOfForce,
+                                   Eigen::Vector3d &linear_vel,
+                                   Eigen::Vector3d &angular_vel){
+
+  linear_vel = v0.block<3,1>(3, 0) - pointOfForce.cross(v0.block<3,1>(0, 0));
+  angular_vel = v0.block<3,1>(0, 0);
+}
+
+inline  RigidBodyDynamics::Math::SpatialVector force2spatialVector(const Eigen::Vector3d &pointOfForce, const Eigen::Vector3d &force){
+  RigidBodyDynamics::Math::SpatialVector result;
+
+  Eigen::Vector3d n0;
+  n0 = pointOfForce.cross(force);
+
+  result(0) = n0(0);
+  result(1) = n0(1);
+  result(2) = n0(2);
+
+  result(3) = force(0);
+  result(4) = force(1);
+  result(5) = force(2);
+
+  return result;
+}
+
 inline Eigen::Isometry3d getBodyToBaseTransform(RigidBodyDynamics::Model &model, const Eigen::VectorXd &Q, const std::string &name, bool update){
 
   assert(model.dof_count == Q.rows());

@@ -375,8 +375,8 @@ namespace RigidBodyDynamics {
 
           }
           else{
-
-            throw std::runtime_error("Floating base type not supported");
+            std::cerr<<static_cast<int>(floatingBaseType)<<std::endl;
+            throw std::runtime_error("Floating base type not supported in rbdl parser");
           }
         }
       }
@@ -833,6 +833,24 @@ namespace RigidBodyDynamics {
       return extraOK;
     }
 
+    bool URDFReadFromParamServer(Model* model, const std::vector<std::string> &tipLinks, FloatingBaseType floatingBaseType, bool verbose){
+
+      urdf::Model urdf_model;
+      if (!urdf_model.initParam("robot_description")){
+        ROS_ERROR("Failed to parse urdf file");
+        return false;
+      }
+
+      if (!construct_model_depht_first (*model, urdf_model, floatingBaseType, tipLinks, verbose)) {
+        cerr << "Error constructing model from urdf file." << endl;
+        return false;
+      }
+
+      model->gravity.set (0., 0., -9.81);
+
+      return true;
+    }
+
     bool URDFReadFromParamServer(Model* model, FloatingBaseType floatingBaseType, const std::vector<std::string> &tipLinks,
                                  std::vector<std::string> &joint_names,
                                  std::vector<double> &position_min,  std::vector<double> &position_max,
@@ -887,7 +905,7 @@ namespace RigidBodyDynamics {
       }
       else{
 
-        throw std::runtime_error("Floating base type not supported");
+        throw std::runtime_error("Floating base type not supported in rbdl parser extra information");
         return false;
       }
       joint_names.resize(nDof);
