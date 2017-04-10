@@ -40,7 +40,8 @@ namespace RigidBodyDynamics {
     FixedBase,
     XYZ_RollPitchYaw,
     XYZ_Quaternion,
-    XY_Yaw
+    XY_Yaw,
+    NO_TYPE
   };
 
 /** \page modeling_page Model 
