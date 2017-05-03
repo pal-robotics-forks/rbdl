@@ -999,7 +999,7 @@ namespace RigidBodyDynamics {
           }
         }
       }
-      ROS_INFO_STREAM("parsed the rbdl model succesfully");
+      ROS_DEBUG_STREAM("parsed the rbdl model succesfully");
       return true;
     }
 

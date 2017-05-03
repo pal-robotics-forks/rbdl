@@ -4,6 +4,7 @@
 #include <Eigen/Dense>
 #include <exception>
 #include <rbdl/Kinematics.h>
+#include <rbdl/Model.h>
 
 //Transform a spatial velocity vector to linear and angular vel
 inline void spatialVelocity2vector(const RigidBodyDynamics::Math::SpatialVector v0,
@@ -32,12 +33,13 @@ inline  RigidBodyDynamics::Math::SpatialVector force2spatialVector(const Eigen::
   return result;
 }
 
-inline Eigen::Isometry3d getBodyToBaseTransform(RigidBodyDynamics::Model &model, const Eigen::VectorXd &Q, const std::string &name, bool update){
+inline Eigen::Isometry3d getBodyToBaseTransform(RigidBodyDynamics::Model &model, const Eigen::VectorXd &Q, const std::string &name,
+                                                const Eigen::Vector3d &tip_position, bool update){
 
-  assert(model.dof_count == Q.rows());
+  assert(model.q_size == Q.rows());
   unsigned int id = model.GetBodyId(name.c_str());
 
-  Eigen::Vector3d position = RigidBodyDynamics::CalcBodyToBaseCoordinates(model, Q, id, Eigen::Vector3d(0., 0., 0.), update);
+  Eigen::Vector3d position = RigidBodyDynamics::CalcBodyToBaseCoordinates(model, Q, id, tip_position, update);
   Eigen::Matrix3d rotation = RigidBodyDynamics::CalcBodyWorldOrientation(model, Q, id, update).transpose();
 
   Eigen::Isometry3d temp;
@@ -46,6 +48,11 @@ inline Eigen::Isometry3d getBodyToBaseTransform(RigidBodyDynamics::Model &model,
   temp.translation() = position;
   return temp;
 
+}
+
+inline Eigen::Isometry3d getBodyToBaseTransform(RigidBodyDynamics::Model &model, const Eigen::VectorXd &Q, const std::string &name, bool update){
+
+  return getBodyToBaseTransform(model, Q, name, Eigen::Vector3d::Zero(), update);
 }
 
 // This method does not update the internal state of the model, it querys directly the internal data structure
