@@ -266,8 +266,8 @@ RBDL_DLLAPI void jcalc_X_lambda_S (
     model_data.X_lambda[joint_id] =
       Xrotz (q[model.mJoints[joint_id].q_index]) * model.X_T[joint_id];
     model_data.S[joint_id] = model.mJoints[joint_id].mJointAxes[0];
-  } else if (model.mJoints[joint_id].mDoFCount == 1
-      && model.mJoints[joint_id].mJointType != JointTypeCustom){
+  } else if (model.mJoints[joint_id].mDoFCount == 1){
+     // && model.mJoints[joint_id].mJointType != JointTypeCustom){
     model_data.X_lambda[joint_id] =
       jcalc_XJ (model, model_data, joint_id, q) * model.X_T[joint_id];
     // Set the joint axis
@@ -391,13 +391,14 @@ RBDL_DLLAPI void jcalc_X_lambda_S (
     model_data.multdof3_S[joint_id](3,0) = 1.;
     model_data.multdof3_S[joint_id](4,1) = 1.;
     model_data.multdof3_S[joint_id](5,2) = 1.;
-  } else if (model.mJoints[joint_id].mJointType == JointTypeCustom) {
+  } /*else if (model.mJoints[joint_id].mJointType == JointTypeCustom) {
     const Joint &joint = model.mJoints[joint_id];
     CustomJoint *custom_joint 
       = model.mCustomJoints[joint.custom_joint_index];
 
     custom_joint->jcalc_X_lambda_S (model, model_data, joint_id, q);
-  } else {
+
+  } */else {
     std::cerr << "Error: invalid joint type!" << std::endl;
     abort();
   }

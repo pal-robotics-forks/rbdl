@@ -197,7 +197,7 @@ enum JointType {
   JointType4DoF, ///< Emulated 4 DoF joint.
   JointType5DoF, ///< Emulated 5 DoF joint.
   JointType6DoF, ///< Emulated 6 DoF joint.
-  JointTypeCustom, ///< User defined joints of varying size
+//  JointTypeCustom, ///< User defined joints of varying size
 };
 
 /** \brief Describes a joint relative to the predecessor body.
@@ -275,41 +275,41 @@ struct RBDL_DLLAPI Joint {
       // Warning: the memory does not get initialized by this function!
       mDoFCount = type - JointType1DoF + 1;
       mJointAxes = new Math::SpatialVectord[mDoFCount];
-    } else if (type == JointTypeCustom) {
-      //This constructor cannot be used for a JointTypeCustom because
-      //we have no idea what mDoFCount is.
-      std::cerr << "Error: Invalid use of Joint constructor Joint(JointType"
-                << " type). Only allowed when type != JointTypeCustom"
-                << std::endl;
-      assert(0);
-      abort();
+//    } else if (type == JointTypeCustom) {
+//      //This constructor cannot be used for a JointTypeCustom because
+//      //we have no idea what mDoFCount is.
+//      std::cerr << "Error: Invalid use of Joint constructor Joint(JointType"
+//                << " type). Only allowed when type != JointTypeCustom"
+//                << std::endl;
+//      assert(0);
+//      abort();
     } else if (type != JointTypeFixed && type != JointTypeFloatingBase) {
       std::cerr << "Error: Invalid use of Joint constructor Joint(JointType type). Only allowed when type == JointTypeFixed or JointTypeSpherical." << std::endl;
       assert (0);
       abort();
     }
   }
-  Joint (JointType type, int degreesOfFreedom) :
-    mJointAxes (NULL),
-    mJointType (type),
-    mDoFCount (0),
-    custom_joint_index(-1),
-    q_index (0) {
-    if (type == JointTypeCustom) {
-      mDoFCount   = degreesOfFreedom;
-      mJointAxes  = new Math::SpatialVectord[mDoFCount];
-      for(int i=0; i<mDoFCount;++i){
-        mJointAxes[i] = Math::SpatialVectord (0., 0., 0., 0., 0., 0.);
-      }
-    } else {
-      std::cerr << "Error: Invalid use of Joint constructor Joint(JointType"
-                << " type, int degreesOfFreedom). Only allowed when "
-                << "type  == JointTypeCustom."
-                << std::endl;
-      assert (0);
-      abort();
-    }
-  }
+//  Joint (JointType type, int degreesOfFreedom) :
+//    mJointAxes (NULL),
+//    mJointType (type),
+//    mDoFCount (0),
+//    custom_joint_index(-1),
+//    q_index (0) {
+//    if (type == JointTypeCustom) {
+//      mDoFCount   = degreesOfFreedom;
+//      mJointAxes  = new Math::SpatialVectord[mDoFCount];
+//      for(int i=0; i<mDoFCount;++i){
+//        mJointAxes[i] = Math::SpatialVectord (0., 0., 0., 0., 0., 0.);
+//      }
+//    } else {
+//      std::cerr << "Error: Invalid use of Joint constructor Joint(JointType"
+//                << " type, int degreesOfFreedom). Only allowed when "
+//                << "type  == JointTypeCustom."
+//                << std::endl;
+//      assert (0);
+//      abort();
+//    }
+//  }
   Joint (const Joint &joint) :
     mJointType (joint.mJointType),
     mDoFCount (joint.mDoFCount),
@@ -625,31 +625,31 @@ struct RBDL_DLLAPI Joint {
   unsigned int custom_joint_index;
 };
 
-struct RBDL_DLLAPI CustomJoint {
-  CustomJoint()
-  { }
-  virtual ~CustomJoint() {};
+//struct RBDL_DLLAPI CustomJoint {
+//  CustomJoint()
+//  { }
+//  virtual ~CustomJoint() {};
 
-  virtual void jcalc (const Model &model,
-                      ModelDatad &model_data,
-                      unsigned int joint_id,
-                      const Math::VectorNd &q,
-                      const Math::VectorNd &qdot
-                      ) = 0;
-  virtual void jcalc_X_lambda_S (const Model &model,
-                                 ModelDatad &model_data,
-                                 unsigned int joint_id,
-                                 const Math::VectorNd &q
-                                 ) = 0;
+//  virtual void jcalc (const Model &model,
+//                      ModelDatad &model_data,
+//                      unsigned int joint_id,
+//                      const Math::VectorNd &q,
+//                      const Math::VectorNd &qdot
+//                      ) = 0;
+//  virtual void jcalc_X_lambda_S (const Model &model,
+//                                 ModelDatad &model_data,
+//                                 unsigned int joint_id,
+//                                 const Math::VectorNd &q
+//                                 ) = 0;
 
-  unsigned int mDoFCount;
-  Math::SpatialTransformd XJ;
-  Math::MatrixNd S;
-  Math::MatrixNd U;
-  Math::MatrixNd Dinv;
-  Math::VectorNd u;
-  Math::VectorNd d_u;
-};
+//  unsigned int mDoFCount;
+//  Math::SpatialTransformd XJ;
+//  Math::MatrixNd S;
+//  Math::MatrixNd U;
+//  Math::MatrixNd Dinv;
+//  Math::VectorNd u;
+//  Math::VectorNd d_u;
+//};
 
 template <typename T>
 Math::SpatialTransform<T> jcalc_XJ (
@@ -658,8 +658,8 @@ Math::SpatialTransform<T> jcalc_XJ (
     unsigned int joint_id,
     const Math::VectorN<T> &q){
 
-  if (model.mJoints[joint_id].mDoFCount == 1
-      && model.mJoints[joint_id].mJointType != JointTypeCustom) {
+  if (model.mJoints[joint_id].mDoFCount == 1){
+//      && model.mJoints[joint_id].mJointType != JointTypeCustom) {
     if (model.mJoints[joint_id].mJointType == JointTypeRevolute) {
       return Xrot<T> (q[model.mJoints[joint_id].q_index], Vector3<T> (
             model.mJoints[joint_id].mJointAxes[0][0],
@@ -717,8 +717,8 @@ void jcalc (
   } else if (model.mJoints[joint_id].mJointType == JointTypeRevoluteZ) {
     model_data.X_J[joint_id] = Xrotz (q[model.mJoints[joint_id].q_index]);
     model_data.v_J[joint_id][2] = qdot[model.mJoints[joint_id].q_index];
-  } else if (model.mJoints[joint_id].mDoFCount == 1 &&
-             model.mJoints[joint_id].mJointType != JointTypeCustom) {
+  } else if (model.mJoints[joint_id].mDoFCount == 1){ //&&
+//             model.mJoints[joint_id].mJointType != JointTypeCustom) {
     model_data.X_J[joint_id] = jcalc_XJ<T> (model, model_data, joint_id, q);
 
     model_data.v_J[joint_id] =
@@ -877,11 +877,11 @@ void jcalc (
         model_data.multdof3_S[joint_id] * Vector3<T> (qdot0, qdot1, qdot2);
 
     model_data.c_J[joint_id].set(0., 0., 0., 0., 0., 0.);
-  } else if (model.mJoints[joint_id].mJointType == JointTypeCustom) {
-    const Joint &joint = model.mJoints[joint_id];
-    CustomJoint *custom_joint =
-        model.mCustomJoints[joint.custom_joint_index];
-    custom_joint->jcalc (model, model_data, joint_id, q, qdot);
+//  } else if (model.mJoints[joint_id].mJointType == JointTypeCustom) {
+//    const Joint &joint = model.mJoints[joint_id];
+//    CustomJoint *custom_joint =
+//        model.mCustomJoints[joint.custom_joint_index];
+//    custom_joint->jcalc (model, model_data, joint_id, q, qdot);
   } else {
     std::cerr << "Error: invalid joint type " << model.mJoints[joint_id].mJointType << " at id " << joint_id << std::endl;
     abort();

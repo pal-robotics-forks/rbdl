@@ -64,7 +64,7 @@ class RBDL_TEMPLATE_DLLAPI Matrix3_t : public Eigen::Matrix<T, 3, 3>
 
     template<typename OtherDerived>
       Matrix3_t(const Eigen::MatrixBase<OtherDerived>& other)
-      : Eigen::Matrix<T, 3, 1>(other)
+      : Eigen::Matrix<T, 3, 3>(other)
       {}
 
     template<typename OtherDerived>

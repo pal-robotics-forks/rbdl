@@ -241,14 +241,15 @@ RBDL_DLLAPI inline Vector3d angular_velocity_from_angle_rates (const Vector3d &z
       );
 }
 
-RBDL_DLLAPI inline Vector3d global_angular_velocity_from_rates (const Vector3d &zyx_angles, const Vector3d &zyx_rates) {
-  Matrix3d RzT = rotz(zyx_angles[0]).transpose();
-  Matrix3d RyT = roty(zyx_angles[1]).transpose();
+template <class T>
+RBDL_DLLAPI inline Vector3<T> global_angular_velocity_from_rates (const Vector3<T> &zyx_angles, const Vector3<T> &zyx_rates) {
+  Matrix3<T> RzT = rotz(zyx_angles[0]).transpose();
+  Matrix3<T> RyT = roty(zyx_angles[1]).transpose();
 
   return Vector3d (
-      Vector3d (0., 0., zyx_rates[0])
-      + RzT * Vector3d (0., zyx_rates[1], 0.)
-      + RzT * RyT * Vector3d (zyx_rates[2], 0., 0.)
+      Vector3<T> (0., 0., zyx_rates[0])
+      + RzT * Vector3<T> (0., zyx_rates[1], 0.)
+      + RzT * RyT * Vector3<T> (zyx_rates[2], 0., 0.)
       );
 }
 

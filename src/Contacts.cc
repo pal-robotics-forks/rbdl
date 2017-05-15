@@ -548,12 +548,12 @@ void ForwardDynamicsApplyConstraintForces (
   unsigned int i = 0;
 
   for (i = 1; i < model.mBodies.size(); i++) {
-    model.IA[i] = model.I[i].toMatrix();;
-    model.pA[i] = crossf(model_data.v[i],model.I[i] * model_data.v[i]);
+    model_data.IA[i] = model_data.I[i].toMatrix();;
+    model_data.pA[i] = crossf(model_data.v[i],model_data.I[i] * model_data.v[i]);
 
     if (CS.f_ext_constraints[i] != SpatialVectord::Zero()) {
       LOG << "External force (" << i << ") = " << model_data.X_base[i].toMatrixAdjoint() * CS.f_ext_constraints[i] << std::endl;
-      model.pA[i] -= model_data.X_base[i].toMatrixAdjoint() * CS.f_ext_constraints[i];
+      model_data.pA[i] -= model_data.X_base[i].toMatrixAdjoint() * CS.f_ext_constraints[i];
     }
   }
 
@@ -564,96 +564,97 @@ void ForwardDynamicsApplyConstraintForces (
   for (i = model.mBodies.size() - 1; i > 0; i--) {
     unsigned int q_index = model.mJoints[i].q_index;
 
-    if (model.mJoints[i].mDoFCount == 3
-        && model.mJoints[i].mJointType != JointTypeCustom) {
+    if (model.mJoints[i].mDoFCount == 3){
+      //  && model.mJoints[i].mJointType != JointTypeCustom) {
       unsigned int lambda = model.lambda[i];
       model.multdof3_u[i] = Vector3d (Tau[q_index], 
           Tau[q_index + 1], 
           Tau[q_index + 2]) 
-        - model_data.multdof3_S[i].transpose() * model.pA[i];
+        - model_data.multdof3_S[i].transpose() * model_data.pA[i];
 
       if (lambda != 0) {
-        SpatialMatrixd Ia = model.IA[i] - (model.multdof3_U[i]
+        SpatialMatrixd Ia = model_data.IA[i] - (model.multdof3_U[i]
             * model.multdof3_Dinv[i] 
             * model.multdof3_U[i].transpose());
 
-        SpatialVectord pa = model.pA[i] + Ia * model_data.c[i]
+        SpatialVectord pa = model_data.pA[i] + Ia * model_data.c[i]
           + model.multdof3_U[i] * model.multdof3_Dinv[i] * model.multdof3_u[i];
 
 #ifdef EIGEN_CORE_H
-        model.IA[lambda].noalias() += (model_data.X_lambda[i].toMatrixTranspose()
+        model_data.IA[lambda].noalias() += (model_data.X_lambda[i].toMatrixTranspose()
             * Ia * model_data.X_lambda[i].toMatrix());
-        model.pA[lambda].noalias() += model_data.X_lambda[i].applyTranspose(pa);
+        model_data.pA[lambda].noalias() += model_data.X_lambda[i].applyTranspose(pa);
 #else
-        model.IA[lambda] += (model_data.X_lambda[i].toMatrixTranspose()
+        model_data.IA[lambda] += (model_data.X_lambda[i].toMatrixTranspose()
             * Ia * model_data.X_lambda[i].toMatrix());
-        model.pA[lambda] += model_data.X_lambda[i].applyTranspose(pa);
+        model_data.pA[lambda] += model_data.X_lambda[i].applyTranspose(pa);
 #endif
-        LOG << "pA[" << lambda << "] = " << model.pA[lambda].transpose() 
+        LOG << "pA[" << lambda << "] = " << model_data.pA[lambda].transpose()
           << std::endl;
       }
-    } else if (model.mJoints[i].mDoFCount == 1
-        && model.mJoints[i].mJointType != JointTypeCustom) {
-      model.u[i] = Tau[q_index] - model_data.S[i].dot(model.pA[i]);
+    } else if (model.mJoints[i].mDoFCount == 1){
+//        && model.mJoints[i].mJointType != JointTypeCustom) {
+      model.u[i] = Tau[q_index] - model_data.S[i].dot(model_data.pA[i]);
 
       unsigned int lambda = model.lambda[i];
       if (lambda != 0) {
-        SpatialMatrixd Ia = model.IA[i]
+        SpatialMatrixd Ia = model_data.IA[i]
           - model.U[i] * (model.U[i] / model.d[i]).transpose();
-        SpatialVectord pa =  model.pA[i] + Ia * model_data.c[i]
+        SpatialVectord pa =  model_data.pA[i] + Ia * model_data.c[i]
           + model.U[i] * model.u[i] / model.d[i];
 #ifdef EIGEN_CORE_H
-        model.IA[lambda].noalias() += (model_data.X_lambda[i].toMatrixTranspose()
+        model_data.IA[lambda].noalias() += (model_data.X_lambda[i].toMatrixTranspose()
             * Ia * model_data.X_lambda[i].toMatrix());
-        model.pA[lambda].noalias() += model_data.X_lambda[i].applyTranspose(pa);
+        model_data.pA[lambda].noalias() += model_data.X_lambda[i].applyTranspose(pa);
 #else
-        model.IA[lambda] += (model_data.X_lambda[i].toMatrixTranspose()
+        model_data.IA[lambda] += (model_data.X_lambda[i].toMatrixTranspose()
             * Ia * model_data.X_lambda[i].toMatrix());
-        model.pA[lambda] += model_data.X_lambda[i].applyTranspose(pa);
+        model_data.pA[lambda] += model_data.X_lambda[i].applyTranspose(pa);
 #endif
         LOG << "pA[" << lambda << "] = " 
-          << model.pA[lambda].transpose() << std::endl;
-      }
-    } else if(model.mJoints[i].mJointType == JointTypeCustom) {
-
-      unsigned int kI     = model.mJoints[i].custom_joint_index;
-      unsigned int dofI   = model.mCustomJoints[kI]->mDoFCount;
-      unsigned int lambda = model.lambda[i];
-      VectorNd tau_temp = VectorNd::Zero(dofI);
-
-      for(int z=0; z<dofI;++z){
-        tau_temp[z] = Tau[q_index+z];
-      }
-
-      model.mCustomJoints[kI]->u = tau_temp
-        - (model.mCustomJoints[kI]->S.transpose()
-            * model.pA[i]);
-
-      if (lambda != 0) {
-        SpatialMatrixd Ia = model.IA[i]
-          - (   model.mCustomJoints[kI]->U
-              * model.mCustomJoints[kI]->Dinv
-              * model.mCustomJoints[kI]->U.transpose());
-
-        SpatialVectord pa = model.pA[i] + Ia * model_data.c[i]
-          + (   model.mCustomJoints[kI]->U
-              * model.mCustomJoints[kI]->Dinv
-              * model.mCustomJoints[kI]->u);
-#ifdef EIGEN_CORE_H
-        model.IA[lambda].noalias() += model_data.X_lambda[i].toMatrixTranspose()
-          * Ia * model_data.X_lambda[i].toMatrix();
-
-        model.pA[lambda].noalias() += model_data.X_lambda[i].applyTranspose(pa);
-#else
-        model.IA[lambda] += model_data.X_lambda[i].toMatrixTranspose()
-          * Ia * model_data.X_lambda[i].toMatrix();
-
-        model.pA[lambda] += model_data.X_lambda[i].applyTranspose(pa);
-#endif
-        LOG << "pA[" << lambda << "] = " << model.pA[lambda].transpose()
-          << std::endl;
+          << model_data.pA[lambda].transpose() << std::endl;
       }
     }
+//      else if(model.mJoints[i].mJointType == JointTypeCustom) {
+
+//      unsigned int kI     = model.mJoints[i].custom_joint_index;
+//      unsigned int dofI   = model.mCustomJoints[kI]->mDoFCount;
+//      unsigned int lambda = model.lambda[i];
+//      VectorNd tau_temp = VectorNd::Zero(dofI);
+
+//      for(int z=0; z<dofI;++z){
+//        tau_temp[z] = Tau[q_index+z];
+//      }
+
+//      model.mCustomJoints[kI]->u = tau_temp
+//        - (model.mCustomJoints[kI]->S.transpose()
+//            * model_data.pA[i]);
+
+//      if (lambda != 0) {
+//        SpatialMatrixd Ia = model_data.IA[i]
+//          - (   model.mCustomJoints[kI]->U
+//              * model.mCustomJoints[kI]->Dinv
+//              * model.mCustomJoints[kI]->U.transpose());
+
+//        SpatialVectord pa = model_data.pA[i] + Ia * model_data.c[i]
+//          + (   model.mCustomJoints[kI]->U
+//              * model.mCustomJoints[kI]->Dinv
+//              * model.mCustomJoints[kI]->u);
+//#ifdef EIGEN_CORE_H
+//        model_data.IA[lambda].noalias() += model_data.X_lambda[i].toMatrixTranspose()
+//          * Ia * model_data.X_lambda[i].toMatrix();
+
+//        model_data.pA[lambda].noalias() += model_data.X_lambda[i].applyTranspose(pa);
+//#else
+//        model_data.IA[lambda] += model_data.X_lambda[i].toMatrixTranspose()
+//          * Ia * model_data.X_lambda[i].toMatrix();
+
+//        model_data.pA[lambda] += model_data.X_lambda[i].applyTranspose(pa);
+//#endif
+//        LOG << "pA[" << lambda << "] = " << model_data.pA[lambda].transpose()
+//          << std::endl;
+//      }
+//    }
   }
 
   model_data.a[0] = SpatialVectord (0., 0., 0., -model.gravity[0], -model.gravity[1], -model.gravity[2]);
@@ -666,8 +667,8 @@ void ForwardDynamicsApplyConstraintForces (
     model_data.a[i] = X_lambda.apply(model_data.a[lambda]) + model_data.c[i];
     LOG << "a'[" << i << "] = " << model_data.a[i].transpose() << std::endl;
 
-    if (model.mJoints[i].mDoFCount == 3
-        && model.mJoints[i].mJointType != JointTypeCustom) {
+    if (model.mJoints[i].mDoFCount == 3){
+//        && model.mJoints[i].mJointType != JointTypeCustom) {
       Vector3d qdd_temp = model.multdof3_Dinv[i] * 
         (model.multdof3_u[i] 
          - model.multdof3_U[i].transpose() * model_data.a[i]);
@@ -676,26 +677,27 @@ void ForwardDynamicsApplyConstraintForces (
       QDDot[q_index + 1] = qdd_temp[1];
       QDDot[q_index + 2] = qdd_temp[2];
       model_data.a[i] = model_data.a[i] + model_data.multdof3_S[i] * qdd_temp;
-    } else if (model.mJoints[i].mDoFCount == 1
-        && model.mJoints[i].mJointType != JointTypeCustom) {
+    } else if (model.mJoints[i].mDoFCount == 1){
+//        && model.mJoints[i].mJointType != JointTypeCustom) {
       QDDot[q_index] = (1./model.d[i]) * (model.u[i] - model.U[i].dot(model_data.a[i]));
       model_data.a[i] = model_data.a[i] + model_data.S[i] * QDDot[q_index];
-    } else if (model.mJoints[i].mJointType == JointTypeCustom){
-      unsigned int kI     = model.mJoints[i].custom_joint_index;
-      unsigned int dofI   = model.mCustomJoints[kI]->mDoFCount;
-      VectorNd qdd_temp = VectorNd::Zero(dofI);
-
-      qdd_temp = model.mCustomJoints[kI]->Dinv 
-        * (model.mCustomJoints[kI]->u
-            - model.mCustomJoints[kI]->U.transpose()
-            * model_data.a[i]);
-
-      for(int z=0; z<dofI;++z){
-        QDDot[q_index+z] = qdd_temp[z];
-      }
-
-      model_data.a[i] = model_data.a[i] + (model.mCustomJoints[kI]->S * qdd_temp);
     }
+//      else if (model.mJoints[i].mJointType == JointTypeCustom){
+//      unsigned int kI     = model.mJoints[i].custom_joint_index;
+//      unsigned int dofI   = model.mCustomJoints[kI]->mDoFCount;
+//      VectorNd qdd_temp = VectorNd::Zero(dofI);
+
+//      qdd_temp = model.mCustomJoints[kI]->Dinv
+//        * (model.mCustomJoints[kI]->u
+//            - model.mCustomJoints[kI]->U.transpose()
+//            * model_data.a[i]);
+
+//      for(int z=0; z<dofI;++z){
+//        QDDot[q_index+z] = qdd_temp[z];
+//      }
+
+//      model_data.a[i] = model_data.a[i] + (model.mCustomJoints[kI]->S * qdd_temp);
+//    }
   }
 
   LOG << "QDDot = " << QDDot.transpose() << std::endl;
@@ -729,17 +731,17 @@ void ForwardDynamicsAccelerationDeltas (
     CS.d_u[i] = 0.;
     CS.d_multdof3_u[i].setZero();
   }
-  for(unsigned int i=0; i<model.mCustomJoints.size();i++){
-    model.mCustomJoints[i]->d_u.setZero();
-  }
+//  for(unsigned int i=0; i<model.mCustomJoints.size();i++){
+//    model.mCustomJoints[i]->d_u.setZero();
+//  }
 
   for (unsigned int i = body_id; i > 0; i--) {
     if (i == body_id) {
       CS.d_pA[i] = -model_data.X_base[i].applyAdjoint(f_t[i]);
     }
 
-    if (model.mJoints[i].mDoFCount == 3
-        && model.mJoints[i].mJointType != JointTypeCustom) {
+    if (model.mJoints[i].mDoFCount == 3){
+//        && model.mJoints[i].mJointType != JointTypeCustom) {
       CS.d_multdof3_u[i] = - model_data.multdof3_S[i].transpose() * (CS.d_pA[i]);
 
       unsigned int lambda = model.lambda[i];
@@ -750,8 +752,8 @@ void ForwardDynamicsAccelerationDeltas (
                 * model.multdof3_Dinv[i] 
                 * CS.d_multdof3_u[i]));
       }
-    } else if(model.mJoints[i].mDoFCount == 1
-        && model.mJoints[i].mJointType != JointTypeCustom) {
+    } else if(model.mJoints[i].mDoFCount == 1){
+//        && model.mJoints[i].mJointType != JointTypeCustom) {
       CS.d_u[i] = - model_data.S[i].dot(CS.d_pA[i]);
       unsigned int lambda = model.lambda[i];
 
@@ -760,24 +762,25 @@ void ForwardDynamicsAccelerationDeltas (
           + model_data.X_lambda[i].applyTranspose (
               CS.d_pA[i] + model.U[i] * CS.d_u[i] / model.d[i]);
       }
-    } else if (model.mJoints[i].mJointType == JointTypeCustom){
-
-      unsigned int kI     = model.mJoints[i].custom_joint_index;
-      unsigned int dofI   = model.mCustomJoints[kI]->mDoFCount;
-      //CS.
-      model.mCustomJoints[kI]->d_u =
-        - model.mCustomJoints[kI]->S.transpose() * (CS.d_pA[i]);
-      unsigned int lambda = model.lambda[i];
-      if (lambda != 0) {
-        CS.d_pA[lambda] =
-          CS.d_pA[lambda]
-          + model_data.X_lambda[i].applyTranspose (
-              CS.d_pA[i] + (   model.mCustomJoints[kI]->U
-                * model.mCustomJoints[kI]->Dinv
-                * model.mCustomJoints[kI]->d_u)
-              );
-      }
     }
+//    else if (model.mJoints[i].mJointType == JointTypeCustom){
+
+//      unsigned int kI     = model.mJoints[i].custom_joint_index;
+//      unsigned int dofI   = model.mCustomJoints[kI]->mDoFCount;
+//      //CS.
+//      model.mCustomJoints[kI]->d_u =
+//        - model.mCustomJoints[kI]->S.transpose() * (CS.d_pA[i]);
+//      unsigned int lambda = model.lambda[i];
+//      if (lambda != 0) {
+//        CS.d_pA[lambda] =
+//          CS.d_pA[lambda]
+//          + model_data.X_lambda[i].applyTranspose (
+//              CS.d_pA[i] + (   model.mCustomJoints[kI]->U
+//                * model.mCustomJoints[kI]->Dinv
+//                * model.mCustomJoints[kI]->d_u)
+//              );
+//      }
+//    }
   }
 
   for (unsigned int i = 0; i < f_t.size(); i++) {
@@ -800,8 +803,8 @@ void ForwardDynamicsAccelerationDeltas (
 
     SpatialVectord Xa = model_data.X_lambda[i].apply(CS.d_a[lambda]);
 
-    if (model.mJoints[i].mDoFCount == 3
-        && model.mJoints[i].mJointType != JointTypeCustom) {
+    if (model.mJoints[i].mDoFCount == 3){
+//        && model.mJoints[i].mJointType != JointTypeCustom) {
       Vector3d qdd_temp = model.multdof3_Dinv[i] 
         * (CS.d_multdof3_u[i] - model.multdof3_U[i].transpose() * Xa);
 
@@ -810,27 +813,28 @@ void ForwardDynamicsAccelerationDeltas (
       QDDot_t[q_index + 2] = qdd_temp[2];
       model_data.a[i] = model_data.a[i] + model_data.multdof3_S[i] * qdd_temp;
       CS.d_a[i] = Xa + model_data.multdof3_S[i] * qdd_temp;
-    } else if (model.mJoints[i].mDoFCount == 1
-        && model.mJoints[i].mJointType != JointTypeCustom){
+    } else if (model.mJoints[i].mDoFCount == 1){
+//        && model.mJoints[i].mJointType != JointTypeCustom){
 
-      QDDot_t[q_index] = (CS.d_u[i] - model.U[i].dot(Xa) ) / model.d[i];
+      QDDot_t[q_index] = (CS.d_u[i] - model.U[i].dot(Xa) ) / model_data.d[i];
       CS.d_a[i] = Xa + model_data.S[i] * QDDot_t[q_index];
-    } else if (model.mJoints[i].mJointType == JointTypeCustom){
-      unsigned int kI     = model.mJoints[i].custom_joint_index;
-      unsigned int dofI   = model.mCustomJoints[kI]->mDoFCount;
-      VectorNd qdd_temp = VectorNd::Zero(dofI);
-
-      qdd_temp = model.mCustomJoints[kI]->Dinv
-        * (model.mCustomJoints[kI]->d_u
-            - model.mCustomJoints[kI]->U.transpose() * Xa);
-
-      for(int z=0; z<dofI;++z){
-        QDDot_t[q_index+z] = qdd_temp[z];
-      }
-
-      model_data.a[i] = model_data.a[i] + model.mCustomJoints[kI]->S * qdd_temp;
-      CS.d_a[i] = Xa + model.mCustomJoints[kI]->S * qdd_temp;
     }
+//    else if (model.mJoints[i].mJointType == JointTypeCustom){
+//      unsigned int kI     = model.mJoints[i].custom_joint_index;
+//      unsigned int dofI   = model.mCustomJoints[kI]->mDoFCount;
+//      VectorNd qdd_temp = VectorNd::Zero(dofI);
+
+//      qdd_temp = model.mCustomJoints[kI]->Dinv
+//        * (model.mCustomJoints[kI]->d_u
+//            - model.mCustomJoints[kI]->U.transpose() * Xa);
+
+//      for(int z=0; z<dofI;++z){
+//        QDDot_t[q_index+z] = qdd_temp[z];
+//      }
+
+//      model_data.a[i] = model_data.a[i] + model.mCustomJoints[kI]->S * qdd_temp;
+//      CS.d_a[i] = Xa + model.mCustomJoints[kI]->S * qdd_temp;
+//    }
 
     LOG << "QDDot_t[" << i - 1 << "] = " << QDDot_t[i - 1] << std::endl;
     LOG << "d_a[i] = " << CS.d_a[i].transpose() << std::endl;
@@ -906,7 +910,7 @@ void ForwardDynamicsContactsKokkevis (
     Vector3d normal = CS.normal[ci];
 
     unsigned int movable_body_id = body_id;
-    if (model.IsFixedBodyId(body_id)) {
+    if (model_data.IsFixedBodyId(body_id)) {
       unsigned int fbody_id = body_id - model.fixed_body_discriminator;
       movable_body_id = model.mFixedBodies[fbody_id].mMovableParent;
     }
@@ -982,7 +986,7 @@ void ForwardDynamicsContactsKokkevis (
     unsigned int body_id = CS.body[ci];
     unsigned int movable_body_id = body_id;
 
-    if (model.IsFixedBodyId(body_id)) {
+    if (model_data.IsFixedBodyId(body_id)) {
       unsigned int fbody_id = body_id - model.fixed_body_discriminator;
       movable_body_id = model.mFixedBodies[fbody_id].mMovableParent;
     }

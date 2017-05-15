@@ -165,7 +165,7 @@ namespace RigidBodyDynamics {
     for (unsigned int j = 1; j < model.mBodies.size(); j++) {
       unsigned int q_index = model.mJoints[j].q_index;
 
-      if(model.mJoints[j].mJointType != JointTypeCustom){
+      //if(model.mJoints[j].mJointType != JointTypeCustom){
         if (model.mJoints[j].mDoFCount == 1) {
           COMJ.block(0,q_index, 3, 1) =
               (model_data.acumulated_mass[j]
@@ -177,16 +177,16 @@ namespace RigidBodyDynamics {
                  * (model_data.X_base[j].inverse()).toMatrix()
                * model_data.multdof3_S[j]).block(3,0,3,3);
         }
-      }
-      else{
-        unsigned int k = model.mJoints[j].custom_joint_index;
+//      }
+//      else{
+//        unsigned int k = model.mJoints[j].custom_joint_index;
 
-        COMJ.block(0, q_index, 3, model.mCustomJoints[k]->mDoFCount) =
-            (model_data.acumulated_mass[j]
-               * (model_data.X_base[j].inverse()).toMatrix()
-             * model.mCustomJoints[k]->S).block(
-              3,0,3,model.mCustomJoints[k]->mDoFCount);
-      }
+//        COMJ.block(0, q_index, 3, model.mCustomJoints[k]->mDoFCount) =
+//            (model_data.acumulated_mass[j]
+//               * (model_data.X_base[j].inverse()).toMatrix()
+//             * model.mCustomJoints[k]->S).block(
+//              3,0,3,model.mCustomJoints[k]->mDoFCount);
+//      }
 
     }
 

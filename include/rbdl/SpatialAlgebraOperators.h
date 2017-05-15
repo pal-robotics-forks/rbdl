@@ -66,6 +66,23 @@ struct RBDL_DLLAPI SpatialRigidBodyInertia{
         );
   }
 
+  template <class C>
+  SpatialVector<C> operator* (const SpatialVector<C> &mv) {
+    Vector3<C>  mv_lower (mv[3], mv[4], mv[5]);
+
+    Vector3<C>  res_upper = Vector3<C>  (
+        Ixx * mv[0] + Iyx * mv[1] + Izx * mv[2],
+        Iyx * mv[0] + Iyy * mv[1] + Izy * mv[2],
+        Izx * mv[0] + Izy * mv[1] + Izz * mv[2]
+        ) + h. template cast<C>().cross(mv_lower);
+    Vector3<C>  res_lower = m * mv_lower - h. template cast<C>().cross (Vector3<C>  (mv[0], mv[1], mv[2]));
+
+    return SpatialVector<C> (
+        res_upper[0], res_upper[1], res_upper[2],
+        res_lower[0], res_lower[1], res_lower[2]
+        );
+  }
+
   SpatialRigidBodyInertia<T> operator+ (const SpatialRigidBodyInertia<T> &rbi) {
     return SpatialRigidBodyInertia<T> (
         m + rbi.m,

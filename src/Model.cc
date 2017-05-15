@@ -70,7 +70,7 @@ Model::Model(ModelDatad &model_data) {
   u = VectorNd::Zero(1);
   d = VectorNd::Zero(1);
 
-  f.push_back (zero_spatial);
+  model_data.f.push_back (zero_spatial);
   SpatialRigidBodyInertiad rbi(0.,
       Vector3d (0., 0., 0.),
       Matrix3d::Zero(3,3));
@@ -283,7 +283,7 @@ unsigned int Model::AddBody(
       || (joint.mJointType == JointTypeEulerXYZ)
       || (joint.mJointType == JointTypeEulerYXZ)
       || (joint.mJointType == JointTypeTranslationXYZ)
-      || (joint.mJointType == JointTypeCustom)
+      //|| (joint.mJointType == JointTypeCustom)
       ) {
     // no action required
   } else if (joint.mJointType != JointTypePrismatic
@@ -316,14 +316,14 @@ unsigned int Model::AddBody(
   lambda.push_back(movable_parent_id);
   unsigned int lambda_q_last = mJoints[mJoints.size() - 1].q_index;
 
-  if (mJoints[mJoints.size() - 1].mDoFCount > 0
-      && mJoints[mJoints.size() - 1].mJointType != JointTypeCustom) {
+  if (mJoints[mJoints.size() - 1].mDoFCount > 0){
+      //&& mJoints[mJoints.size() - 1].mJointType != JointTypeCustom) {
     lambda_q_last = lambda_q_last + mJoints[mJoints.size() - 1].mDoFCount;
-  } else if (mJoints[mJoints.size() - 1].mJointType == JointTypeCustom) {
+  }/* else if (mJoints[mJoints.size() - 1].mJointType == JointTypeCustom) {
     unsigned int custom_index = mJoints[mJoints.size() - 1].custom_joint_index;
     lambda_q_last = lambda_q_last
       + mCustomJoints[mCustomJoints.size() - 1]->mDoFCount;
-  }
+  }*/
 
   for (unsigned int i = 0; i < joint.mDoFCount; i++) {
     lambda_q.push_back(lambda_q_last + i);
@@ -359,13 +359,13 @@ unsigned int Model::AddBody(
   unsigned int prev_joint_index = mJoints.size() - 1;
   mJoints.push_back(joint);
 
-  if (mJoints[prev_joint_index].mJointType != JointTypeCustom) {
+  //if (mJoints[prev_joint_index].mJointType != JointTypeCustom) {
     mJoints[mJoints.size() - 1].q_index =
       mJoints[prev_joint_index].q_index + mJoints[prev_joint_index].mDoFCount;
-  } else {
-    mJoints[mJoints.size() - 1].q_index =
-      mJoints[prev_joint_index].q_index + mJoints[prev_joint_index].mDoFCount;
-  }
+  //} else {
+  //  mJoints[mJoints.size() - 1].q_index =
+//      mJoints[prev_joint_index].q_index + mJoints[prev_joint_index].mDoFCount;
+  //}
 
   model_data.S.push_back (joint.mJointAxes[0]);
 
@@ -412,7 +412,7 @@ unsigned int Model::AddBody(
   d = VectorNd::Zero (mBodies.size());
   u = VectorNd::Zero (mBodies.size());
 
-  f.push_back (SpatialVectord (0., 0., 0., 0., 0., 0.));
+  model_data.f.push_back (SpatialVectord (0., 0., 0., 0., 0., 0.));
 
   SpatialRigidBodyInertiad rbi =
     SpatialRigidBodyInertiad::createFromMassComInertiaC (body.mMass,
@@ -483,7 +483,7 @@ unsigned int Model::AppendBody (
       body,
       body_name);
 }
-
+/*
 unsigned int Model::AddBodyCustomJoint (
     ModelDatad &model_data,
     const unsigned int parent_id,
@@ -506,17 +506,17 @@ unsigned int Model::AddBodyCustomJoint (
 
   return body_id;
 }
+*/
 
-
-Math::Quaterniond Model::GetQuaternion (unsigned int i,
-    const Math::VectorNd &Q) const {
-  assert (mJoints[i].mJointType == JointTypeSpherical);
-  unsigned int q_index = mJoints[i].q_index;
-  return Math::Quaterniond ( Q[q_index],
-      Q[q_index + 1],
-      Q[q_index + 2],
-      Q[multdof3_w_index[i]]);
-}
+//Math::Quaterniond Model::GetQuaternion (unsigned int i,
+//    const Math::VectorNd &Q) const {
+////  assert (mJoints[i].mJointType == JointTypeSpherical);
+////  unsigned int q_index = mJoints[i].q_index;
+////  return Math::Quaterniond ( Q[q_index],
+////      Q[q_index + 1],
+////      Q[q_index + 2],
+////      Q[multdof3_w_index[i]]);
+//}
 
 
 void Model::SetQuaternion (unsigned int i,

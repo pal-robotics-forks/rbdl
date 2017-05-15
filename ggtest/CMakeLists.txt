@@ -10,14 +10,14 @@ if(CATKIN_ENABLE_TESTING)
  catkin_add_gtest(GTestCalcVelocitiesTests CalcVelocitiesTests.cpp)
  target_link_libraries(GTestCalcVelocitiesTests ${catkin_LIBRARIES} rbdl)
 
- catkin_add_gtest(GTestCompositeRigidBodyTests CompositeRigidBodyTests.cpp)
- target_link_libraries(GTestCompositeRigidBodyTests ${catkin_LIBRARIES} rbdl)
+ #catkin_add_gtest(GTestCompositeRigidBodyTests CompositeRigidBodyTests.cpp)
+ #target_link_libraries(GTestCompositeRigidBodyTests ${catkin_LIBRARIES} rbdl)
 
  catkin_add_gtest(GTestContactsTests ContactsTests.cpp)
  target_link_libraries(GTestContactsTests ${catkin_LIBRARIES} rbdl)
 
- #catkin_add_gtest(GTestCustomJointMultiBodyTests CustomJointMultiBodyTests.cpp)
- #target_link_libraries(GTestCustomJointMultiBodyTests ${catkin_LIBRARIES} rbdl)
+ catkin_add_gtest(GTestCustomJointMultiBodyTests CustomJointMultiBodyTests.cpp)
+ target_link_libraries(GTestCustomJointMultiBodyTests ${catkin_LIBRARIES} rbdl)
 
  #catkin_add_gtest(GTestCustomJointSingleBodyTests CustomJointSingleBodyTests.cpp)
  #target_link_libraries(GTestCustomJointSingleBodyTests ${catkin_LIBRARIES} rbdl)

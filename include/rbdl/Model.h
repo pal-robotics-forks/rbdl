@@ -38,7 +38,7 @@
 namespace RigidBodyDynamics {
 
   class Joint;
-  class CustomJoint;
+//  class CustomJoint;
 
   enum class FloatingBaseType{
     FixedBase,
@@ -188,31 +188,26 @@ public:
   ////////////////////////////////////
   // Special variables for joints with 3 degrees of freedom
   /// \brief Motion subspace for joints with 3 degrees of freedom
-  std::vector<Math::Matrix63d> multdof3_U;
-  std::vector<Math::Matrix3d> multdof3_Dinv;
-  std::vector<Math::Vector3d> multdof3_u;
   std::vector<unsigned int> multdof3_w_index;
 
-  std::vector<CustomJoint*> mCustomJoints;
+//  std::vector<CustomJoint*> mCustomJoints;
 
   ////////////////////////////////////
   // Dynamics variables
 
-  /// \brief The spatial inertia of the bodies 
-  std::vector<Math::SpatialMatrixd> IA;
-  /// \brief The spatial bias force
-  std::vector<Math::SpatialVectord> pA;
-  /// \brief Temporary variable U_i (RBDA p. 130)
-  std::vector<Math::SpatialVectord> U;
-  /// \brief Temporary variable D_i (RBDA p. 130)
-  Math::VectorNd d;
-  /// \brief Temporary variable u (RBDA p. 130)
-  Math::VectorNd u;
-  /// \brief Internal forces on the body (used only InverseDynamics())
-  std::vector<Math::SpatialVectord> f;
+//  /// \brief The spatial inertia of the bodies
+//  std::vector<Math::SpatialMatrixd> IA;
+//  /// \brief The spatial bias force
+//  std::vector<Math::SpatialVectord> pA;
+//  /// \brief Temporary variable U_i (RBDA p. 130)
+//  std::vector<Math::SpatialVectord> U;
+//  /// \brief Temporary variable D_i (RBDA p. 130)
+//  Math::VectorNd d;
+//  /// \brief Temporary variable u (RBDA p. 130)
+//  Math::VectorNd u;
+
   /// \brief The spatial inertia of body i (used only in 
   ///  CompositeRigidBodyAlgorithm())
-  std::vector<Math::SpatialRigidBodyInertiad> I;
   std::vector<Math::SpatialRigidBodyInertiad> Ic;
   std::vector<Math::SpatialVectord> hc;
 
@@ -306,13 +301,13 @@ public:
       std::string body_name = ""
       );
 
-  unsigned int AddBodyCustomJoint (ModelDatad &model_data,
-      const unsigned int parent_id,
-      const Math::SpatialTransformd &joint_frame,
-      CustomJoint *custom_joint,
-      const Body &body,
-      std::string body_name = ""
-      );
+//  unsigned int AddBodyCustomJoint (ModelDatad &model_data,
+//      const unsigned int parent_id,
+//      const Math::SpatialTransformd &joint_frame,
+//      CustomJoint *custom_joint,
+//      const Body &body,
+//      std::string body_name = ""
+//      );
 
   /** \brief Specifies the dynamical parameters of the first body and
    *  \brief assigns it a 6 DoF joint.
@@ -469,8 +464,19 @@ public:
    *
    * See \ref joint_singularities for details.
    */
-  Math::Quaterniond GetQuaternion (unsigned int i,
-      const Math::VectorNd &Q) const ;
+  template <typename T>
+  Math::Quaternion<T> GetQuaternion (unsigned int i,
+      const Math::VectorN<T> &Q) const {
+    /*
+    assert (mJoints[i].mJointType == JointTypeSpherical);
+    unsigned int q_index = mJoints[i].q_index;
+    return Math::Quaternion<T> ( Q[q_index],
+        Q[q_index + 1],
+        Q[q_index + 2],
+        Q[multdof3_w_index[i]]);
+        */
+    return Math::Quaternion<T>();
+  }
 
   /** Sets the Quaterniond for body i (only valid if body i is connected by
    * a JointTypeSpherical joint)

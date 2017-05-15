@@ -68,7 +68,7 @@ RBDL_DLLAPI void UpdateKinematics(
     model_data.c[i] = model_data.c_J[i] + crossm(model_data.v[i],model_data.v_J[i]);
     model_data.a[i] = model_data.X_lambda[i].apply(model_data.a[lambda]) + model_data.c[i];
 
-    if(model.mJoints[i].mJointType != JointTypeCustom){
+    //if(model.mJoints[i].mJointType != JointTypeCustom){
       if (model.mJoints[i].mDoFCount == 1) {
         model_data.a[i] = model_data.a[i] + model_data.S[i] * QDDot[q_index];
       } else if (model.mJoints[i].mDoFCount == 3) {
@@ -77,15 +77,15 @@ RBDL_DLLAPI void UpdateKinematics(
             QDDot[q_index + 2]);
         model_data.a[i] = model_data.a[i] + model_data.multdof3_S[i] * omegadot_temp;
       }
-    } else {
-      unsigned int custom_index = model.mJoints[i].custom_joint_index;
-      const CustomJoint* custom_joint = model.mCustomJoints[custom_index];
-      unsigned int joint_dof_count = custom_joint->mDoFCount;
+//    } else {
+//      unsigned int custom_index = model.mJoints[i].custom_joint_index;
+//      const CustomJoint* custom_joint = model.mCustomJoints[custom_index];
+//      unsigned int joint_dof_count = custom_joint->mDoFCount;
 
-      model_data.a[i] = model_data.a[i]
-        + ( model.mCustomJoints[custom_index]->S 
-            * QDDot.block(q_index, 0, joint_dof_count, 1));
-    }
+//      model_data.a[i] = model_data.a[i]
+//        + ( model.mCustomJoints[custom_index]->S
+//            * QDDot.block(q_index, 0, joint_dof_count, 1));
+//    }
   }
 
   for (i = 1; i < model.mBodies.size(); i++) {
@@ -316,7 +316,7 @@ RBDL_DLLAPI void CalcPointJacobian (
   while (j != 0) {
     unsigned int q_index = model.mJoints[j].q_index;
 
-    if(model.mJoints[j].mJointType != JointTypeCustom){
+    //if(model.mJoints[j].mJointType != JointTypeCustom){
       if (model.mJoints[j].mDoFCount == 1) {
         G.block(0,q_index, 3, 1) =
           point_trans.apply(
@@ -328,15 +328,15 @@ RBDL_DLLAPI void CalcPointJacobian (
             * model_data.X_base[j].inverse()).toMatrix()
            * model_data.multdof3_S[j]).block(3,0,3,3);
       }
-    } else {
-      unsigned int k = model.mJoints[j].custom_joint_index;
+//    } else {
+//      unsigned int k = model.mJoints[j].custom_joint_index;
 
-      G.block(0, q_index, 3, model.mCustomJoints[k]->mDoFCount) =
-        ((point_trans
-          * model_data.X_base[j].inverse()).toMatrix()
-         * model.mCustomJoints[k]->S).block( 
-           3,0,3,model.mCustomJoints[k]->mDoFCount);
-    }
+//      G.block(0, q_index, 3, model.mCustomJoints[k]->mDoFCount) =
+//        ((point_trans
+//          * model_data.X_base[j].inverse()).toMatrix()
+//         * model.mCustomJoints[k]->S).block(
+//           3,0,3,model.mCustomJoints[k]->mDoFCount);
+//    }
 
     j = model.lambda[j];
   }
@@ -383,7 +383,7 @@ RBDL_DLLAPI void CalcOrientationJacobian (
   while (j != 0) {
     unsigned int q_index = model.mJoints[j].q_index;
 
-    if(model.mJoints[j].mJointType != JointTypeCustom){
+//    if(model.mJoints[j].mJointType != JointTypeCustom){
       if (model.mJoints[j].mDoFCount == 1) {
         G.block(0,q_index, 3, 1) =
           point_trans.apply(
@@ -395,15 +395,15 @@ RBDL_DLLAPI void CalcOrientationJacobian (
             * model_data.X_base[j].inverse()).toMatrix()
            * model_data.multdof3_S[j]).block(0,0,3,3);
       }
-    } else {
-      unsigned int k = model.mJoints[j].custom_joint_index;
+//    } else {
+//      unsigned int k = model.mJoints[j].custom_joint_index;
 
-      G.block(0, q_index, 3, model.mCustomJoints[k]->mDoFCount) =
-        ((point_trans
-          * model_data.X_base[j].inverse()).toMatrix()
-         * model.mCustomJoints[k]->S).block(
-           0,0,3,model.mCustomJoints[k]->mDoFCount);
-    }
+//      G.block(0, q_index, 3, model.mCustomJoints[k]->mDoFCount) =
+//        ((point_trans
+//          * model_data.X_base[j].inverse()).toMatrix()
+//         * model.mCustomJoints[k]->S).block(
+//           0,0,3,model.mCustomJoints[k]->mDoFCount);
+//    }
 
     j = model.lambda[j];
   }
@@ -449,7 +449,7 @@ RBDL_DLLAPI void CalcPointJacobian6D (
   while (j != 0) {
     unsigned int q_index = model.mJoints[j].q_index;
 
-    if(model.mJoints[j].mJointType != JointTypeCustom){
+//    if(model.mJoints[j].mJointType != JointTypeCustom){
       if (model.mJoints[j].mDoFCount == 1) {
         G.block(0,q_index, 6, 1)
           = point_trans.apply(
@@ -461,15 +461,15 @@ RBDL_DLLAPI void CalcPointJacobian6D (
                 * model_data.X_base[j].inverse()).toMatrix()
               * model_data.multdof3_S[j]).block(0,0,6,3);
       }
-    } else {
-      unsigned int k = model.mJoints[j].custom_joint_index;
+//    } else {
+//      unsigned int k = model.mJoints[j].custom_joint_index;
 
-      G.block(0, q_index, 6, model.mCustomJoints[k]->mDoFCount)
-        = ((point_trans
-              * model_data.X_base[j].inverse()).toMatrix()
-            * model.mCustomJoints[k]->S).block(
-              0,0,6,model.mCustomJoints[k]->mDoFCount);
-    }
+//      G.block(0, q_index, 6, model.mCustomJoints[k]->mDoFCount)
+//        = ((point_trans
+//              * model_data.X_base[j].inverse()).toMatrix()
+//            * model.mCustomJoints[k]->S).block(
+//              0,0,6,model.mCustomJoints[k]->mDoFCount);
+//    }
 
     j = model.lambda[j];
   }
@@ -512,7 +512,7 @@ RBDL_DLLAPI void CalcPointJacobian6DBodyFrame (
   while (j != 0) {
     unsigned int q_index = model.mJoints[j].q_index;
 
-    if(model.mJoints[j].mJointType != JointTypeCustom){
+    //if(model.mJoints[j].mJointType != JointTypeCustom){
       if (model.mJoints[j].mDoFCount == 1) {
         G.block(0,q_index, 6, 1)
           = point_trans.apply(
@@ -524,15 +524,15 @@ RBDL_DLLAPI void CalcPointJacobian6DBodyFrame (
                 * model_data.X_base[j].inverse()).toMatrix()
               * model_data.multdof3_S[j]).block(0,0,6,3);
       }
-    } else {
-      unsigned int k = model.mJoints[j].custom_joint_index;
+//    } else {
+//      unsigned int k = model.mJoints[j].custom_joint_index;
 
-      G.block(0, q_index, 6, model.mCustomJoints[k]->mDoFCount)
-        = ((point_trans
-              * model_data.X_base[j].inverse()).toMatrix()
-            * model.mCustomJoints[k]->S).block(
-              0,0,6,model.mCustomJoints[k]->mDoFCount);
-    }
+//      G.block(0, q_index, 6, model.mCustomJoints[k]->mDoFCount)
+//        = ((point_trans
+//              * model_data.X_base[j].inverse()).toMatrix()
+//            * model.mCustomJoints[k]->S).block(
+//              0,0,6,model.mCustomJoints[k]->mDoFCount);
+//    }
 
     j = model.lambda[j];
   }
@@ -585,7 +585,7 @@ RBDL_DLLAPI void CalcBodySpatialJacobian (
   while (j != 0) {
     unsigned int q_index = model.mJoints[j].q_index;
 
-    if(model.mJoints[j].mJointType != JointTypeCustom){
+   // if(model.mJoints[j].mJointType != JointTypeCustom){
       if (model.mJoints[j].mDoFCount == 1) {
         G.block(0,q_index,6,1) =
           base_to_body.apply(
@@ -598,13 +598,13 @@ RBDL_DLLAPI void CalcBodySpatialJacobian (
           (base_to_body * model_data.X_base[j].inverse()
           ).toMatrix() * model_data.multdof3_S[j];
       }
-    }else if(model.mJoints[j].mJointType == JointTypeCustom) {
-      unsigned int k = model.mJoints[j].custom_joint_index;
+//    }else if(model.mJoints[j].mJointType == JointTypeCustom) {
+//      unsigned int k = model.mJoints[j].custom_joint_index;
 
-      G.block(0,q_index,6,model.mCustomJoints[k]->mDoFCount ) =
-        (base_to_body * model_data.X_base[j].inverse()
-        ).toMatrix() * model.mCustomJoints[k]->S;
-    }
+//      G.block(0,q_index,6,model.mCustomJoints[k]->mDoFCount ) =
+//        (base_to_body * model_data.X_base[j].inverse()
+//        ).toMatrix() * model.mCustomJoints[k]->S;
+//    }
 
     j = model.lambda[j];
   }

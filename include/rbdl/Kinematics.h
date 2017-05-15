@@ -129,7 +129,7 @@ void UpdateKinematicsCustom (const Model &model,
         model_data.a[i] = model_data.c[i];
       }
 
-      if( model.mJoints[i].mJointType != JointTypeCustom){
+//      if( model.mJoints[i].mJointType != JointTypeCustom){
         if (model.mJoints[i].mDoFCount == 1) {
           model_data.a[i] = model_data.a[i] + model_data.S[i] * (*QDDot)[q_index];
         } else if (model.mJoints[i].mDoFCount == 3) {
@@ -139,16 +139,16 @@ void UpdateKinematicsCustom (const Model &model,
           model_data.a[i] = model_data.a[i]
                             + model_data.multdof3_S[i] * omegadot_temp;
         }
-      } else {
-        unsigned int k = model.mJoints[i].custom_joint_index;
+//      } else {
+//        unsigned int k = model.mJoints[i].custom_joint_index;
 
-        const CustomJoint* custom_joint = model.mCustomJoints[k];
-        unsigned int joint_dof_count = custom_joint->mDoFCount;
+//        const CustomJoint* custom_joint = model.mCustomJoints[k];
+//        unsigned int joint_dof_count = custom_joint->mDoFCount;
 
-        model_data.a[i] = model_data.a[i]
-                          + (  (model.mCustomJoints[k]->S). template cast<T>()
-                               *(QDDot->block(q_index, 0, joint_dof_count, 1)));
-      }
+//        model_data.a[i] = model_data.a[i]
+//                          + (  (model.mCustomJoints[k]->S). template cast<T>()
+//                               *(QDDot->block(q_index, 0, joint_dof_count, 1)));
+//      }
     }
   }
 }
