@@ -311,6 +311,16 @@ RBDL_DLLAPI
       bool update_kinematics = true
       );
 
+RBDL_DLLAPI
+   Math::Vector3d CalcPointAngularAcceleration(
+    Model &model,
+    const Math::VectorNd &Q,
+    const Math::VectorNd &QDot,
+    const Math::VectorNd &QDDot,
+    unsigned int body_id,
+    const Math::Vector3d &point_position,
+    bool update_kinematics = true);
+
 /** \brief Computes linear and angular acceleration of a point on a body 
  *
  * \param model   rigid body model
