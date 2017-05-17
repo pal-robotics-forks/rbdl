@@ -819,6 +819,44 @@ RBDL_DLLAPI Vector3d CalcPointAccelerationBias (
 }
 
 
+RBDL_DLLAPI Vector3d CalcPointAngularAcceleration(
+    Model &model,
+    const VectorNd &Q,
+    const VectorNd &QDot,
+    const VectorNd &QDDot,
+    unsigned int body_id,
+    const Vector3d &point_position,
+    bool update_kinematics) {
+  LOG << "-------- " << __func__ << " --------" << std::endl;
+
+  // Reset the velocity of the root body
+  model.v[0].setZero();
+  model.a[0].setZero();
+
+  if (update_kinematics)
+    UpdateKinematics (model, Q, QDot, QDDot);
+
+  LOG << std::endl;
+
+  unsigned int reference_body_id = body_id;
+  Vector3d reference_point = point_position;
+
+  if (model.IsFixedBodyId(body_id)) {
+    unsigned int fbody_id = body_id - model.fixed_body_discriminator;
+    reference_body_id = model.mFixedBodies[fbody_id].mMovableParent;
+    Vector3d base_coords =
+      CalcBodyToBaseCoordinates (model, Q, body_id, point_position, false);
+    reference_point =
+      CalcBaseToBodyCoordinates (model, Q, reference_body_id,base_coords,false);
+  }
+
+  SpatialTransform p_X_i (
+      CalcBodyWorldOrientation (model, Q, reference_body_id, false).transpose(),
+      reference_point);
+
+  return p_X_i.apply(model.a[reference_body_id]).segment(0, 3);
+}
+
 RBDL_DLLAPI SpatialVector CalcPointAcceleration6D(
     Model &model,
     const VectorNd &Q,

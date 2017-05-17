@@ -55,6 +55,56 @@ inline Eigen::Isometry3d getBodyToBaseTransform(RigidBodyDynamics::Model &model,
   return getBodyToBaseTransform(model, Q, name, Eigen::Vector3d::Zero(), update);
 }
 
+inline Eigen::Isometry3d getBodyToBaseTransform(RigidBodyDynamics::Model &model, const std::string &name){
+
+  return getBodyToBaseTransform(model, Eigen::Vector3d::Zero(model.dof_count), name, Eigen::Vector3d::Zero(), false);
+}
+
+inline Eigen::Isometry3d getBodyToBaseTransform(RigidBodyDynamics::Model &model, const std::string &name,  const Eigen::Vector3d &tip_position){
+
+  return getBodyToBaseTransform(model, Eigen::Vector3d::Zero(model.dof_count), name, tip_position, false);
+}
+
+inline Eigen::Vector3d getBodyLinearVelocity(RigidBodyDynamics::Model &model, const std::string &name, const Eigen::Vector3d &tip_position){
+  unsigned int id = model.GetBodyId(name.c_str());
+  return RigidBodyDynamics::CalcPointVelocity(model, Eigen::VectorXd::Zero(model.q_size),
+                                              Eigen::VectorXd::Zero(model.qdot_size),
+                                              id, tip_position, false);
+}
+
+inline Eigen::Vector3d getBodyAngularVelocity(RigidBodyDynamics::Model &model, const std::string &name){
+  unsigned int id = model.GetBodyId(name.c_str());
+  return RigidBodyDynamics::CalcPointAngularVelocity(model, Eigen::VectorXd::Zero(model.q_size),
+                                                     Eigen::VectorXd::Zero(model.qdot_size),
+                                                     id, Eigen::Vector3d::Zero(), false);
+}
+
+inline std::pair<Eigen::Vector3d, Eigen::Vector3d> getBodyVelocity(RigidBodyDynamics::Model &model, const std::string &name, const Eigen::Vector3d &tip_position){
+  return std::make_pair(getBodyLinearVelocity(model, name, tip_position),
+                        getBodyAngularVelocity(model, name));
+}
+
+inline Eigen::Vector3d getBodyLinearAcceleration(RigidBodyDynamics::Model &model, const std::string &name, Eigen::Vector3d &tip_position){
+  unsigned int id = model.GetBodyId(name.c_str());
+  return RigidBodyDynamics::CalcPointAcceleration(model, Eigen::VectorXd::Zero(model.q_size),
+                                                  Eigen::VectorXd::Zero(model.qdot_size),
+                                                  Eigen::VectorXd::Zero(model.q_size),
+                                                  id, tip_position, false);
+}
+
+inline Eigen::Vector3d getBodyAngularAcceleration(RigidBodyDynamics::Model &model, const std::string &name, Eigen::Vector3d &tip_position){
+  unsigned int id = model.GetBodyId(name.c_str());
+  return RigidBodyDynamics::CalcPointAngularAcceleration(model, Eigen::VectorXd::Zero(model.q_size),
+                                                         Eigen::VectorXd::Zero(model.qdot_size),
+                                                         Eigen::VectorXd::Zero(model.q_size),
+                                                         id, tip_position, false);
+}
+
+inline std::pair<Eigen::Vector3d, Eigen::Vector3d> getBodyAcceleration(RigidBodyDynamics::Model &model, const std::string &name, Eigen::Vector3d &tip_position){
+  return std::make_pair(getBodyLinearAcceleration(model, name, tip_position),
+                        getBodyAngularAcceleration(model, name, tip_position));
+}
+
 // This method does not update the internal state of the model, it querys directly the internal data structure
 inline Eigen::Isometry3d getBodyTransform(RigidBodyDynamics::Model &model, const std::string &name){
   unsigned int id = model.GetBodyId(name.c_str());
