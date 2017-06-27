@@ -21,6 +21,7 @@
 #include "rbdl/Logging.h"
 #include "rbdl/Joint.h"
 #include "rbdl/Body.h"
+#include "enum.h"
 
 // std::vectors containing any objects that have Eigen matrices or vectors
 // as members need to have a special allocater. This can be achieved with
@@ -36,13 +37,22 @@ EIGEN_DEFINE_STL_VECTOR_SPECIALIZATION(RigidBodyDynamics::FixedBody);
 */
 namespace RigidBodyDynamics {
 
-  enum class FloatingBaseType{
-    FixedBase,
-    XYZ_RollPitchYaw,
-    XYZ_Quaternion,
-    XY_Yaw,
-    NO_TYPE
-  };
+//  enum class FloatingBaseType{
+//    FixedBase,
+//    XYZ_RollPitchYaw,
+//    XYZ_Quaternion,
+//    XY_Yaw,
+//    NO_TYPE
+//  };
+
+
+BETTER_ENUM(FloatingBaseType, int,
+  FixedBase,
+  XYZ_RollPitchYaw,
+  XYZ_Quaternion,
+  XY_Yaw,
+  NO_TYPE);
+
 
 /** \page modeling_page Model 
  *

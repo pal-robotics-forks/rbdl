@@ -57,12 +57,12 @@ inline Eigen::Isometry3d getBodyToBaseTransform(RigidBodyDynamics::Model &model,
 
 inline Eigen::Isometry3d getBodyToBaseTransform(RigidBodyDynamics::Model &model, const std::string &name){
 
-  return getBodyToBaseTransform(model, Eigen::Vector3d::Zero(model.dof_count), name, Eigen::Vector3d::Zero(), false);
+  return getBodyToBaseTransform(model, Eigen::VectorXd::Zero(model.q_size), name, Eigen::Vector3d::Zero(), false);
 }
 
 inline Eigen::Isometry3d getBodyToBaseTransform(RigidBodyDynamics::Model &model, const std::string &name,  const Eigen::Vector3d &tip_position){
 
-  return getBodyToBaseTransform(model, Eigen::Vector3d::Zero(model.dof_count), name, tip_position, false);
+  return getBodyToBaseTransform(model, Eigen::VectorXd::Zero(model.q_size), name, tip_position, false);
 }
 
 inline Eigen::Vector3d getBodyLinearVelocity(RigidBodyDynamics::Model &model, const std::string &name, const Eigen::Vector3d &tip_position){

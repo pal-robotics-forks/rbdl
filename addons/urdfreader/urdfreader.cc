@@ -129,7 +129,7 @@ namespace RigidBodyDynamics {
         //if the floating base has no inertial details, then it makes no sense to make it floating
         //base (Like kdl). (The root is the only link allowed to be floating base
 
-        if(floatingBaseType != FloatingBaseType::FixedBase){
+        if(floatingBaseType != +FloatingBaseType::FixedBase){
           double link_inertial_mass = 0;
           Vector3d link_inertial_position;
           Vector3d link_inertial_rpy;
@@ -166,7 +166,7 @@ namespace RigidBodyDynamics {
 
           Body base = Body (link_inertial_mass, link_inertial_position, link_inertial_inertia);
           //make floating base
-          if(floatingBaseType == FloatingBaseType::XY_Yaw){
+          if(floatingBaseType == +FloatingBaseType::XY_Yaw){
 
             ROS_DEBUG_STREAM("CREATING PLANAR FLOATING BASE");
             Joint floating_base_joint (
@@ -177,7 +177,7 @@ namespace RigidBodyDynamics {
 
             new_id = rbdl_model.AddBody (0, Xtrans (Vector3d (0., 0., 0.)), floating_base_joint, base, urdf_link->name);
           }
-          else if(floatingBaseType == FloatingBaseType::XYZ_RollPitchYaw){
+          else if(floatingBaseType == +FloatingBaseType::XYZ_RollPitchYaw){
 
             ROS_DEBUG_STREAM("Creating 6D FLOATING BASE");
             Joint floating_base_joint (
@@ -191,7 +191,7 @@ namespace RigidBodyDynamics {
 
             new_id = rbdl_model.AddBody(0, Xtrans (Vector3d (0., 0., 0.)), floating_base_joint, base, urdf_link->name);
           }
-          else if(floatingBaseType == FloatingBaseType::XYZ_Quaternion){
+          else if(floatingBaseType == +FloatingBaseType::XYZ_Quaternion){
 
             ROS_DEBUG_STREAM("Creating 6D QUATERNION FLOATING BASE");
             Joint root_joint = JointTypeFloatingBase;
@@ -299,7 +299,7 @@ namespace RigidBodyDynamics {
         //if the floating base has no inertial details, then it makes no sense to make it floating
         //base (Like kdl). (The root is the only link allowed to be floating base
 
-        if(floatingBaseType != FloatingBaseType::FixedBase){
+        if(floatingBaseType != +FloatingBaseType::FixedBase){
           double link_inertial_mass = 0;
           Vector3d link_inertial_position;
           Vector3d link_inertial_rpy;
@@ -336,7 +336,7 @@ namespace RigidBodyDynamics {
 
           Body base = Body (link_inertial_mass, link_inertial_position, link_inertial_inertia);
           //make floating base
-          if(floatingBaseType == FloatingBaseType::XY_Yaw){
+          if(floatingBaseType == +FloatingBaseType::XY_Yaw){
 
             ROS_DEBUG_STREAM("CREATING PLANAR FLOATING BASE");
             Joint floating_base_joint (
@@ -347,7 +347,7 @@ namespace RigidBodyDynamics {
 
             new_id = rbdl_model.AddBody (0, Xtrans (Vector3d (0., 0., 0.)), floating_base_joint, base, urdf_link->name);
           }
-          else if(floatingBaseType == FloatingBaseType::XYZ_RollPitchYaw){
+          else if(floatingBaseType == +FloatingBaseType::XYZ_RollPitchYaw){
 
             ROS_DEBUG_STREAM("Creating 6D FLOATING BASE");
             Joint floating_base_joint (
@@ -361,7 +361,7 @@ namespace RigidBodyDynamics {
 
             new_id = rbdl_model.AddBody(0, Xtrans (Vector3d (0., 0., 0.)), floating_base_joint, base, urdf_link->name);
           }
-          else if(floatingBaseType == FloatingBaseType::XYZ_Quaternion){
+          else if(floatingBaseType == +FloatingBaseType::XYZ_Quaternion){
 
             ROS_DEBUG_STREAM("Creating 6D QUATERNION FLOATING BASE");
             Joint root_joint = JointTypeFloatingBase;
@@ -891,16 +891,16 @@ namespace RigidBodyDynamics {
                                FloatingBaseType floatingBaseType){
 
       int nDof;
-      if(floatingBaseType == FloatingBaseType::XYZ_RollPitchYaw){
+      if(floatingBaseType == +FloatingBaseType::XYZ_RollPitchYaw){
         nDof = rbdl_model->qdot_size - 6;
       }
-      else if(floatingBaseType == FloatingBaseType::XYZ_Quaternion){
+      else if(floatingBaseType == +FloatingBaseType::XYZ_Quaternion){
         nDof = rbdl_model->qdot_size - 6;
       }
-      else if(floatingBaseType == FloatingBaseType::XY_Yaw){
+      else if(floatingBaseType == +FloatingBaseType::XY_Yaw){
         nDof = rbdl_model->qdot_size - 3;
       }
-      else if(floatingBaseType == FloatingBaseType::FixedBase){
+      else if(floatingBaseType == +FloatingBaseType::FixedBase){
         nDof = rbdl_model->qdot_size;
       }
       else{
@@ -934,16 +934,16 @@ namespace RigidBodyDynamics {
           if((urdf_link->parent_joint->type != urdf::Joint::FIXED) && !urdf_link->parent_joint->mimic) {
 
             unsigned id;
-            if(floatingBaseType == FloatingBaseType::XYZ_RollPitchYaw){
+            if(floatingBaseType == +FloatingBaseType::XYZ_RollPitchYaw){
               id = rbdl_model->GetBodyId(body_name.c_str()) - 7;
             }
-            else if(floatingBaseType == FloatingBaseType::XYZ_Quaternion){
+            else if(floatingBaseType == +FloatingBaseType::XYZ_Quaternion){
               id = rbdl_model->GetBodyId(body_name.c_str()) - 3;
             }
-            else if(floatingBaseType == FloatingBaseType::XY_Yaw){
+            else if(floatingBaseType == +FloatingBaseType::XY_Yaw){
               id = rbdl_model->GetBodyId(body_name.c_str()) - 4;
             }
-            else if(floatingBaseType == FloatingBaseType::FixedBase){
+            else if(floatingBaseType == +FloatingBaseType::FixedBase){
               id = rbdl_model->GetBodyId(body_name.c_str())- 1;
             }
             else{
