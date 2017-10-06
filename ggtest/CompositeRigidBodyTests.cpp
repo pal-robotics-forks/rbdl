@@ -20,7 +20,7 @@ class CompositeRigidBodyFixture : public ::testing::Test {
 protected:
   virtual void SetUp () {
     ClearLogOutput();
-    model_data = new ModelData;
+    model_data = new ModelDatad;
     model = new Model(*model_data);
     model->gravity = Vector3d (0., -9.81, 0.);
   }
@@ -170,7 +170,7 @@ TEST_F(FloatingBase12DoF, TestCRBAFloatingBase12DoFInverseDynamics) {
 
   assert (model->dof_count == 12);
 
-  UpdateKinematicsCustom (*model, *model_data, &Q, NULL, NULL);
+  UpdateKinematicsCustom<double>(*model, *model_data, &Q, nullptr, nullptr);
   CompositeRigidBodyAlgorithm (*model, *model_data, Q, H_crba, false);
 
   VectorNd H_col = VectorNd::Zero (model->dof_count);
@@ -217,7 +217,7 @@ TEST_F(FixedBase6DoF, TestCRBAFloatingBase12DoFInverseDynamics) {
 
   assert (model->dof_count == 6);
 
-  UpdateKinematicsCustom (*model, *model_data, &Q, NULL, NULL);
+  UpdateKinematicsCustom<double>(*model, *model_data, &Q, nullptr, nullptr);
   CompositeRigidBodyAlgorithm (*model, *model_data, Q, H_crba, false);
 
   VectorNd H_col = VectorNd::Zero (model->dof_count);

@@ -59,7 +59,7 @@ unsigned int ConstraintSet::AddConstraint (
   return n_constr - 1;
 }
 
-bool ConstraintSet::Bind (const Model &model) {
+bool ConstraintSet::Bind (const Model &model, ModelDatad &model_data) {
   assert (bound == false);
 
   if (bound) {
@@ -534,6 +534,7 @@ void ComputeContactImpulsesNullSpace (
  * accelerations.
  *
  */
+/*
 RBDL_DLLAPI
 void ForwardDynamicsApplyConstraintForces (
     Model &model,
@@ -567,18 +568,18 @@ void ForwardDynamicsApplyConstraintForces (
     if (model.mJoints[i].mDoFCount == 3){
       //  && model.mJoints[i].mJointType != JointTypeCustom) {
       unsigned int lambda = model.lambda[i];
-      model.multdof3_u[i] = Vector3d (Tau[q_index], 
+      model_data.multdof3_u[i] = Vector3d (Tau[q_index],
           Tau[q_index + 1], 
           Tau[q_index + 2]) 
         - model_data.multdof3_S[i].transpose() * model_data.pA[i];
 
       if (lambda != 0) {
-        SpatialMatrixd Ia = model_data.IA[i] - (model.multdof3_U[i]
-            * model.multdof3_Dinv[i] 
-            * model.multdof3_U[i].transpose());
+        SpatialMatrixd Ia = model_data.IA[i] - ((model_data.multdof3_u[i]
+            * model_data.multdof3_Dinv[i]
+            * model_data.multdof3_u[i]).transpose());
 
         SpatialVectord pa = model_data.pA[i] + Ia * model_data.c[i]
-          + model.multdof3_U[i] * model.multdof3_Dinv[i] * model.multdof3_u[i];
+          + model_data.multdof3_u[i] * model_data.multdof3_Dinv[i] * model_data.multdof3_u[i];
 
 #ifdef EIGEN_CORE_H
         model_data.IA[lambda].noalias() += (model_data.X_lambda[i].toMatrixTranspose()
@@ -599,9 +600,9 @@ void ForwardDynamicsApplyConstraintForces (
       unsigned int lambda = model.lambda[i];
       if (lambda != 0) {
         SpatialMatrixd Ia = model_data.IA[i]
-          - model.U[i] * (model.U[i] / model.d[i]).transpose();
+          - model.U[i] * (model.U[i] / model_data.d[i]).transpose();
         SpatialVectord pa =  model_data.pA[i] + Ia * model_data.c[i]
-          + model.U[i] * model.u[i] / model.d[i];
+          + model.U[i] * model.u[i] / model_data.d[i];
 #ifdef EIGEN_CORE_H
         model_data.IA[lambda].noalias() += (model_data.X_lambda[i].toMatrixTranspose()
             * Ia * model_data.X_lambda[i].toMatrix());
@@ -669,9 +670,9 @@ void ForwardDynamicsApplyConstraintForces (
 
     if (model.mJoints[i].mDoFCount == 3){
 //        && model.mJoints[i].mJointType != JointTypeCustom) {
-      Vector3d qdd_temp = model.multdof3_Dinv[i] * 
-        (model.multdof3_u[i] 
-         - model.multdof3_U[i].transpose() * model_data.a[i]);
+      Vector3d qdd_temp = (model_data.multdof3_Dinv[i] *
+        (model_data.multdof3_u[i]
+         - model_data.multdof3_u[i]).transpose() * model_data.a[i]);
 
       QDDot[q_index] = qdd_temp[0];
       QDDot[q_index + 1] = qdd_temp[1];
@@ -679,7 +680,7 @@ void ForwardDynamicsApplyConstraintForces (
       model_data.a[i] = model_data.a[i] + model_data.multdof3_S[i] * qdd_temp;
     } else if (model.mJoints[i].mDoFCount == 1){
 //        && model.mJoints[i].mJointType != JointTypeCustom) {
-      QDDot[q_index] = (1./model.d[i]) * (model.u[i] - model.U[i].dot(model_data.a[i]));
+      QDDot[q_index] = (1./model_data.d[i]) * (model.u[i] - model.U[i].dot(model_data.a[i]));
       model_data.a[i] = model_data.a[i] + model_data.S[i] * QDDot[q_index];
     }
 //      else if (model.mJoints[i].mJointType == JointTypeCustom){
@@ -702,13 +703,15 @@ void ForwardDynamicsApplyConstraintForces (
 
   LOG << "QDDot = " << QDDot.transpose() << std::endl;
 } 
-
+*/
 /** \brief Computes the effect of external forces on the generalized accelerations.
  *
  * This function is essentially similar to ForwardDynamics() except that it
  * tries to only perform computations of variables that change due to
  * external forces defined in f_t.
  */
+
+/*
 RBDL_DLLAPI
 void ForwardDynamicsAccelerationDeltas (
     Model &model,
@@ -748,8 +751,8 @@ void ForwardDynamicsAccelerationDeltas (
       if (lambda != 0) {
         CS.d_pA[lambda] =   CS.d_pA[lambda] 
           + model_data.X_lambda[i].applyTranspose (
-              CS.d_pA[i] + (model.multdof3_U[i] 
-                * model.multdof3_Dinv[i] 
+              CS.d_pA[i] + (model_data.multdof3_u[i]
+                * model_data.multdof3_Dinv[i]
                 * CS.d_multdof3_u[i]));
       }
     } else if(model.mJoints[i].mDoFCount == 1){
@@ -760,7 +763,7 @@ void ForwardDynamicsAccelerationDeltas (
       if (lambda != 0) {
         CS.d_pA[lambda] = CS.d_pA[lambda] 
           + model_data.X_lambda[i].applyTranspose (
-              CS.d_pA[i] + model.U[i] * CS.d_u[i] / model.d[i]);
+              CS.d_pA[i] + model.U[i] * CS.d_u[i] / model_data.d[i]);
       }
     }
 //    else if (model.mJoints[i].mJointType == JointTypeCustom){
@@ -805,8 +808,8 @@ void ForwardDynamicsAccelerationDeltas (
 
     if (model.mJoints[i].mDoFCount == 3){
 //        && model.mJoints[i].mJointType != JointTypeCustom) {
-      Vector3d qdd_temp = model.multdof3_Dinv[i] 
-        * (CS.d_multdof3_u[i] - model.multdof3_U[i].transpose() * Xa);
+      Vector3d qdd_temp = (model_data.multdof3_Dinv[i]
+        * (CS.d_multdof3_u[i] - model_data.multdof3_u[i]).transpose() * Xa);
 
       QDDot_t[q_index] = qdd_temp[0];
       QDDot_t[q_index + 1] = qdd_temp[1];
@@ -840,12 +843,14 @@ void ForwardDynamicsAccelerationDeltas (
     LOG << "d_a[i] = " << CS.d_a[i].transpose() << std::endl;
   }
 }
+*/
 
 inline void set_zero (std::vector<SpatialVectord> &spatial_values) {
   for (unsigned int i = 0; i < spatial_values.size(); i++)
     spatial_values[i].setZero();
 }
 
+/*
 RBDL_DLLAPI
 void ForwardDynamicsContactsKokkevis (
     Model &model,
@@ -910,7 +915,7 @@ void ForwardDynamicsContactsKokkevis (
     Vector3d normal = CS.normal[ci];
 
     unsigned int movable_body_id = body_id;
-    if (model_data.IsFixedBodyId(body_id)) {
+    if (model.IsFixedBodyId(body_id)) {
       unsigned int fbody_id = body_id - model.fixed_body_discriminator;
       movable_body_id = model.mFixedBodies[fbody_id].mMovableParent;
     }
@@ -1003,5 +1008,6 @@ void ForwardDynamicsContactsKokkevis (
 
   LOG << "QDDot after applying f_ext: " << QDDot.transpose() << std::endl;
 }
+*/
 
 } /* namespace RigidBodyDynamics */

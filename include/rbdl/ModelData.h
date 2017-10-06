@@ -87,6 +87,10 @@ public:
   std::vector<Math::Vector3<T> > multdof3_u;
   std::vector<unsigned int> multdof3_w_index;
 
+  /// \brief The spatial inertia of body i (used only in
+  ///  CompositeRigidBodyAlgorithm())
+  std::vector<Math::SpatialRigidBodyInertia<T> > Ic;
+  std::vector<Math::SpatialVector<T> > hc;
 
 };
 

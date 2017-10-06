@@ -165,8 +165,8 @@ RBDL_DLLAPI void CalcCenterOfMass (
     UpdateKinematicsCustom<double> (model, model_data, &q, &qdot, NULL);
 
   for (size_t i = 1; i < model.mBodies.size(); i++) {
-    model.Ic[i] = model_data.I[i];
-    model.hc[i] = model.Ic[i].toMatrix() * model_data.v[i];
+    model_data.Ic[i] = model_data.I[i];
+    model_data.hc[i] = model_data.Ic[i].toMatrix() * model_data.v[i];
   }
 
   SpatialRigidBodyInertiad Itot (0., Vector3d (0., 0., 0.), Matrix3d::Zero(3,3));
@@ -176,11 +176,11 @@ RBDL_DLLAPI void CalcCenterOfMass (
     unsigned int lambda = model.lambda[i];
 
     if (lambda != 0) {
-      model.Ic[lambda] = model.Ic[lambda] + model_data.X_lambda[i].applyTranspose (model.Ic[i]);
-      model.hc[lambda] = model.hc[lambda] + model_data.X_lambda[i].applyTranspose (model.hc[i]);
+      model_data.Ic[lambda] = model_data.Ic[lambda] + model_data.X_lambda[i].applyTranspose (model_data.Ic[i]);
+      model_data.hc[lambda] = model_data.hc[lambda] + model_data.X_lambda[i].applyTranspose (model_data.hc[i]);
     } else {
-      Itot = Itot + model_data.X_lambda[i].applyTranspose (model.Ic[i]);
-      htot = htot + model_data.X_lambda[i].applyTranspose (model.hc[i]);
+      Itot = Itot + model_data.X_lambda[i].applyTranspose (model_data.Ic[i]);
+      htot = htot + model_data.X_lambda[i].applyTranspose (model_data.hc[i]);
     }
   }
 

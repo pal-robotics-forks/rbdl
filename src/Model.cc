@@ -56,27 +56,27 @@ Model::Model(ModelDatad &model_data) {
 
   // Spherical joints
   model_data.multdof3_S.push_back (Matrix63d::Zero());
-  multdof3_U.push_back (Matrix63d::Zero());
-  multdof3_Dinv.push_back (Matrix3d::Zero());
-  multdof3_u.push_back (Vector3d::Zero());
+  model_data.multdof3_U.push_back (Matrix63d::Zero());
+  model_data.multdof3_Dinv.push_back (Matrix3d::Zero());
+  model_data.multdof3_u.push_back (Vector3d::Zero());
   multdof3_w_index.push_back (0);
 
   // Dynamic variables
   model_data.c.push_back(zero_spatial);
-  IA.push_back(SpatialMatrixd::Identity());
-  pA.push_back(zero_spatial);
-  U.push_back(zero_spatial);
+  model_data.IA.push_back(SpatialMatrixd::Identity());
+  model_data.pA.push_back(zero_spatial);
+  model_data.U.push_back(zero_spatial);
 
-  u = VectorNd::Zero(1);
-  d = VectorNd::Zero(1);
+  model_data.u = VectorNd::Zero(1);
+  model_data.d = VectorNd::Zero(1);
 
   model_data.f.push_back (zero_spatial);
   SpatialRigidBodyInertiad rbi(0.,
       Vector3d (0., 0., 0.),
       Matrix3d::Zero(3,3));
-  Ic.push_back (rbi);
-  I.push_back(rbi);
-  hc.push_back (zero_spatial);
+  model_data.Ic.push_back (rbi);
+  model_data.I.push_back(rbi);
+  model_data.hc.push_back (zero_spatial);
 
   // Bodies
   model_data.X_lambda.push_back(SpatialTransformd());
@@ -90,6 +90,7 @@ Model::Model(ModelDatad &model_data) {
 
 unsigned int AddBodyFixedJoint (
     Model &model,
+    ModelDatad &model_data,
     const unsigned int parent_id,
     const SpatialTransformd &joint_frame,
     const Joint &joint,
@@ -111,7 +112,7 @@ unsigned int AddBodyFixedJoint (
   Body parent_body = model.mBodies[fbody.mMovableParent];
   parent_body.Join (fbody.mParentTransform, body);
   model.mBodies[fbody.mMovableParent] = parent_body;
-  model.I[fbody.mMovableParent] =
+  model_data.I[fbody.mMovableParent] =
     SpatialRigidBodyInertiad::createFromMassComInertiaC (
         parent_body.mMass,
         parent_body.mCenterOfMass,
@@ -271,6 +272,7 @@ unsigned int Model::AddBody(
 
   if (joint.mJointType == JointTypeFixed) {
     previously_added_body_id = AddBodyFixedJoint (*this,
+                                                  model_data,
         parent_id,
         joint_frame,
         joint,
@@ -376,9 +378,9 @@ unsigned int Model::AddBody(
 
   // workspace for joints with 3 dof
   model_data.multdof3_S.push_back (Matrix63d::Zero(6,3));
-  multdof3_U.push_back (Matrix63d::Zero());
-  multdof3_Dinv.push_back (Matrix3d::Zero());
-  multdof3_u.push_back (Vector3d::Zero());
+  model_data.multdof3_U.push_back (Matrix63d::Zero());
+  model_data.multdof3_Dinv.push_back (Matrix3d::Zero());
+  model_data.multdof3_u.push_back (Vector3d::Zero());
   multdof3_w_index.push_back (0);
 
   dof_count = dof_count + joint.mDoFCount;
@@ -405,12 +407,12 @@ unsigned int Model::AddBody(
 
   // Dynamic variables
   model_data.c.push_back(SpatialVectord(0., 0., 0., 0., 0., 0.));
-  IA.push_back(SpatialMatrixd::Zero());
-  pA.push_back(SpatialVectord(0., 0., 0., 0., 0., 0.));
-  U.push_back(SpatialVectord(0., 0., 0., 0., 0., 0.));
+  model_data.IA.push_back(SpatialMatrixd::Zero());
+  model_data.pA.push_back(SpatialVectord(0., 0., 0., 0., 0., 0.));
+  model_data.U.push_back(SpatialVectord(0., 0., 0., 0., 0., 0.));
 
-  d = VectorNd::Zero (mBodies.size());
-  u = VectorNd::Zero (mBodies.size());
+  model_data.d = VectorNd::Zero (mBodies.size());
+  model_data.u = VectorNd::Zero (mBodies.size());
 
   model_data.f.push_back (SpatialVectord (0., 0., 0., 0., 0., 0.));
 
@@ -419,9 +421,9 @@ unsigned int Model::AddBody(
         body.mCenterOfMass,
         body.mInertia);
 
-  Ic.push_back (rbi);
-  I.push_back (rbi);
-  hc.push_back (SpatialVectord(0., 0., 0., 0., 0., 0.));
+  model_data.Ic.push_back (rbi);
+  model_data.I.push_back (rbi);
+  model_data.hc.push_back (SpatialVectord(0., 0., 0., 0., 0., 0.));
 
   if (mBodies.size() == fixed_body_discriminator) {
     std::cerr << "Error: cannot add more than "

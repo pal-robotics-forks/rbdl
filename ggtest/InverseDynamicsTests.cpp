@@ -18,12 +18,14 @@ class InverseDynamicsFixture : public ::testing::Test {
 protected:
   virtual void SetUp () {
     ClearLogOutput();
-    model = new Model;
+    model_data = new ModelDatad;
+    model = new Model(*model_data);
     model->gravity = Vector3d  (0., -9.81, 0.);
   }
   virtual void TearDown () {
     delete model;
   }
+  ModelDatad *model_data;
   Model *model;
 };
 
@@ -31,7 +33,7 @@ protected:
 TEST_F(InverseDynamicsFixture, TestInverseForwardDynamicsFloatingBase) {
   Body base_body(1., Vector3d (1., 0., 0.), Vector3d (1., 1., 1.));
 
-  model->AddBody (model_data, *model_data, 0, SpatialTransformd(),
+  model->AddBody (*model_data, 0, SpatialTransformd(),
       Joint (
         SpatialVectord (0., 0., 0., 1., 0., 0.),
         SpatialVectord (0., 0., 0., 0., 1., 0.),
@@ -70,8 +72,8 @@ TEST_F(InverseDynamicsFixture, TestInverseForwardDynamicsFloatingBase) {
   Tau[4] = 1.2;
   Tau[5] = 1.3;
 
-  ForwardDynamics(*model, Q, QDot, Tau, QDDot);
-  InverseDynamics(*model, Q, QDot, QDDot, TauInv);
+  ForwardDynamics(*model, *model_data, Q, QDot, Tau, QDDot);
+  InverseDynamics(*model, *model_data, Q, QDot, QDDot, TauInv);
 
   EXPECT_TRUE(EIGEN_MATRIX_NEAR(Tau, TauInv, TEST_PREC));
 }

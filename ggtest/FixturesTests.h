@@ -11,7 +11,7 @@ protected:
     using namespace RigidBodyDynamics::Math;
 
     ClearLogOutput();
-    model_data = new ModelData;
+    model_data = new ModelDatad;
     model = new Model(*model_data);
 
     /* Basically a model like this, where X are the Center of Masses
@@ -79,7 +79,7 @@ protected:
     using namespace RigidBodyDynamics::Math;
 
     ClearLogOutput();
-    model_data = new ModelData;
+    model_data = new ModelDatad;
     model = new Model(*model_data);
 
     model->gravity = Vector3d  (0., -9.81, 0.);
@@ -162,7 +162,7 @@ protected:
     delete model;
   }
 
-  RigidBodyDynamics::ModelData *model_data;
+  RigidBodyDynamics::ModelDatad *model_data;
   RigidBodyDynamics::Model *model;
 
   unsigned int base_rot_z_id, base_rot_y_id, base_rot_x_id,
@@ -193,7 +193,7 @@ protected:
     using namespace RigidBodyDynamics::Math;
 
     ClearLogOutput();
-    model_data = new ModelData;
+    model_data = new ModelDatad;
     model = new Model(*model_data);
 
     model->gravity = Vector3d  (0., -9.81, 0.);
@@ -288,7 +288,7 @@ protected:
     delete model;
   }
 
-  RigidBodyDynamics::ModelData *model_data;
+  RigidBodyDynamics::ModelDatad *model_data;
   RigidBodyDynamics::Model *model;
 
   unsigned int base_rot_z_id, base_rot_y_id, base_rot_x_id,
@@ -314,7 +314,7 @@ class SimpleFixture : public ::testing::Test {
 protected:
   virtual void SetUp () {
     ClearLogOutput();
-    model_data = new RigidBodyDynamics::ModelData;
+    model_data = new RigidBodyDynamics::ModelDatad;
     model = new RigidBodyDynamics::Model(*model_data);
     model->gravity = RigidBodyDynamics::Math::Vector3d (0., -9.81, 0.);
   }
@@ -328,7 +328,7 @@ protected:
     Tau = RigidBodyDynamics::Math::VectorNd::Zero (model->dof_count);
   }
 
-  RigidBodyDynamics::ModelData *model_data;
+  RigidBodyDynamics::ModelDatad *model_data;
   RigidBodyDynamics::Model *model;
 
   RigidBodyDynamics::Math::VectorNd Q;
@@ -344,7 +344,7 @@ protected:
     using namespace RigidBodyDynamics::Math;
 
     ClearLogOutput();
-    model_data = new ModelData;
+    model_data = new ModelDatad;
     model = new Model(*model_data);
 
     /* Basically a model like this, where X are the Center of Masses
@@ -389,7 +389,7 @@ protected:
     delete model;
   }
 
-  RigidBodyDynamics::ModelData *model_data;
+  RigidBodyDynamics::ModelDatad *model_data;
   RigidBodyDynamics::Model *model;
 
   unsigned int body_a_id, body_b_id, body_c_id, ref_body_id;
@@ -413,7 +413,7 @@ protected:
 
     ClearLogOutput();
 
-    model_movable_data = new ModelData;
+    model_movable_data = new ModelDatad;
     model_movable = new Model(*model_movable_data);
 
     /* Basically a model like this, where X are the Center of Masses
@@ -451,7 +451,7 @@ protected:
     H_movable = MatrixNd::Zero ((size_t) model_movable->dof_count, (size_t) model_movable->dof_count);
 
     // Assemble the fixed joint model
-    model_fixed_data = new ModelData;
+    model_fixed_data = new ModelDatad;
     model_fixed = new Model(*model_fixed_data);
 
     body_a_fixed_id = model_fixed->AddBody(*model_fixed_data, 0, Xtrans(Vector3d(0., 0., 0.)), joint_a, body_a);
@@ -501,10 +501,10 @@ protected:
     return H;
   }
 
-  RigidBodyDynamics::ModelData *model_fixed_data;
+  RigidBodyDynamics::ModelDatad *model_fixed_data;
   RigidBodyDynamics::Model *model_fixed;
 
-  RigidBodyDynamics::ModelData *model_movable_data;
+  RigidBodyDynamics::ModelDatad *model_movable_data;
   RigidBodyDynamics::Model *model_movable;
 
   unsigned int body_a_id, body_b_id, body_c_id, ref_body_id;
@@ -539,7 +539,7 @@ protected:
     using namespace RigidBodyDynamics::Math;
 
     ClearLogOutput();
-    model_data = new ModelData;
+    model_data = new ModelDatad;
     model = new Model(*model_data);
 
     Joint joint_rot_z ( SpatialVectord (0., 0., 1., 0., 0., 0.));
@@ -568,7 +568,7 @@ protected:
     delete model;
   }
 
-  RigidBodyDynamics::ModelData *model_data;
+  RigidBodyDynamics::ModelDatad *model_data;
   RigidBodyDynamics::Model *model;
 
   unsigned int body_a_id, body_b_id, body_fixed_id;
@@ -585,7 +585,7 @@ protected:
     using namespace RigidBodyDynamics::Math;
 
     ClearLogOutput();
-    model_data = new ModelData;
+    model_data = new ModelDatad;
     model = new Model(*model_data);
 
     /* Basically a model like this, where X are the Center of Masses
@@ -625,7 +625,7 @@ protected:
     delete model;
   }
 
-  RigidBodyDynamics::ModelData *model_data;
+  RigidBodyDynamics::ModelDatad *model_data;
   RigidBodyDynamics::Model *model;
 
   RigidBodyDynamics::Math::VectorNd q;
@@ -644,7 +644,7 @@ protected:
     using namespace RigidBodyDynamics::Math;
 
     ClearLogOutput();
-    model_data = new ModelData;
+    model_data = new ModelDatad;
     model = new Model(*model_data);
 
     model->gravity = Vector3d  (0., -9.81, 0.);
@@ -715,7 +715,7 @@ protected:
     delete model;
   }
 
-  RigidBodyDynamics::ModelData *model_data;
+  RigidBodyDynamics::ModelDatad *model_data;
   RigidBodyDynamics::Model *model;
 
   unsigned int base_id, child_id, child_2_id;

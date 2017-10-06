@@ -20,7 +20,7 @@ protected:
 
   virtual void SetUp () {
     ClearLogOutput();
-    model_data = new ModelData;
+    model_data = new ModelDatad;
     model = new Model(*model_data);
 
     body_a = Body (1., Vector3d (1., 0., 0.), Vector3d (1., 1., 1.));
@@ -50,6 +50,7 @@ protected:
   }
   virtual void TearDown () {
     delete model;
+    delete model_data;
   }
 
   ModelDatad *model_data;

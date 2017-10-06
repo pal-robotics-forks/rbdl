@@ -148,7 +148,6 @@ namespace RigidBodyDynamics {
  */
 
 struct Model;
-
 /** \brief Structure that contains both constraint information and workspace memory.
  *
  * This structure is used to reduce the amount of memory allocations that
@@ -209,7 +208,7 @@ struct RBDL_DLLAPI ConstraintSet {
    * The values of ConstraintSet::acceleration may still be
    * modified after the set is bound to the model.
    */
-  bool Bind (const Model &model);
+  bool Bind (const Model &model, ModelDatad &model_data);
 
   /** \brief Returns the number of constraints. */
   size_t size() const {

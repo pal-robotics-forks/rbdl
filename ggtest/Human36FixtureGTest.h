@@ -9,9 +9,9 @@
 class Human36 : public ::testing::Test {
 protected:
 
- RigidBodyDynamics::ModelData *model_data;
- RigidBodyDynamics::ModelData *model_emulated_data;
- RigidBodyDynamics::ModelData *model_3dof_data;
+ RigidBodyDynamics::ModelDatad *model_data;
+ RigidBodyDynamics::ModelDatad *model_emulated_data;
+ RigidBodyDynamics::ModelDatad *model_3dof_data;
 
   RigidBodyDynamics::Model *model;
   RigidBodyDynamics::Model *model_emulated;
@@ -324,13 +324,13 @@ protected:
     unsigned int hand_l_emulated = model_emulated->GetBodyId ("hand_l");
 
     constraints_1B1C_emulated.AddConstraint (foot_r_emulated, Vector3d (0.1, 0., -0.05), Vector3d (1., 0., 0.));
-    constraints_1B1C_emulated.Bind (*model_emulated);
+    constraints_1B1C_emulated.Bind (*model_emulated, *model_emulated_data);
 
     constraints_1B4C_emulated.AddConstraint (foot_r_emulated, Vector3d (0.1, 0., -0.05), Vector3d (1., 0., 0.));
     constraints_1B4C_emulated.AddConstraint (foot_r_emulated, Vector3d (0.1, 0., -0.05), Vector3d (0., 1., 0.));
     constraints_1B4C_emulated.AddConstraint (foot_r_emulated, Vector3d (0.1, 0., -0.05), Vector3d (0., 0., 1.));
     constraints_1B4C_emulated.AddConstraint (foot_r_emulated, Vector3d (-0.1, 0., -0.05), Vector3d (1., 0., 0.));
-    constraints_1B4C_emulated.Bind (*model_emulated);
+    constraints_1B4C_emulated.Bind (*model_emulated, *model_emulated_data);
 
     constraints_4B4C_emulated.AddConstraint (foot_r_emulated, Vector3d (0.1, 0., -0.05), Vector3d (1., 0., 0.));
     constraints_4B4C_emulated.AddConstraint (foot_r_emulated, Vector3d (0.1, 0., -0.05), Vector3d (0., 1., 0.));
@@ -351,7 +351,7 @@ protected:
     constraints_4B4C_emulated.AddConstraint (hand_l_emulated, Vector3d (0.1, 0., -0.05), Vector3d (0., 1., 0.));
     constraints_4B4C_emulated.AddConstraint (hand_l_emulated, Vector3d (0.1, 0., -0.05), Vector3d (0., 0., 1.));
     constraints_4B4C_emulated.AddConstraint (hand_l_emulated, Vector3d (-0.1, 0., -0.05), Vector3d (1., 0., 0.));
-    constraints_4B4C_emulated.Bind (*model);
+    constraints_4B4C_emulated.Bind (*model, *model_emulated_data);
 
     unsigned int foot_r_3dof = model_3dof->GetBodyId ("foot_r");
     unsigned int foot_l_3dof = model_3dof->GetBodyId ("foot_l");
@@ -359,13 +359,13 @@ protected:
     unsigned int hand_l_3dof = model_3dof->GetBodyId ("hand_l");
 
     constraints_1B1C_3dof.AddConstraint (foot_r_3dof, Vector3d (0.1, 0., -0.05), Vector3d (1., 0., 0.));
-    constraints_1B1C_3dof.Bind (*model_3dof);
+    constraints_1B1C_3dof.Bind (*model_3dof, *model_3dof_data);
 
     constraints_1B4C_3dof.AddConstraint (foot_r_3dof, Vector3d (0.1, 0., -0.05), Vector3d (1., 0., 0.));
     constraints_1B4C_3dof.AddConstraint (foot_r_3dof, Vector3d (0.1, 0., -0.05), Vector3d (0., 1., 0.));
     constraints_1B4C_3dof.AddConstraint (foot_r_3dof, Vector3d (0.1, 0., -0.05), Vector3d (0., 0., 1.));
     constraints_1B4C_3dof.AddConstraint (foot_r_3dof, Vector3d (-0.1, 0., -0.05), Vector3d (1., 0., 0.));
-    constraints_1B4C_3dof.Bind (*model_3dof);
+    constraints_1B4C_3dof.Bind (*model_3dof, *model_3dof_data);
 
     constraints_4B4C_3dof.AddConstraint (foot_r_3dof, Vector3d (0.1, 0., -0.05), Vector3d (1., 0., 0.));
     constraints_4B4C_3dof.AddConstraint (foot_r_3dof, Vector3d (0.1, 0., -0.05), Vector3d (0., 1., 0.));
@@ -386,7 +386,7 @@ protected:
     constraints_4B4C_3dof.AddConstraint (hand_l_3dof, Vector3d (0.1, 0., -0.05), Vector3d (0., 1., 0.));
     constraints_4B4C_3dof.AddConstraint (hand_l_3dof, Vector3d (0.1, 0., -0.05), Vector3d (0., 0., 1.));
     constraints_4B4C_3dof.AddConstraint (hand_l_3dof, Vector3d (-0.1, 0., -0.05), Vector3d (1., 0., 0.));
-    constraints_4B4C_3dof.Bind (*model_3dof);
+    constraints_4B4C_3dof.Bind (*model_3dof, *model_3dof_data);
   }
 
   void randomizeStates () {
@@ -407,8 +407,8 @@ protected:
 
     initParameters();
 
-    model_emulated_data = new ModelData;
-    model_3dof_data = new ModelData;
+    model_emulated_data = new ModelDatad;
+    model_3dof_data = new ModelDatad;
 
     model_emulated = new RigidBodyDynamics::Model(*model_emulated_data);
     model_3dof = new RigidBodyDynamics::Model(*model_3dof_data);

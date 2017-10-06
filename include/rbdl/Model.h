@@ -206,10 +206,10 @@ public:
 //  /// \brief Temporary variable u (RBDA p. 130)
 //  Math::VectorNd u;
 
-  /// \brief The spatial inertia of body i (used only in 
-  ///  CompositeRigidBodyAlgorithm())
-  std::vector<Math::SpatialRigidBodyInertiad> Ic;
-  std::vector<Math::SpatialVectord> hc;
+//  /// \brief The spatial inertia of body i (used only in
+//  ///  CompositeRigidBodyAlgorithm())
+//  std::vector<Math::SpatialRigidBodyInertiad> Ic;
+//  std::vector<Math::SpatialVectord> hc;
 
   ////////////////////////////////////
   // Bodies

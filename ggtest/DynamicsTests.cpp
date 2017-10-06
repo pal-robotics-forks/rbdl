@@ -23,20 +23,23 @@ class DynamicsFixture : public ::testing::Test {
 protected:
   virtual void SetUp () {
     ClearLogOutput();
-    model = new Model;
+    model_data = new ModelDatad;
+    model = new Model(*model_data);
     model->gravity = Vector3d (0., -9.81, 0.);
   }
   virtual void TearDown () {
     delete model;
+    delete model_data;
   }
   Model *model;
+  ModelDatad *model_data;
 };
 
 TEST_F(DynamicsFixture, TestCalcDynamicSingleChain) {
   Body body(1., Vector3d (1., 0., 0.), Vector3d (1., 1., 1.));
   Joint joint ( SpatialVectord (0., 0., 1., 0., 0., 0.));
 
-  model->AddBody(*model_data,*model_data, 0, Xtrans(Vector3d(0., 0., 0.)), joint, body);
+  model->AddBody(*model_data, 0, Xtrans(Vector3d(0., 0., 0.)), joint, body);
 
   // Initialization of the input vectors
   VectorNd Q = VectorNd::Constant ((size_t) model->dof_count, 0.);
@@ -44,15 +47,15 @@ TEST_F(DynamicsFixture, TestCalcDynamicSingleChain) {
   VectorNd QDDot = VectorNd::Constant  ((size_t) model->dof_count, 0.);
   VectorNd Tau = VectorNd::Constant  ((size_t) model->dof_count, 0.);
 
-  ForwardDynamics(*model, Q, QDot, Tau, QDDot);
+  ForwardDynamics(*model, *model_data,  Q, QDot, Tau, QDDot);
 
   unsigned int i;
   for (i = 0; i < QDDot.size(); i++) {
     LOG << "QDDot[" << i << "] = " << QDDot[i] << endl;
   }
 
-  for (i = 0; i < model->model_data.a.size(); i++) {
-    LOG << "a[" << i << "]     = " << model->model_data.a[i] << endl;
+  for (i = 0; i < model_data->a.size(); i++) {
+    LOG << "a[" << i << "]     = " << model_data->a[i] << endl;
   }
 
   EXPECT_EQ (-4.905, QDDot[0]);
@@ -64,7 +67,7 @@ TEST_F(DynamicsFixture, TestCalcDynamicSpatialInertiaSingleChain) {
 
   Joint joint ( SpatialVectord (0., 0., 1., 0., 0., 0.));
 
-  model->AddBody(*model_data,*model_data, 0, Xtrans(Vector3d(0., 0., 0.)), joint, body);
+  model->AddBody(*model_data, 0, Xtrans(Vector3d(0., 0., 0.)), joint, body);
 
   // Initialization of the input vectors
   VectorNd Q = VectorNd::Constant ((size_t) model->dof_count, 0.);
@@ -72,16 +75,15 @@ TEST_F(DynamicsFixture, TestCalcDynamicSpatialInertiaSingleChain) {
   VectorNd QDDot = VectorNd::Constant ((size_t) model->dof_count, 0.);
   VectorNd Tau = VectorNd::Constant ((size_t) model->dof_count, 0.);
 
-  ForwardDynamics(*model, Q, QDot, Tau, QDDot);
-
+  ForwardDynamics(*model, *model_data,Q, QDot, Tau, QDDot);
 
   unsigned int i;
   for (i = 0; i < QDDot.size(); i++) {
     LOG << "QDDot[" << i << "] = " << QDDot[i] << endl;
   }
 
-  for (i = 0; i < model->model_data.a.size(); i++) {
-    LOG << "a[" << i << "]     = " << model->model_data.a[i] << endl;
+  for (i = 0; i < model_data->a.size(); i++) {
+    LOG << "a[" << i << "]     = " << model_data->a[i] << endl;
   }
 
   EXPECT_EQ (-2.3544, QDDot[0]);
@@ -91,12 +93,12 @@ TEST_F(DynamicsFixture, TestCalcDynamicDoubleChain) {
   Body body_a (1., Vector3d (1., 0., 0.), Vector3d (1., 1., 1.));
   Joint joint_a ( SpatialVectord (0., 0., 1., 0., 0., 0.));
 
-  model->AddBody(*model_data,*model_data, 0, Xtrans(Vector3d(0., 0., 0.)), joint_a, body_a);
+  model->AddBody(*model_data, 0, Xtrans(Vector3d(0., 0., 0.)), joint_a, body_a);
 
   Body body_b (1., Vector3d (1., 0., 0.), Vector3d (1., 1., 1.));
   Joint joint_b ( SpatialVectord (0., 0., 1., 0., 0., 0.));
 
-  model->AddBody(*model_data,*model_data, 1, Xtrans(Vector3d(1., 0., 0.)), joint_b, body_b);
+  model->AddBody(*model_data, 1, Xtrans(Vector3d(1., 0., 0.)), joint_b, body_b);
 
   // Initialization of the input vectors
   VectorNd Q = VectorNd::Constant ((size_t) model->dof_count, 0.);
@@ -106,15 +108,15 @@ TEST_F(DynamicsFixture, TestCalcDynamicDoubleChain) {
 
   //	cout << "--- Double Chain ---" << endl;
 
-  ForwardDynamics(*model, Q, QDot, Tau, QDDot);
+  ForwardDynamics(*model, *model_data,Q, QDot, Tau, QDDot);
 
   unsigned int i;
   for (i = 0; i < QDDot.size(); i++) {
     LOG << "QDDot[" << i << "] = " << QDDot[i] << endl;
   }
 
-  for (i = 0; i < model->model_data.a.size(); i++) {
-    LOG << "a[" << i << "]     = " << model->model_data.a[i] << endl;
+  for (i = 0; i < model_data->a.size(); i++) {
+    LOG << "a[" << i << "]     = " << model_data->a[i] << endl;
   }
 
   //	cout << LogOutput.str() << endl;
@@ -127,17 +129,17 @@ TEST_F(DynamicsFixture, TestCalcDynamicTripleChain) {
   Body body_a (1., Vector3d (1., 0., 0.), Vector3d (1., 1., 1.));
   Joint joint_a ( SpatialVectord (0., 0., 1., 0., 0., 0.));
 
-  model->AddBody(*model_data,*model_data, 0, Xtrans(Vector3d(0., 0., 0.)), joint_a, body_a);
+  model->AddBody(*model_data, 0, Xtrans(Vector3d(0., 0., 0.)), joint_a, body_a);
 
   Body body_b (1., Vector3d (1., 0., 0.), Vector3d (1., 1., 1.));
   Joint joint_b ( SpatialVectord (0., 0., 1., 0., 0., 0.));
 
-  model->AddBody(*model_data,*model_data, 1, Xtrans(Vector3d(1., 0., 0.)), joint_b, body_b);
+  model->AddBody(*model_data, 1, Xtrans(Vector3d(1., 0., 0.)), joint_b, body_b);
 
   Body body_c (1., Vector3d (1., 0., 0.), Vector3d (1., 1., 1.));
   Joint joint_c ( SpatialVectord (0., 0., 1., 0., 0., 0.));
 
-  model->AddBody(*model_data,*model_data, 2, Xtrans(Vector3d(1., 0., 0.)), joint_c, body_c);
+  model->AddBody(*model_data, 2, Xtrans(Vector3d(1., 0., 0.)), joint_c, body_c);
 
   // Initialization of the input vectors
   VectorNd Q = VectorNd::Constant ((size_t) model->dof_count, 0.);
@@ -147,15 +149,15 @@ TEST_F(DynamicsFixture, TestCalcDynamicTripleChain) {
 
   // cout << "--- Triple Chain ---" << endl;
 
-  ForwardDynamics(*model, Q, QDot, Tau, QDDot);
+  ForwardDynamics(*model, *model_data,Q, QDot, Tau, QDDot);
 
   unsigned int i;
   for (i = 0; i < QDDot.size(); i++) {
     LOG << "QDDot[" << i << "] = " << QDDot[i] << endl;
   }
 
-  for (i = 0; i < model->model_data.a.size(); i++) {
-    LOG << "a[" << i << "]     = " << model->model_data.a[i] << endl;
+  for (i = 0; i < model_data->a.size(); i++) {
+    LOG << "a[" << i << "]     = " << model_data->a[i] << endl;
   }
 
   // cout << LogOutput.str() << endl;
@@ -169,12 +171,12 @@ TEST_F(DynamicsFixture, TestCalcDynamicDoubleChain3D) {
   Body body_a (1., Vector3d (1., 0., 0.), Vector3d (1., 1., 1.));
   Joint joint_a ( SpatialVectord (0., 0., 1., 0., 0., 0.));
 
-  model->AddBody(*model_data,*model_data, 0, Xtrans(Vector3d(0., 0., 0.)), joint_a, body_a);
+  model->AddBody(*model_data, 0, Xtrans(Vector3d(0., 0., 0.)), joint_a, body_a);
 
   Body body_b (1., Vector3d (0., 1., 0.), Vector3d (1., 1., 1.));
   Joint joint_b ( SpatialVectord (0., 1., 0., 0., 0., 0.));
 
-  model->AddBody(*model_data,*model_data, 1, Xtrans(Vector3d(1., 0., 0.)), joint_b, body_b);
+  model->AddBody(*model_data, 1, Xtrans(Vector3d(1., 0., 0.)), joint_b, body_b);
 
   // Initialization of the input vectors
   VectorNd Q = VectorNd::Constant ((size_t) model->dof_count, 0.);
@@ -184,15 +186,15 @@ TEST_F(DynamicsFixture, TestCalcDynamicDoubleChain3D) {
 
   // cout << "--- Double Chain 3D ---" << endl;
 
-  ForwardDynamics(*model, Q, QDot, Tau, QDDot);
+  ForwardDynamics(*model, *model_data,Q, QDot, Tau, QDDot);
 
   unsigned int i;
   for (i = 0; i < QDDot.size(); i++) {
     LOG << "QDDot[" << i << "] = " << QDDot[i] << endl;
   }
 
-  for (i = 0; i < model->model_data.a.size(); i++) {
-    LOG << "a[" << i << "]     = " << model->model_data.a[i] << endl;
+  for (i = 0; i < model_data->a.size(); i++) {
+    LOG << "a[" << i << "]     = " << model_data->a[i] << endl;
   }
 
   // cout << LogOutput.str() << endl;
@@ -205,27 +207,27 @@ TEST_F(DynamicsFixture, TestCalcDynamicSimpleTree3D) {
   Body body_a (1., Vector3d (1., 0., 0.), Vector3d (1., 1., 1.));
   Joint joint_a ( SpatialVectord (0., 0., 1., 0., 0., 0.));
 
-  model->AddBody(*model_data,*model_data, 0, Xtrans(Vector3d(0., 0., 0.)), joint_a, body_a);
+  model->AddBody(*model_data, 0, Xtrans(Vector3d(0., 0., 0.)), joint_a, body_a);
 
   Body body_b1 (1., Vector3d (0., 1., 0.), Vector3d (1., 1., 1.));
   Joint joint_b1 ( SpatialVectord (0., 1., 0., 0., 0., 0.));
 
-  model->AddBody(*model_data,*model_data, 1, Xtrans(Vector3d(1., 0., 0.)), joint_b1, body_b1);
+  model->AddBody(*model_data, 1, Xtrans(Vector3d(1., 0., 0.)), joint_b1, body_b1);
 
   Body body_c1 (1., Vector3d (0., 0., 1.), Vector3d (1., 1., 1.));
   Joint joint_c1 ( SpatialVectord (1., 0., 0., 0., 0., 0.));
 
-  model->AddBody(*model_data,*model_data, 2, Xtrans(Vector3d(0., 1., 0.)), joint_c1, body_c1);
+  model->AddBody(*model_data, 2, Xtrans(Vector3d(0., 1., 0.)), joint_c1, body_c1);
 
   Body body_b2 (1., Vector3d (0., 1., 0.), Vector3d (1., 1., 1.));
   Joint joint_b2 ( SpatialVectord (0., 1., 0., 0., 0., 0.));
 
-  model->AddBody(*model_data,*model_data, 1, Xtrans(Vector3d(-0.5, 0., 0.)), joint_b2, body_b2);
+  model->AddBody(*model_data, 1, Xtrans(Vector3d(-0.5, 0., 0.)), joint_b2, body_b2);
 
   Body body_c2 (1., Vector3d (0., 0., 1.), Vector3d (1., 1., 1.));
   Joint joint_c2 ( SpatialVectord (1., 0., 0., 0., 0., 0.));
 
-  model->AddBody(*model_data,*model_data, 4, Xtrans(Vector3d(0., -0.5, 0.)), joint_c2, body_c2);
+  model->AddBody(*model_data, 4, Xtrans(Vector3d(0., -0.5, 0.)), joint_c2, body_c2);
 
   // Initialization of the input vectors
   VectorNd Q = VectorNd::Constant ((size_t) model->dof_count, 0.);
@@ -235,15 +237,15 @@ TEST_F(DynamicsFixture, TestCalcDynamicSimpleTree3D) {
 
   // cout << "--- SimpleTree ---" << endl;
 
-  ForwardDynamics(*model, Q, QDot, Tau, QDDot);
+  ForwardDynamics(*model, *model_data,Q, QDot, Tau, QDDot);
 
   unsigned int i;
   for (i = 0; i < QDDot.size(); i++) {
     LOG << "QDDot[" << i << "] = " << QDDot[i] << endl;
   }
 
-  for (i = 0; i < model->model_data.a.size(); i++) {
-    LOG << "a[" << i << "]     = " << model->model_data.a[i] << endl;
+  for (i = 0; i < model_data->a.size(); i++) {
+    LOG << "a[" << i << "]     = " << model_data->a[i] << endl;
   }
 
   // cout << LogOutput.str() << endl;
@@ -256,10 +258,12 @@ TEST_F(DynamicsFixture, TestCalcDynamicSimpleTree3D) {
 }
 
 TEST (DynamicsTests, TestForwardDynamicsLagrangian) {
+
+  ModelDatad model_data;
   Model model(model_data);
   Body base_body(1., Vector3d (1., 0., 0.), Vector3d (1., 1., 1.));
 
-  model.AddBody (0, SpatialTransformd(),
+  model.AddBody (model_data,  0, SpatialTransformd(),
       Joint (
         SpatialVectord (0., 0., 0., 1., 0., 0.),
         SpatialVectord (0., 0., 0., 0., 1., 0.),
@@ -299,8 +303,8 @@ TEST (DynamicsTests, TestForwardDynamicsLagrangian) {
   Tau[4] = 1.2;
   Tau[5] = 1.3;
 
-  ForwardDynamics(model, Q, QDot, Tau, QDDot_aba);
-  ForwardDynamicsLagrangian(model, Q, QDot, Tau, QDDot_lagrangian);
+  ForwardDynamics(model, model_data, Q, QDot, Tau, QDDot_aba);
+  ForwardDynamicsLagrangian(model, model_data, Q, QDot, Tau, QDDot_lagrangian);
 
   EXPECT_EQ (QDDot_aba.size(), QDDot_lagrangian.size());
   EXPECT_TRUE(EIGEN_MATRIX_NEAR (QDDot_aba, QDDot_lagrangian, TEST_PREC));
@@ -314,6 +318,7 @@ TEST (DynamicsTests, TestForwardDynamicsLagrangian) {
  * it here.
  */
 TEST (DynamicsTests, TestForwardDynamics3DoFModel) {
+  ModelDatad model_data;
   Model model(model_data);
 
   model.gravity = Vector3d (0., -9.81, 0.);
@@ -328,9 +333,9 @@ TEST (DynamicsTests, TestForwardDynamics3DoFModel) {
   unsigned int base_id_rot_z, base_id_rot_y;
 
   // we can reuse both bodies and joints as they are copied
-  base_id_rot_z = model.AddBody (0, Xtrans (Vector3d(0., 0., 0.)), joint_rot_z, null_body);
-  base_id_rot_y = model.AddBody (base_id_rot_z, Xtrans (Vector3d(0., 0., 0.)), joint_rot_y, null_body);
-  model.AddBody (base_id_rot_y, Xtrans (Vector3d(0., 0., 0.)), joint_rot_x, base_body);
+  base_id_rot_z = model.AddBody (model_data,  0, Xtrans (Vector3d(0., 0., 0.)), joint_rot_z, null_body);
+  base_id_rot_y = model.AddBody (model_data,  base_id_rot_z, Xtrans (Vector3d(0., 0., 0.)), joint_rot_y, null_body);
+  model.AddBody (model_data,  base_id_rot_y, Xtrans (Vector3d(0., 0., 0.)), joint_rot_x, base_body);
 
   // Initialization of the input vectors
   VectorNd Q = VectorNd::Constant ((size_t) model.dof_count, 0.);
@@ -344,7 +349,7 @@ TEST (DynamicsTests, TestForwardDynamics3DoFModel) {
 
   ClearLogOutput();
 
-  ForwardDynamics (model, Q, QDot, Tau, QDDot);
+  ForwardDynamics (model, model_data, Q, QDot, Tau, QDDot);
 
   //	cout << LogOutput.str() << endl;
 
@@ -362,6 +367,7 @@ TEST (DynamicsTests, TestForwardDynamics3DoFModel) {
  * test ensures that the error does not happen when calling ForwardLagrangian.
  */
 TEST (DynamicsTests, TestForwardDynamics3DoFModelLagrangian) {
+  ModelDatad model_data;
   Model model(model_data);
 
   model.gravity = Vector3d (0., -9.81, 0.);
@@ -376,9 +382,9 @@ TEST (DynamicsTests, TestForwardDynamics3DoFModelLagrangian) {
   unsigned int base_id_rot_z, base_id_rot_y;
 
   // we can reuse both bodies and joints as they are copied
-  base_id_rot_z = model.AddBody (0, Xtrans (Vector3d(0., 0., 0.)), joint_rot_z, null_body);
-  base_id_rot_y = model.AddBody (base_id_rot_z, Xtrans (Vector3d(0., 0., 0.)), joint_rot_y, null_body);
-  model.AddBody (base_id_rot_y, Xtrans (Vector3d(0., 0., 0.)), joint_rot_x, base_body);
+  base_id_rot_z = model.AddBody (model_data,  0, Xtrans (Vector3d(0., 0., 0.)), joint_rot_z, null_body);
+  base_id_rot_y = model.AddBody (model_data, base_id_rot_z, Xtrans (Vector3d(0., 0., 0.)), joint_rot_y, null_body);
+  model.AddBody (model_data, base_id_rot_y, Xtrans (Vector3d(0., 0., 0.)), joint_rot_x, base_body);
 
   // Initialization of the input vectors
   VectorNd Q = VectorNd::Constant ((size_t) model.dof_count, 0.);
@@ -394,12 +400,12 @@ TEST (DynamicsTests, TestForwardDynamics3DoFModelLagrangian) {
   Q[0] = 0.;
   Q[1] = 1.;
   Q[2] = 0.;
-  ForwardDynamicsLagrangian (model, Q, QDot, Tau, QDDot_lagrangian);
+  ForwardDynamicsLagrangian (model, model_data, Q, QDot, Tau, QDDot_lagrangian);
   Q[0] = 0.;
   Q[1] = 0.;
   Q[2] = 1.;
-  ForwardDynamicsLagrangian (model, Q, QDot, Tau, QDDot_lagrangian);
-  ForwardDynamics (model, Q, QDot, Tau, QDDot_ab);
+  ForwardDynamicsLagrangian (model, model_data, Q, QDot, Tau, QDDot_lagrangian);
+  ForwardDynamics (model, model_data, Q, QDot, Tau, QDDot_ab);
 
   //	cout << QDDot_lagrangian << endl;
   //	cout << LogOutput.str() << endl;
@@ -412,6 +418,7 @@ TEST (DynamicsTests, TestForwardDynamics3DoFModelLagrangian) {
  * Lagragian method and the ABA.
  */
 TEST (DynamicsTests, TestForwardDynamicsTwoLegModelLagrangian) {
+  ModelDatad *model_data = NULL;
   Model *model = NULL;
 
   unsigned int hip_id,
@@ -436,7 +443,8 @@ TEST (DynamicsTests, TestForwardDynamicsTwoLegModelLagrangian) {
   ConstraintSet CS_left;
   ConstraintSet CS_both;
 
-  model = new Model();
+  model_data = new ModelDatad();
+  model = new Model(*model_data);
 
   model->gravity = Vector3d (0., -9.81, 0.);
 
@@ -467,24 +475,24 @@ TEST (DynamicsTests, TestForwardDynamicsTwoLegModelLagrangian) {
   unsigned int temp_id;
 
   // add hip to the model (planar, 3 DOF)
-  temp_id = model->AddBody (model_data, *model_data, 0, Xtrans (Vector3d (0., 0., 0.)), joint_trans_x, null_body);
-  temp_id = model->AddBody (model_data, *model_data, temp_id, Xtrans (Vector3d (0., 0., 0.)), joint_trans_y, null_body);
-  hip_id = model->AddBody (model_data, *model_data, temp_id, Xtrans (Vector3d (0., 0., 0.)), joint_rot_z, hip_body);
+  temp_id = model->AddBody (*model_data, 0, Xtrans (Vector3d (0., 0., 0.)), joint_trans_x, null_body);
+  temp_id = model->AddBody (*model_data, temp_id, Xtrans (Vector3d (0., 0., 0.)), joint_trans_y, null_body);
+  hip_id = model->AddBody (*model_data, temp_id, Xtrans (Vector3d (0., 0., 0.)), joint_rot_z, hip_body);
 
   //
   // right leg
   //
 
   // add right upper leg
-  temp_id = model->AddBody (model_data, *model_data, hip_id, Xtrans (Vector3d(0., 0., 0.)), joint_rot_z, upper_leg_right_body);
+  temp_id = model->AddBody (*model_data, hip_id, Xtrans (Vector3d(0., 0., 0.)), joint_rot_z, upper_leg_right_body);
   upper_leg_right_id = temp_id;
 
   // add the right lower leg (only one DOF)
-  temp_id = model->AddBody (model_data, *model_data, temp_id, Xtrans (Vector3d(0., -0.5, 0.)), joint_rot_z, lower_leg_right_body);
+  temp_id = model->AddBody (*model_data, temp_id, Xtrans (Vector3d(0., -0.5, 0.)), joint_rot_z, lower_leg_right_body);
   lower_leg_right_id = temp_id;
 
   // add the right foot (1 DOF)
-  temp_id = model->AddBody (model_data, *model_data, temp_id, Xtrans (Vector3d(0., -0.5, 0.)), joint_rot_z, foot_right_body);
+  temp_id = model->AddBody (*model_data, temp_id, Xtrans (Vector3d(0., -0.5, 0.)), joint_rot_z, foot_right_body);
   foot_right_id = temp_id;
 
   //
@@ -492,15 +500,15 @@ TEST (DynamicsTests, TestForwardDynamicsTwoLegModelLagrangian) {
   //
 
   // add left upper leg
-  temp_id = model->AddBody (model_data, *model_data, hip_id, Xtrans (Vector3d(0., 0., 0.)), joint_rot_z, upper_leg_left_body);
+  temp_id = model->AddBody (*model_data, hip_id, Xtrans (Vector3d(0., 0., 0.)), joint_rot_z, upper_leg_left_body);
   upper_leg_left_id = temp_id;
 
   // add the left lower leg (only one DOF)
-  temp_id = model->AddBody (model_data, *model_data, temp_id, Xtrans (Vector3d(0., -0.5, 0.)), joint_rot_z, lower_leg_left_body);
+  temp_id = model->AddBody (*model_data, temp_id, Xtrans (Vector3d(0., -0.5, 0.)), joint_rot_z, lower_leg_left_body);
   lower_leg_left_id = temp_id;
 
   // add the left foot (1 DOF)
-  temp_id = model->AddBody (model_data, *model_data, temp_id, Xtrans (Vector3d(0., -0.5, 0.)), joint_rot_z, foot_left_body);
+  temp_id = model->AddBody (*model_data, temp_id, Xtrans (Vector3d(0., -0.5, 0.)), joint_rot_z, foot_left_body);
   foot_left_id = temp_id;
 
   LOG << "--- model created (" << model->dof_count << " DOF) ---" << endl;
@@ -521,9 +529,9 @@ TEST (DynamicsTests, TestForwardDynamicsTwoLegModelLagrangian) {
   CS_both.AddConstraint(foot_left_id, Vector3d (0., 0., 0.), Vector3d (0., 1., 0.), "foot_left_y");
   CS_both.AddConstraint(foot_left_id, Vector3d (0., 0., 0.), Vector3d (0., 0., 1.), "foot_left_z");
 
-  CS_right.Bind(*model);
-  CS_left.Bind(*model);
-  CS_both.Bind(*model);
+  CS_right.Bind(*model, *model_data);
+  CS_left.Bind(*model, *model_data);
+  CS_both.Bind(*model, *model_data);
 
   VectorNd Q(model->dof_count);
   VectorNd QDot(model->dof_count);
@@ -564,17 +572,17 @@ TEST (DynamicsTests, TestForwardDynamicsTwoLegModelLagrangian) {
   // QDDot =  6.31843e-07 -6.12442e-07  9.22595e-14   3.3712e-07  4.27368e-07 -7.91795e-07   3.3712e-07  4.27368e-07 -7.91795e-07
   // QDDAB = -0.00192794    -9.81419        -0.2    0.198972 -0.00130243    0.100141    0.198972 -0.00130243    0.100141
 
-  ForwardDynamics (*model, Q, QDot, Tau, QDDotABA);
+  ForwardDynamics (*model, *model_data, Q, QDot, Tau, QDDotABA);
   ClearLogOutput();
-  ForwardDynamicsLagrangian (*model, Q, QDot, Tau, QDDot);
+  ForwardDynamicsLagrangian (*model, *model_data, Q, QDot, Tau, QDDot);
 
   //	cout << LogOutput.str() << endl;
 
   // run it again to make sure the calculations give the same results and
   // no invalid state information lingering in the model structure is being used
-  ForwardDynamics (*model, Q, QDot, Tau, QDDotABA);
+  ForwardDynamics (*model, *model_data, Q, QDot, Tau, QDDotABA);
   ClearLogOutput();
-  ForwardDynamicsLagrangian (*model, Q, QDot, Tau, QDDot);
+  ForwardDynamicsLagrangian (*model, *model_data, Q, QDot, Tau, QDDot);
 
   EXPECT_TRUE(EIGEN_MATRIX_NEAR (QDDotABA, QDDot, TEST_PREC));
 
@@ -596,8 +604,8 @@ TEST_F(FixedAndMovableJoint, TestForwardDynamicsFixedJoint) {
 
   QDDot.setZero();
 
-  InverseDynamics (*model_movable, Q, QDot, QDDot, C_movable);
-  CompositeRigidBodyAlgorithm (*model_movable, Q, H_movable);
+  InverseDynamics (*model_movable, *model_movable_data, Q, QDot, QDDot, C_movable);
+  CompositeRigidBodyAlgorithm(*model_movable, *model_movable_data, Q, H_movable);
 
   H_fixed = CreateReducedInertiaMatrix (H_movable);
 
@@ -607,7 +615,7 @@ TEST_F(FixedAndMovableJoint, TestForwardDynamicsFixedJoint) {
   VectorNd QDDot_fixed_emulate(2);
   EXPECT_TRUE (LinSolveGaussElimPivot (H_fixed, C_fixed * -1. + Tau_fixed, QDDot_fixed_emulate));
 
-  ForwardDynamics (*model_fixed, Q_fixed, QDot_fixed, Tau_fixed, QDDot_fixed);
+  ForwardDynamics (*model_fixed, *model_fixed_data, Q_fixed, QDot_fixed, Tau_fixed, QDDot_fixed);
 
   EXPECT_TRUE(EIGEN_MATRIX_NEAR (QDDot_fixed_emulate, QDDot_fixed, TEST_PREC));
 }
@@ -626,8 +634,8 @@ TEST_F(FixedAndMovableJoint, TestInverseDynamicsFixedJoint) {
   QDot = CreateDofVectorFromReducedVector (QDot_fixed);
   QDDot = CreateDofVectorFromReducedVector (QDDot_fixed);
 
-  InverseDynamics (*model_movable, Q, QDot, QDDot, Tau);
-  InverseDynamics (*model_fixed, Q_fixed, QDot_fixed, QDDot_fixed, Tau_fixed);
+  InverseDynamics (*model_movable, *model_movable_data, Q, QDot, QDDot, Tau);
+  InverseDynamics (*model_fixed, *model_fixed_data, Q_fixed, QDot_fixed, QDDot_fixed, Tau_fixed);
 
   VectorNd Tau_2dof (2);
   Tau_2dof[0] = Tau[0];
@@ -643,7 +651,7 @@ TEST_F ( FloatingBase12DoF, TestForwardDynamicsLagrangianPrealloc ) {
     Tau[i] = static_cast<double>(i + 1) * -1.2;
   }
 
-  ForwardDynamicsLagrangian (*model,
+  ForwardDynamicsLagrangian (*model, *model_data,
       Q,
       QDot,
       Tau,
@@ -657,7 +665,7 @@ TEST_F ( FloatingBase12DoF, TestForwardDynamicsLagrangianPrealloc ) {
   MatrixNd H (MatrixNd::Zero(model->dof_count, model->dof_count));
   VectorNd C (VectorNd::Zero(model->dof_count));
   VectorNd QDDot_prealloc (VectorNd::Zero (model->dof_count));
-  ForwardDynamicsLagrangian (*model,
+  ForwardDynamicsLagrangian (*model, *model_data,
       Q,
       QDot,
       Tau,
@@ -678,12 +686,12 @@ TEST_F ( FixedBase3DoF, SolveMInvTimesTau) {
   }
 
   MatrixNd M (MatrixNd::Zero(model->dof_count, model->dof_count));
-  CompositeRigidBodyAlgorithm (*model, Q, M);
+  CompositeRigidBodyAlgorithm (*model, *model_data, Q, M);
 
   VectorNd qddot_solve_llt = M.llt().solve(Tau);
 
   VectorNd qddot_minv (Q);
-  CalcMInvTimesTau (*model, Q, Tau, qddot_minv);
+  CalcMInvTimesTau (*model, *model_data, Q, Tau, qddot_minv);
 
   EXPECT_TRUE(EIGEN_MATRIX_NEAR (qddot_solve_llt, qddot_minv, TEST_PREC));
 }
@@ -695,22 +703,22 @@ TEST_F ( FixedBase3DoF, SolveMInvTimesTauReuse) {
   }
 
   MatrixNd M (MatrixNd::Zero(model->dof_count, model->dof_count));
-  CompositeRigidBodyAlgorithm (*model, Q, M);
+  CompositeRigidBodyAlgorithm (*model, *model_data, Q, M);
 
   VectorNd qddot_solve_llt = M.llt().solve(Tau);
 
   VectorNd qddot_minv (Q);
-  CalcMInvTimesTau (*model, Q, Tau, qddot_minv);
+  CalcMInvTimesTau (*model, *model_data, Q, Tau, qddot_minv);
 
   for (unsigned int j = 0; j < 1; j++) {
     for (unsigned int i = 0; i < model->dof_count; i++) {
       Tau[i] = rand() / static_cast<double>(RAND_MAX);
     }
 
-    CompositeRigidBodyAlgorithm (*model, Q, M);
+    CompositeRigidBodyAlgorithm (*model, *model_data, Q, M);
     qddot_solve_llt = M.llt().solve(Tau);
 
-    CalcMInvTimesTau (*model, Q, Tau, qddot_minv, false);
+    CalcMInvTimesTau (*model, *model_data, Q, Tau, qddot_minv, false);
 
     EXPECT_TRUE(EIGEN_MATRIX_NEAR (qddot_solve_llt, qddot_minv, TEST_PREC));
   }

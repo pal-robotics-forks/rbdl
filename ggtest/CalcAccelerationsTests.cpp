@@ -175,7 +175,7 @@ TEST_F (FloatingBase12DoF, TestAccelerationFloatingBaseWithUpdateKinematics ) {
   ForwardDynamics (*model, *model_data, Q, QDot, Tau, QDDot);
 
   ClearLogOutput();
-  Vector3d accel = CalcPointAcceleration (*model, *model_data, Q, QDot, QDDot, child_2_rot_x_id, Vector3d (0., 0., 0.), true);
+  Vector3d accel = CalcPointAcceleration (*model, *model_data,  Q, QDot, QDDot, child_2_rot_x_id, Vector3d (0., 0., 0.), true);
 
   EXPECT_TRUE(EIGEN_MATRIX_NEAR(Vector3d (0., -9.81, 0.), accel, TEST_PREC));
 }
@@ -184,7 +184,7 @@ TEST_F (FloatingBase12DoF, TestAccelerationFloatingBaseWithoutUpdateKinematics )
   ForwardDynamics (*model, *model_data, Q, QDot, Tau, QDDot);
 
   //ClearLogOutput();
-  Vector3d accel = CalcPointAcceleration (*model, *model_data, Q, QDot, QDDot, child_2_rot_x_id, Vector3d (0., 0., 0.), false);
+  Vector3d accel = CalcPointAcceleration (*model, *model_data,  Q, QDot, QDDot, child_2_rot_x_id, Vector3d (0., 0., 0.), false);
 
   EXPECT_TRUE(EIGEN_MATRIX_NEAR(Vector3d (0., 0., 0.), accel, TEST_PREC));
   //	cout << LogOutput.str() << endl;
@@ -197,7 +197,7 @@ TEST_F(FixedBase3DoF, TestCalcPointRotationFixedJoint) {
 
   QDot[0] = 1.;
   point_position = Vector3d (0., 0., 0.);
-  Vector3d point_acceleration_reference = CalcPointAcceleration (*model, *model_data, Q, QDot, QDDot, body_c_id, Vector3d (1., -1., 0.));
+  Vector3d point_acceleration_reference = CalcPointAcceleration (*model, *model_data,  Q, QDot, QDDot, body_c_id, Vector3d (1., -1., 0.));
 
   ClearLogOutput();
   point_acceleration = CalcPointAcceleration(*model, *model_data, Q, QDot, QDDot, fixed_body_id, point_position);
@@ -215,7 +215,7 @@ TEST_F(FixedBase3DoF, TestCalcPointRotationFixedJointRotatedTransform) {
   QDot[0] = 1.;
   point_position = Vector3d (0., 0., 0.);
   ClearLogOutput();
-  Vector3d point_acceleration_reference = CalcPointAcceleration (*model, *model_data, Q, QDot, QDDot, body_c_id, Vector3d (1., 1., 0.));
+  Vector3d point_acceleration_reference = CalcPointAcceleration (*model, *model_data,  Q, QDot, QDDot, body_c_id, Vector3d (1., 1., 0.));
   // cout << LogOutput.str() << endl;
 
   // cout << "Point position = " << CalcBodyToBaseCoordinates (*model, Q, fixed_body_id, Vector3d (0., 0., 0.)).transpose() << endl;
