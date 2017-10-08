@@ -39,10 +39,10 @@ struct RBDL_DLLAPI SpatialRigidBodyInertia{
     Iyx (inertia(1,0)), Iyy(inertia(1,1)),
     Izx (inertia(2,0)), Izy(inertia(2,1)), Izz(inertia(2,2))
   { }
-  SpatialRigidBodyInertia<T> (double m, const Vector3<T>  &h,
-      const double &Ixx,
-      const double &Iyx, const double &Iyy,
-      const double &Izx, const double &Izy, const double &Izz
+  SpatialRigidBodyInertia<T> (T m, const Vector3<T>  &h,
+      const T &Ixx,
+      const T &Iyx, const T &Iyy,
+      const T &Izx, const T &Izy, const T &Izz
       ) :
     m (m), h (h),
     Ixx (Ixx),
@@ -144,6 +144,22 @@ struct RBDL_DLLAPI SpatialRigidBodyInertia{
     result.Izy = I(2,1);
     result.Izz = I(2,2);
     return result;
+  }
+
+  template <class C>
+  SpatialRigidBodyInertia<C> cast() const{
+
+    SpatialRigidBodyInertia<C> casted;
+    casted.m = C(m);
+    casted.h = h.cast<C>();
+    casted.Ixx = C(Ixx);
+    casted.Iyx = C(Iyx);
+    casted.Iyy = C(Iyy);
+    casted.Izx = C(Izx);
+    casted.Izy = C(Izy);
+    casted.Izz = C(Izz);
+
+    return casted;
   }
 
   /// Mass
@@ -333,6 +349,15 @@ struct RBDL_DLLAPI SpatialTransform {
     E *= XT.E;
   }
 
+  template <class C>
+  SpatialTransform<C> cast() const{
+    SpatialTransform<C> res;
+    res.E = E. template cast<C>();
+    res.r = r. template cast<C>();
+
+    return res;
+  }
+
   Matrix3<T> E;
   Vector3<T>  r;
 };
@@ -356,7 +381,7 @@ inline std::ostream& operator<<(std::ostream& output, const SpatialTransform<T> 
 
 template <class T>
 inline SpatialTransform<T> Xrot (T angle_rad, const Vector3<T>  &axis) {
-  double s, c;
+  T s, c;
   s = sin(angle_rad);
   c = cos(angle_rad);
 
@@ -475,7 +500,7 @@ inline SpatialVector<T> crossf (const SpatialVector<T> &v1, const SpatialVector<
       v1[2] * v2[0] - v1[0] * v2[2] + v1[5] * v2[3] - v1[3] * v2[5],
       -v1[1] * v2[0] + v1[0] * v2[1] - v1[4] * v2[3] + v1[3] * v2[4],
       - v1[2] * v2[4] + v1[1] * v2[5],
-      + v1[2] * v2[3] - v1[0] * v2[5],
+      v1[2] * v2[3] - v1[0] * v2[5],
       - v1[1] * v2[3] + v1[0] * v2[4]
       );
 }

@@ -13,12 +13,12 @@ namespace RigidBodyDynamics {
 
     /// @todo urdf should be const
 
-    bool URDFReadFromFile (const char* filename, Model* model, FloatingBaseType floatingBaseType, bool verbose = false);
-    bool URDFReadFromString (const char* model_xml_string, Model* model, FloatingBaseType floatingBaseType, bool verbose = false);
-    bool URDFReadFromURDF(urdf::Model &urdf_model, Model* model, FloatingBaseType floatingBaseType, bool verbose = false);
-    bool URDFReadFromParamServer(Model* model, FloatingBaseType floatingBaseType, bool verbose = false);
+    bool URDFReadFromFile (const char* filename, Model* model, ModelDatad &model_data, FloatingBaseType floatingBaseType, bool verbose = false);
+    bool URDFReadFromString (const char* model_xml_string, Model* model, ModelDatad &model_data, FloatingBaseType floatingBaseType, bool verbose = false);
+    bool URDFReadFromURDF(urdf::Model &urdf_model, Model* model, ModelDatad &model_data, FloatingBaseType floatingBaseType, bool verbose = false);
+    bool URDFReadFromParamServer(Model* model, ModelDatad &model_data, FloatingBaseType floatingBaseType, bool verbose = false);
 
-    bool URDFReadFromFile (const char* filename, Model* model, FloatingBaseType floatingBaseType,
+    bool URDFReadFromFile (const char* filename, Model* model, ModelDatad &model_data, FloatingBaseType floatingBaseType,
                            std::vector<std::string> &joint_names,
                            std::vector<double> &position_min,  std::vector<double> &position_max,
                            std::vector<double> &vel_min,  std::vector<double> &vel_max,
@@ -26,7 +26,7 @@ namespace RigidBodyDynamics {
                            std::vector<double> &max_effort,
                            bool verbose = false);
 
-    bool URDFReadFromString (const char* model_xml_string, Model* model, FloatingBaseType floatingBaseType,
+    bool URDFReadFromString (const char* model_xml_string, Model* model, ModelDatad &model_data, FloatingBaseType floatingBaseType,
                              std::vector<std::string> &joint_names,
                              std::vector<double> &position_min,  std::vector<double> &position_max,
                              std::vector<double> &vel_min,  std::vector<double> &vel_max,
@@ -34,7 +34,7 @@ namespace RigidBodyDynamics {
                              std::vector<double> &max_effort,
                              bool verbose = false);
 
-    bool URDFReadFromURDF(urdf::Model &urdf_model, Model* model, FloatingBaseType floatingBaseType,
+    bool URDFReadFromURDF(urdf::Model &urdf_model, Model* model, ModelDatad &model_data, FloatingBaseType floatingBaseType,
                           std::vector<std::string> &joint_names,
                           std::vector<double> &position_min,  std::vector<double> &position_max,
                           std::vector<double> &vel_min,  std::vector<double> &vel_max,

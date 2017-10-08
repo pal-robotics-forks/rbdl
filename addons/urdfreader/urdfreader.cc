@@ -661,7 +661,7 @@ namespace RigidBodyDynamics {
       return true;
     }
 
-    bool URDFReadFromFile (const char* filename, Model* model, FloatingBaseType floatingBaseType, bool verbose) {
+    bool URDFReadFromFile (const char* filename, Model* model, ModelDatad &model_data, FloatingBaseType floatingBaseType, bool verbose) {
 
       ifstream model_file (filename);
       if (!model_file) {
@@ -678,7 +678,7 @@ namespace RigidBodyDynamics {
 
       model_file.close();
 
-      return URDFReadFromString (model_xml_string.c_str(), model, floatingBaseType, verbose);
+      return URDFReadFromString (model_xml_string.c_str(), model, model_data, floatingBaseType, verbose);
     }
 
     bool URDFReadFromString (const char* model_xml_string, Model* model, ModelDatad &model_data, FloatingBaseType floatingBaseType, bool verbose) {
@@ -730,7 +730,7 @@ namespace RigidBodyDynamics {
 
     ///////////////////////////
 
-    bool URDFReadFromFile (const char* filename, Model* model, FloatingBaseType floatingBaseType,
+    bool URDFReadFromFile (const char* filename, Model* model, ModelDatad &model_data, FloatingBaseType floatingBaseType,
                            std::vector<std::string> &joint_names,
                            std::vector<double> &position_min,  std::vector<double> &position_max,
                            std::vector<double> &vel_min,  std::vector<double> &vel_max,
@@ -753,14 +753,14 @@ namespace RigidBodyDynamics {
 
       model_file.close();
 
-      return URDFReadFromString(model_xml_string.c_str(), model, floatingBaseType,
+      return URDFReadFromString(model_xml_string.c_str(), model, model_data, floatingBaseType,
                                 joint_names,
                                 position_min, position_max,
                                 vel_min, vel_max,
                                 damping, friction, max_effort, verbose);
     }
 
-    bool URDFReadFromString (const char* model_xml_string, Model* model, FloatingBaseType floatingBaseType,
+    bool URDFReadFromString (const char* model_xml_string, Model* model, ModelDatad &model_data, FloatingBaseType floatingBaseType,
                              std::vector<std::string> &joint_names,
                              std::vector<double> &position_min,  std::vector<double> &position_max,
                              std::vector<double> &vel_min,  std::vector<double> &vel_max,
@@ -774,7 +774,7 @@ namespace RigidBodyDynamics {
         return false;
       }
 
-      return URDFReadFromURDF(urdf_model, model, floatingBaseType,
+      return URDFReadFromURDF(urdf_model, model, model_data, floatingBaseType,
                               joint_names,
                               position_min, position_max,
                               vel_min, vel_max,
@@ -783,7 +783,7 @@ namespace RigidBodyDynamics {
 
     }
 
-    bool URDFReadFromURDF(urdf::Model &urdf_model, Model* model, FloatingBaseType floatingBaseType,
+    bool URDFReadFromURDF(urdf::Model &urdf_model, Model* model, ModelDatad &model_data, FloatingBaseType floatingBaseType,
                           std::vector<std::string> &joint_names,
                           std::vector<double> &position_min,  std::vector<double> &position_max,
                           std::vector<double> &vel_min,  std::vector<double> &vel_max,
@@ -792,7 +792,7 @@ namespace RigidBodyDynamics {
                           bool verbose){
 
 
-      bool urdfOK = URDFReadFromURDF(urdf_model, model, floatingBaseType, verbose);
+      bool urdfOK = URDFReadFromURDF(urdf_model, model, model_data, floatingBaseType, verbose);
       bool extraOK = parseExtraInformation(urdf_model, model, joint_names,
                                            position_min, position_max,
                                            vel_min, vel_max,

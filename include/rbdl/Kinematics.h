@@ -42,13 +42,79 @@ using namespace Math;
  * \param QDot  the generalized velocities of the joints
  * \param QDDot the generalized accelerations of the joints
  */
-RBDL_DLLAPI void UpdateKinematics (const Model &model,
-                                   ModelDatad  &model_data,
-                                   const Math::VectorNd &Q,
-                                   const Math::VectorNd &QDot,
-                                   const Math::VectorNd &QDDot
-                                   );
+template <typename T>
+RBDL_DLLAPI void UpdateKinematics(
+    const Model &model,
+    ModelData<T> &model_data,
+    const VectorN<T> &Q,
+    const VectorN<T> &QDot,
+    const VectorN<T> &QDDot) {
+  LOG << "-------- " << __func__ << " --------" << std::endl;
 
+
+  assert(Q.rows() == model.q_size);
+  assert(QDot.rows() == model.qdot_size);
+  assert(QDDot.rows() == model.qdot_size);
+
+  unsigned int i;
+
+  SpatialVectord spatial_gravity (0.,
+                                  0.,
+                                  0.,
+                                  model.gravity[0],
+      model.gravity[1],
+      model.gravity[2]);
+
+  model_data.a[0].setZero();
+  //model_data.a[0] = spatial_gravity;
+
+  for (i = 1; i < model.mBodies.size(); i++) {
+    unsigned int q_index = model.mJoints[i].q_index;
+
+    Joint joint = model.mJoints[i];
+    unsigned int lambda = model.lambda[i];
+
+    jcalc (model, model_data, i, Q, QDot);
+
+    model_data.X_lambda[i] = model_data.X_J[i] * model.X_T[i];
+
+    if (lambda != 0) {
+      model_data.X_base[i] = model_data.X_lambda[i] * model_data.X_base[lambda];
+      model_data.v[i] = model_data.X_lambda[i].apply(model_data.v[lambda]) + model_data.v_J[i];
+      model_data.a_bias[i] = model_data.X_lambda[i].apply(model_data.a_bias[lambda]) + model_data.c[i];
+    } else {
+      model_data.X_base[i] = model_data.X_lambda[i];
+      model_data.v[i] = model_data.v_J[i];
+      model_data.a_bias[i].setZero();
+    }
+
+    model_data.c[i] = model_data.c_J[i] + crossm(model_data.v[i],model_data.v_J[i]);
+    model_data.a[i] = model_data.X_lambda[i].apply(model_data.a[lambda]) + model_data.c[i];
+
+    //if(model.mJoints[i].mJointType != JointTypeCustom){
+    if (model.mJoints[i].mDoFCount == 1) {
+      model_data.a[i] = model_data.a[i] + model_data.S[i] * QDDot[q_index];
+    } else if (model.mJoints[i].mDoFCount == 3) {
+      Vector3d omegadot_temp (QDDot[q_index],
+                              QDDot[q_index + 1],
+          QDDot[q_index + 2]);
+      model_data.a[i] = model_data.a[i] + model_data.multdof3_S[i] * omegadot_temp;
+    }
+    //    } else {
+    //      unsigned int custom_index = model.mJoints[i].custom_joint_index;
+    //      const CustomJoint* custom_joint = model.mCustomJoints[custom_index];
+    //      unsigned int joint_dof_count = custom_joint->mDoFCount;
+
+    //      model_data.a[i] = model_data.a[i]
+    //        + ( model.mCustomJoints[custom_index]->S
+    //            * QDDot.block(q_index, 0, joint_dof_count, 1));
+    //    }
+  }
+
+  for (i = 1; i < model.mBodies.size(); i++) {
+    LOG << "a[" << i << "] = " << model_data.a[i].transpose() << std::endl;
+  }
+}
 /** \brief Selectively updates model internal states of body positions, velocities and/or accelerations.
  *
  * This function updates the kinematic variables such as body velocities and
@@ -129,26 +195,26 @@ void UpdateKinematicsCustom (const Model &model,
         model_data.a[i] = model_data.c[i];
       }
 
-//      if( model.mJoints[i].mJointType != JointTypeCustom){
-        if (model.mJoints[i].mDoFCount == 1) {
-          model_data.a[i] = model_data.a[i] + model_data.S[i] * (*QDDot)[q_index];
-        } else if (model.mJoints[i].mDoFCount == 3) {
-          Vector3<T> omegadot_temp ((*QDDot)[q_index],
-                                    (*QDDot)[q_index + 1],
-              (*QDDot)[q_index + 2]);
-          model_data.a[i] = model_data.a[i]
-                            + model_data.multdof3_S[i] * omegadot_temp;
-        }
-//      } else {
-//        unsigned int k = model.mJoints[i].custom_joint_index;
+      //      if( model.mJoints[i].mJointType != JointTypeCustom){
+      if (model.mJoints[i].mDoFCount == 1) {
+        model_data.a[i] = model_data.a[i] + model_data.S[i] * (*QDDot)[q_index];
+      } else if (model.mJoints[i].mDoFCount == 3) {
+        Vector3<T> omegadot_temp ((*QDDot)[q_index],
+                                  (*QDDot)[q_index + 1],
+            (*QDDot)[q_index + 2]);
+        model_data.a[i] = model_data.a[i]
+                          + model_data.multdof3_S[i] * omegadot_temp;
+      }
+      //      } else {
+      //        unsigned int k = model.mJoints[i].custom_joint_index;
 
-//        const CustomJoint* custom_joint = model.mCustomJoints[k];
-//        unsigned int joint_dof_count = custom_joint->mDoFCount;
+      //        const CustomJoint* custom_joint = model.mCustomJoints[k];
+      //        unsigned int joint_dof_count = custom_joint->mDoFCount;
 
-//        model_data.a[i] = model_data.a[i]
-//                          + (  (model.mCustomJoints[k]->S). template cast<T>()
-//                               *(QDDot->block(q_index, 0, joint_dof_count, 1)));
-//      }
+      //        model_data.a[i] = model_data.a[i]
+      //                          + (  (model.mCustomJoints[k]->S). template cast<T>()
+      //                               *(QDDot->block(q_index, 0, joint_dof_count, 1)));
+      //      }
     }
   }
 }
@@ -164,13 +230,40 @@ void UpdateKinematicsCustom (const Model &model,
  *
  * \returns a 3-D vector with coordinates of the point in base coordinates
  */
-RBDL_DLLAPI Math::Vector3d CalcBodyToBaseCoordinates (
+template <typename T>
+Vector3<T> CalcBodyToBaseCoordinates (
     const Model &model,
-    ModelDatad  &model_data,
-    const Math::VectorNd &Q,
+    ModelData<T> &model_data,
+    const VectorN<T> &Q,
     unsigned int body_id,
-    const Math::Vector3d &body_point_position,
-    bool update_kinematics = true);
+    const Vector3d &point_body_coordinates,
+    bool update_kinematics = true) {
+  // update the Kinematics if necessary
+  if (update_kinematics) {
+    UpdateKinematicsCustom<T>(model, model_data, &Q, NULL, NULL);
+  }
+
+  if (body_id >= model.fixed_body_discriminator) {
+    unsigned int fbody_id = body_id - model.fixed_body_discriminator;
+    unsigned int parent_id = model.mFixedBodies[fbody_id].mMovableParent;
+
+    Matrix3<T> fixed_rotation =
+        model.mFixedBodies[fbody_id].mParentTransform.E.transpose().cast<T>();
+    Vector3<T> fixed_position = model.mFixedBodies[fbody_id].mParentTransform.r.cast<T>();
+
+    Matrix3<T> parent_body_rotation = model_data.X_base[parent_id].E.transpose();
+    Vector3<T> parent_body_position = model_data.X_base[parent_id].r;
+
+    return (parent_body_position
+            + (parent_body_rotation
+               * (fixed_position + fixed_rotation * (point_body_coordinates.cast<T>()))) );
+  }
+
+  Matrix3<T> body_rotation = model_data.X_base[body_id].E.transpose();
+  Vector3<T> body_position = model_data.X_base[body_id].r;
+
+  return body_position + body_rotation * point_body_coordinates.cast<T>();
+}
 
 /** \brief Returns the body coordinates of a point given in base coordinates.
  *

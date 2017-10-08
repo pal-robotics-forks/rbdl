@@ -179,10 +179,10 @@ RBDL_DLLAPI void ForwardDynamics (
 
   unsigned int i = 0;
 
-  LOG << "Q          = " << Q.transpose() << std::endl;
-  LOG << "QDot       = " << QDot.transpose() << std::endl;
-  LOG << "Tau        = " << Tau.transpose() << std::endl;
-  LOG << "---" << std::endl;
+//  LOG << "Q          = " << Q.transpose() << std::endl;
+//  LOG << "QDot       = " << QDot.transpose() << std::endl;
+//  LOG << "Tau        = " << Tau.transpose() << std::endl;
+//  LOG << "---" << std::endl;
 
   // Reset the velocity of the root body
   model_data.v[0].setZero();
@@ -212,15 +212,15 @@ RBDL_DLLAPI void ForwardDynamics (
 
     model_data.pA[i] = crossf(model_data.v[i],model_data.I[i] * model_data.v[i]);
 
-    if (f_ext != NULL && (*f_ext)[i] != SpatialVector<T>::Zero()) {
-      LOG << "External force (" << i << ") = " << model_data.X_base[i].toMatrixAdjoint() * (*f_ext)[i] << std::endl;
+    if (f_ext != NULL) {
+      //LOG << "External force (" << i << ") = " << model_data.X_base[i].toMatrixAdjoint() * (*f_ext)[i] << std::endl;
       model_data.pA[i] -= model_data.X_base[i].toMatrixAdjoint() * (*f_ext)[i];
     }
   }
 
   // ClearLogOutput();
 
-  LOG << "--- first loop ---" << std::endl;
+  //LOG << "--- first loop ---" << std::endl;
 
   for (i = model.mBodies.size() - 1; i > 0; i--) {
     unsigned int q_index = model.mJoints[i].q_index;
@@ -256,8 +256,8 @@ RBDL_DLLAPI void ForwardDynamics (
 
         model_data.pA[lambda] += model_data.X_lambda[i].applyTranspose(pa);
 #endif
-        LOG << "pA[" << lambda << "] = "
-            << model_data.pA[lambda].transpose() << std::endl;
+       // LOG << "pA[" << lambda << "] = "
+       //     << model_data.pA[lambda].transpose() << std::endl;
       }
     } else if (model.mJoints[i].mDoFCount == 3){
       //&& model.mJoints[i].mJointType != JointTypeCustom) {
@@ -305,9 +305,9 @@ RBDL_DLLAPI void ForwardDynamics (
 
         model_data.pA[lambda] += model_data.X_lambda[i].applyTranspose(pa);
 #endif
-        LOG << "pA[" << lambda << "] = "
-            << model_data.pA[lambda].transpose()
-            << std::endl;
+//        LOG << "pA[" << lambda << "] = "
+//            << model_data.pA[lambda].transpose()
+//            << std::endl;
       }
     }/* else if (model.mJoints[i].mJointType == JointTypeCustom) {
       unsigned int kI   = model.mJoints[i].custom_joint_index;
@@ -374,7 +374,7 @@ RBDL_DLLAPI void ForwardDynamics (
     SpatialTransform<T> X_lambda = model_data.X_lambda[i];
 
     model_data.a[i] = X_lambda.apply(model_data.a[lambda]) + model_data.c[i];
-    LOG << "a'[" << i << "] = " << model_data.a[i].transpose() << std::endl;
+    //LOG << "a'[" << i << "] = " << model_data.a[i].transpose() << std::endl;
 
     if (model.mJoints[i].mDoFCount == 1){
       //&& model.mJoints[i].mJointType != JointTypeCustom) {
@@ -405,7 +405,7 @@ RBDL_DLLAPI void ForwardDynamics (
     } */
   }
 
-  LOG << "QDDot = " << QDDot.transpose() << std::endl;
+//  LOG << "QDDot = " << QDDot.transpose() << std::endl;
 }
 
 /** \brief Computes forward dynamics by building and solving the full Lagrangian equation
@@ -474,9 +474,9 @@ void CompositeRigidBodyAlgorithm (
         } else if (model.mJoints[j].mDoFCount == 3) {
           Vector3<T> H_temp2 =
               (F.transpose() * model_data.multdof3_S[j]).transpose();
-          LOG << F.transpose() << std::endl
-              << model_data.multdof3_S[j] << std::endl;
-          LOG << H_temp2.transpose() << std::endl;
+//          LOG << F.transpose() << std::endl
+//              << model_data.multdof3_S[j] << std::endl;
+//          LOG << H_temp2.transpose() << std::endl;
 
           H. template block<1,3>(dof_index_i,dof_index_j) = H_temp2.transpose();
           H. template block<3,1>(dof_index_j,dof_index_i) = H_temp2;

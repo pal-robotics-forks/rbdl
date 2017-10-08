@@ -732,7 +732,7 @@ void jcalc (
     model_data.multdof3_S[joint_id](1,1) = 1.;
     model_data.multdof3_S[joint_id](2,2) = 1.;
 
-    Vector3d omega (qdot[model.mJoints[joint_id].q_index],
+    Vector3<T> omega (qdot[model.mJoints[joint_id].q_index],
         qdot[model.mJoints[joint_id].q_index+1],
         qdot[model.mJoints[joint_id].q_index+2]);
 
@@ -740,16 +740,16 @@ void jcalc (
                                  omega[0], omega[1], omega[2],
         0., 0., 0.);
   } else if (model.mJoints[joint_id].mJointType == JointTypeEulerZYX) {
-    double q0 = q[model.mJoints[joint_id].q_index];
-    double q1 = q[model.mJoints[joint_id].q_index + 1];
-    double q2 = q[model.mJoints[joint_id].q_index + 2];
+    T q0 = q[model.mJoints[joint_id].q_index];
+    T q1 = q[model.mJoints[joint_id].q_index + 1];
+    T q2 = q[model.mJoints[joint_id].q_index + 2];
 
-    double s0 = sin (q0);
-    double c0 = cos (q0);
-    double s1 = sin (q1);
-    double c1 = cos (q1);
-    double s2 = sin (q2);
-    double c2 = cos (q2);
+    T s0 = sin (q0);
+    T c0 = cos (q0);
+    T s1 = sin (q1);
+    T c1 = cos (q1);
+    T s2 = sin (q2);
+    T c2 = cos (q2);
 
     model_data.X_J[joint_id].E = Matrix3<T>(
                                    c0 * c1, s0 * c1, -s1,
@@ -766,9 +766,9 @@ void jcalc (
     model_data.multdof3_S[joint_id](2,0) = c1 * c2;
     model_data.multdof3_S[joint_id](2,1) = - s2;
 
-    double qdot0 = qdot[model.mJoints[joint_id].q_index];
-    double qdot1 = qdot[model.mJoints[joint_id].q_index + 1];
-    double qdot2 = qdot[model.mJoints[joint_id].q_index + 2];
+    T qdot0 = qdot[model.mJoints[joint_id].q_index];
+    T qdot1 = qdot[model.mJoints[joint_id].q_index + 1];
+    T qdot2 = qdot[model.mJoints[joint_id].q_index + 2];
 
     model_data.v_J[joint_id] =
         model_data.multdof3_S[joint_id] * Vector3<T> (qdot0, qdot1, qdot2);
@@ -779,16 +779,16 @@ void jcalc (
           -s1*c2*qdot0*qdot1 - c1*s2*qdot0*qdot2 - c2*qdot1*qdot2,
           0.,0., 0.);
   } else if (model.mJoints[joint_id].mJointType == JointTypeEulerXYZ) {
-    double q0 = q[model.mJoints[joint_id].q_index];
-    double q1 = q[model.mJoints[joint_id].q_index + 1];
-    double q2 = q[model.mJoints[joint_id].q_index + 2];
+    T q0 = q[model.mJoints[joint_id].q_index];
+    T q1 = q[model.mJoints[joint_id].q_index + 1];
+    T q2 = q[model.mJoints[joint_id].q_index + 2];
 
-    double s0 = sin (q0);
-    double c0 = cos (q0);
-    double s1 = sin (q1);
-    double c1 = cos (q1);
-    double s2 = sin (q2);
-    double c2 = cos (q2);
+    T s0 = sin (q0);
+    T c0 = cos (q0);
+    T s1 = sin (q1);
+    T c1 = cos (q1);
+    T s2 = sin (q2);
+    T c2 = cos (q2);
 
     model_data.X_J[joint_id].E = Matrix3<T>(
                                    c2 * c1, s2 * c0 + c2 * s1 * s0, s2 * s0 - c2 * s1 * c0,
@@ -805,9 +805,9 @@ void jcalc (
     model_data.multdof3_S[joint_id](2,0) = s1;
     model_data.multdof3_S[joint_id](2,2) = 1.;
 
-    double qdot0 = qdot[model.mJoints[joint_id].q_index];
-    double qdot1 = qdot[model.mJoints[joint_id].q_index + 1];
-    double qdot2 = qdot[model.mJoints[joint_id].q_index + 2];
+    T qdot0 = qdot[model.mJoints[joint_id].q_index];
+    T qdot1 = qdot[model.mJoints[joint_id].q_index + 1];
+    T qdot2 = qdot[model.mJoints[joint_id].q_index + 2];
 
     model_data.v_J[joint_id] =
         model_data.multdof3_S[joint_id] * Vector3<T> (qdot0, qdot1, qdot2);
@@ -819,16 +819,16 @@ void jcalc (
           0., 0., 0.
           );
   } else if (model.mJoints[joint_id].mJointType == JointTypeEulerYXZ) {
-    double q0 = q[model.mJoints[joint_id].q_index];
-    double q1 = q[model.mJoints[joint_id].q_index + 1];
-    double q2 = q[model.mJoints[joint_id].q_index + 2];
+    T q0 = q[model.mJoints[joint_id].q_index];
+    T q1 = q[model.mJoints[joint_id].q_index + 1];
+    T q2 = q[model.mJoints[joint_id].q_index + 2];
 
-    double s0 = sin (q0);
-    double c0 = cos (q0);
-    double s1 = sin (q1);
-    double c1 = cos (q1);
-    double s2 = sin (q2);
-    double c2 = cos (q2);
+    T s0 = sin (q0);
+    T c0 = cos (q0);
+    T s1 = sin (q1);
+    T c1 = cos (q1);
+    T s2 = sin (q2);
+    T c2 = cos (q2);
 
     model_data.X_J[joint_id].E = Matrix3<T>(
                                    c2 * c0 + s2 * s1 * s0, s2 * c1, -c2 * s0 + s2 * s1 * c0,
@@ -844,9 +844,9 @@ void jcalc (
     model_data.multdof3_S[joint_id](2,0) = -s1;
     model_data.multdof3_S[joint_id](2,2) = 1.;
 
-    double qdot0 = qdot[model.mJoints[joint_id].q_index];
-    double qdot1 = qdot[model.mJoints[joint_id].q_index + 1];
-    double qdot2 = qdot[model.mJoints[joint_id].q_index + 2];
+    T qdot0 = qdot[model.mJoints[joint_id].q_index];
+    T qdot1 = qdot[model.mJoints[joint_id].q_index + 1];
+    T qdot2 = qdot[model.mJoints[joint_id].q_index + 2];
 
     model_data.v_J[joint_id] =
         model_data.multdof3_S[joint_id] * Vector3<T> (qdot0, qdot1, qdot2);
@@ -858,9 +858,9 @@ void jcalc (
           0., 0., 0.
           );
   } else if(model.mJoints[joint_id].mJointType == JointTypeTranslationXYZ){
-    double q0 = q[model.mJoints[joint_id].q_index];
-    double q1 = q[model.mJoints[joint_id].q_index + 1];
-    double q2 = q[model.mJoints[joint_id].q_index + 2];
+    T q0 = q[model.mJoints[joint_id].q_index];
+    T q1 = q[model.mJoints[joint_id].q_index + 1];
+    T q2 = q[model.mJoints[joint_id].q_index + 2];
 
     model_data.X_J[joint_id].E = Matrix3<T>::Identity();
     model_data.X_J[joint_id].r = Vector3<T> (q0, q1, q2);
@@ -869,9 +869,9 @@ void jcalc (
     model_data.multdof3_S[joint_id](4,1) = 1.;
     model_data.multdof3_S[joint_id](5,2) = 1.;
 
-    double qdot0 = qdot[model.mJoints[joint_id].q_index];
-    double qdot1 = qdot[model.mJoints[joint_id].q_index + 1];
-    double qdot2 = qdot[model.mJoints[joint_id].q_index + 2];
+    T qdot0 = qdot[model.mJoints[joint_id].q_index];
+    T qdot1 = qdot[model.mJoints[joint_id].q_index + 1];
+    T qdot2 = qdot[model.mJoints[joint_id].q_index + 2];
 
     model_data.v_J[joint_id] =
         model_data.multdof3_S[joint_id] * Vector3<T> (qdot0, qdot1, qdot2);
@@ -930,16 +930,16 @@ void jcalc_X_lambda_S (
     model_data.multdof3_S[joint_id](1,1) = 1.;
     model_data.multdof3_S[joint_id](2,2) = 1.;
   } else if (model.mJoints[joint_id].mJointType == JointTypeEulerZYX) {
-    double q0 = q[model.mJoints[joint_id].q_index];
-    double q1 = q[model.mJoints[joint_id].q_index + 1];
-    double q2 = q[model.mJoints[joint_id].q_index + 2];
+    T q0 = q[model.mJoints[joint_id].q_index];
+    T q1 = q[model.mJoints[joint_id].q_index + 1];
+    T q2 = q[model.mJoints[joint_id].q_index + 2];
 
-    double s0 = sin (q0);
-    double c0 = cos (q0);
-    double s1 = sin (q1);
-    double c1 = cos (q1);
-    double s2 = sin (q2);
-    double c2 = cos (q2);
+    T s0 = sin (q0);
+    T c0 = cos (q0);
+    T s1 = sin (q1);
+    T c1 = cos (q1);
+    T s2 = sin (q2);
+    T c2 = cos (q2);
 
     model_data.X_lambda[joint_id] = SpatialTransform<T> (
         Matrix3<T>(
@@ -961,16 +961,16 @@ void jcalc_X_lambda_S (
     model_data.multdof3_S[joint_id](2,0) = c1 * c2;
     model_data.multdof3_S[joint_id](2,1) = - s2;
   } else if (model.mJoints[joint_id].mJointType == JointTypeEulerXYZ) {
-    double q0 = q[model.mJoints[joint_id].q_index];
-    double q1 = q[model.mJoints[joint_id].q_index + 1];
-    double q2 = q[model.mJoints[joint_id].q_index + 2];
+    T q0 = q[model.mJoints[joint_id].q_index];
+    T q1 = q[model.mJoints[joint_id].q_index + 1];
+    T q2 = q[model.mJoints[joint_id].q_index + 2];
 
-    double s0 = sin (q0);
-    double c0 = cos (q0);
-    double s1 = sin (q1);
-    double c1 = cos (q1);
-    double s2 = sin (q2);
-    double c2 = cos (q2);
+    T s0 = sin (q0);
+    T c0 = cos (q0);
+    T s1 = sin (q1);
+    T c1 = cos (q1);
+    T s2 = sin (q2);
+    T c2 = cos (q2);
 
     model_data.X_lambda[joint_id] = SpatialTransform<T> (
         Matrix3<T>(
@@ -992,16 +992,16 @@ void jcalc_X_lambda_S (
     model_data.multdof3_S[joint_id](2,0) = s1;
     model_data.multdof3_S[joint_id](2,2) = 1.;
   } else if (model.mJoints[joint_id].mJointType == JointTypeEulerYXZ ) {
-    double q0 = q[model.mJoints[joint_id].q_index];
-    double q1 = q[model.mJoints[joint_id].q_index + 1];
-    double q2 = q[model.mJoints[joint_id].q_index + 2];
+    T q0 = q[model.mJoints[joint_id].q_index];
+    T q1 = q[model.mJoints[joint_id].q_index + 1];
+    T q2 = q[model.mJoints[joint_id].q_index + 2];
 
-    double s0 = sin (q0);
-    double c0 = cos (q0);
-    double s1 = sin (q1);
-    double c1 = cos (q1);
-    double s2 = sin (q2);
-    double c2 = cos (q2);
+    T s0 = sin (q0);
+    T c0 = cos (q0);
+    T s1 = sin (q1);
+    T c1 = cos (q1);
+    T s2 = sin (q2);
+    T c2 = cos (q2);
 
     model_data.X_lambda[joint_id] = SpatialTransform<T> (
         Matrix3<T>(
@@ -1023,9 +1023,9 @@ void jcalc_X_lambda_S (
     model_data.multdof3_S[joint_id](2,0) = -s1;
     model_data.multdof3_S[joint_id](2,2) = 1.;
   } else if (model.mJoints[joint_id].mJointType == JointTypeTranslationXYZ) {
-    double q0 = q[model.mJoints[joint_id].q_index];
-    double q1 = q[model.mJoints[joint_id].q_index + 1];
-    double q2 = q[model.mJoints[joint_id].q_index + 2];
+    T q0 = q[model.mJoints[joint_id].q_index];
+    T q1 = q[model.mJoints[joint_id].q_index + 1];
+    T q2 = q[model.mJoints[joint_id].q_index + 2];
 
     model_data.X_lambda[joint_id] = SpatialTransform<T> (
         Matrix3<T>::Identity (3,3),
