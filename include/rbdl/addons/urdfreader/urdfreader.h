@@ -61,7 +61,8 @@ namespace RigidBodyDynamics {
 
     // With subtree parsing
 
-    bool URDFReadFromParamServer(Model* model, const std::vector<std::string> &tipLinks, FloatingBaseType floatingBaseType, bool verbose = false);
+    bool URDFReadFromParamServer(Model* model, const std::vector<std::string> &tipLinks,
+                                 FloatingBaseType floatingBaseType, bool verbose = false);
 
     bool URDFReadFromParamServer(Model* model, FloatingBaseType floatingBaseType, const std::vector<std::string> &tipLinks,
                                  std::vector<std::string> &joint_names,
