@@ -5,13 +5,15 @@
 #include <exception>
 #include <rbdl/Kinematics.h>
 
-inline Eigen::Isometry3d getBodyToBaseTransform(RigidBodyDynamics::Model &model, const Eigen::VectorXd &Q, const std::string &name, bool update){
+inline Eigen::Isometry3d getBodyToBaseTransform(const RigidBodyDynamics::Model &model,
+                                                RigidBodyDynamics::ModelDatad &model_data,
+                                                const Eigen::VectorXd &Q, const std::string &name, bool update){
 
   assert(model.dof_count == Q.rows());
   unsigned int id = model.GetBodyId(name.c_str());
 
-  Eigen::Vector3d position = RigidBodyDynamics::CalcBodyToBaseCoordinates(model, Q, id, Eigen::Vector3d(0., 0., 0.), update);
-  Eigen::Matrix3d rotation = RigidBodyDynamics::CalcBodyWorldOrientation(model, Q, id, update).transpose();
+  Eigen::Vector3d position = RigidBodyDynamics::CalcBodyToBaseCoordinates(model, model_data, Q, id, Eigen::Vector3d(0., 0., 0.), update);
+  Eigen::Matrix3d rotation = RigidBodyDynamics::CalcBodyWorldOrientation(model, model_data, Q, id, update).transpose();
 
   Eigen::Isometry3d temp;
   temp.setIdentity();
@@ -22,15 +24,17 @@ inline Eigen::Isometry3d getBodyToBaseTransform(RigidBodyDynamics::Model &model,
 }
 
 // This method does not update the internal state of the model, it querys directly the internal data structure
-inline Eigen::Isometry3d getBodyTransform(RigidBodyDynamics::Model &model, const std::string &name){
+inline Eigen::Isometry3d getBodyTransform(const RigidBodyDynamics::Model &model,
+                                          RigidBodyDynamics::ModelDatad &model_data,
+                                          const std::string &name){
   unsigned int id = model.GetBodyId(name.c_str());
-  RigidBodyDynamics::Math::SpatialTransform tf;
+  RigidBodyDynamics::Math::SpatialTransformd tf;
   //Add forces (check if contact force is not in a fix link)
   if(id >= model.fixed_body_discriminator){
     tf = model.mFixedBodies[id - model.fixed_body_discriminator].mParentTransform;
   }
   else{
-    tf = model.X_lambda[id];
+    tf = model_data.X_lambda[id];
   }
 
   Eigen::Matrix3d Et = tf.E.transpose();
