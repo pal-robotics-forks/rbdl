@@ -2,6 +2,14 @@
 Changelog for package rbdl
 ^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+* added helper util
+* unified utils
+* Added coment
+* Added utils
+* Contributors: Hilario Tome
+
 0.1.1 (2016-10-14)
 ------------------
 * Added conversion of mimic joints to fixed joints
