@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <package>
   <name>rbdl</name>
-  <version>0.1.1</version>
+  <version>0.1.2</version>
   <description>
 The RBDL is a highly efficient C++ library that contains some essential
 rigid body dynamics algorithms such as the Articulated Body Algorithm (ABA)
