@@ -219,6 +219,12 @@ void UpdateKinematicsCustom (const Model &model,
   }
 }
 
+void UpdateKinematicsCustom (Model &model,
+                             const Math::VectorNd *Q,
+                             const Math::VectorNd *QDot,
+                             const Math::VectorNd *QDDot
+                             );
+
 /** \brief Returns the base coordinates of a point given in body coordinates.
  *
  * \param model the rigid body model
@@ -265,6 +271,12 @@ Vector3<T> CalcBodyToBaseCoordinates (
   return body_position + body_rotation * point_body_coordinates.cast<T>();
 }
 
+Vector3d CalcBodyToBaseCoordinates (Model &model,
+                                    const VectorNd &Q,
+                                    unsigned int body_id,
+                                    const Vector3d &point_body_coordinates,
+                                    bool update_kinematics = true);
+
 /** \brief Returns the body coordinates of a point given in base coordinates.
  *
  * \param model the rigid body model
@@ -276,13 +288,41 @@ Vector3<T> CalcBodyToBaseCoordinates (
  *
  * \returns a 3-D vector with coordinates of the point in body coordinates
  */
-RBDL_DLLAPI Math::Vector3d CalcBaseToBodyCoordinates (
+template <typename T>
+RBDL_DLLAPI Math::Vector3<T> CalcBaseToBodyCoordinates (
     const Model &model,
-    ModelDatad  &model_data,
-    const Math::VectorNd &Q,
+    ModelData<T>  &model_data,
+    const Math::VectorN<T> &Q,
     unsigned int body_id,
-    const Math::Vector3d &base_point_position,
-    bool update_kinematics = true);
+    const Math::Vector3<T> &base_point_position,
+    bool update_kinematics = true){
+
+  if (update_kinematics) {
+    UpdateKinematicsCustom<T>(model, model_data, &Q, NULL, NULL);
+  }
+
+  if (body_id >= model.fixed_body_discriminator) {
+    unsigned int fbody_id = body_id - model.fixed_body_discriminator;
+    unsigned int parent_id = model.mFixedBodies[fbody_id].mMovableParent;
+
+    Matrix3<T> fixed_rotation = model.mFixedBodies[fbody_id].mParentTransform.E;
+    Vector3<T> fixed_position = model.mFixedBodies[fbody_id].mParentTransform.r;
+
+    Matrix3<T> parent_body_rotation = model_data.X_base[parent_id].E;
+    Vector3<T> parent_body_position = model_data.X_base[parent_id].r;
+
+    return (fixed_rotation
+            * ( - fixed_position
+                - parent_body_rotation
+                * (parent_body_position - base_point_position)));
+  }
+
+  Matrix3<T> body_rotation = model_data.X_base[body_id].E;
+  Vector3<T> body_position = model_data.X_base[body_id].r;
+
+  return body_rotation * (base_point_position - body_position);
+
+}
 
 /** \brief Returns the orientation of a given body as 3x3 matrix
  *
@@ -295,9 +335,33 @@ RBDL_DLLAPI Math::Vector3d CalcBaseToBodyCoordinates (
  * \returns An orthonormal 3x3 matrix that rotates vectors from base coordinates
  * to body coordinates.
  */
-RBDL_DLLAPI Math::Matrix3d CalcBodyWorldOrientation (
+
+template <typename T>
+RBDL_DLLAPI Math::Matrix3<T> CalcBodyWorldOrientation (
     const Model &model,
-    ModelDatad  &model_data,
+    ModelData<T>  &model_data,
+    const Math::VectorN<T> &Q,
+    const unsigned int body_id,
+    bool update_kinematics = true){
+
+  // update the Kinematics if necessary
+  if (update_kinematics) {
+    UpdateKinematicsCustom<T>(model, model_data, &Q, NULL, NULL);
+  }
+
+  if (body_id >= model.fixed_body_discriminator) {
+    unsigned int fbody_id = body_id - model.fixed_body_discriminator;
+    model_data.mFixedBodiesData[fbody_id].mBaseTransform =
+        model.mFixedBodies[fbody_id].mParentTransform
+        * model_data.X_base[model.mFixedBodies[fbody_id].mMovableParent];
+
+    return model_data.mFixedBodiesData[fbody_id].mBaseTransform.E;
+  }
+
+  return model_data.X_base[body_id].E;
+}
+
+Math::Matrix3d CalcBodyWorldOrientation (Model &model,
     const Math::VectorNd &Q,
     const unsigned int body_id,
     bool update_kinematics = true);

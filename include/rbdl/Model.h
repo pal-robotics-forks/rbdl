@@ -23,6 +23,8 @@
 #include "rbdl/Body.h"
 #include "rbdl/ModelData.h"
 
+#include <boost/shared_ptr.hpp>
+
 // std::vectors containing any objects that have Eigen matrices or vectors
 // as members need to have a special allocater. This can be achieved with
 // the following macro.
@@ -134,6 +136,8 @@ namespace RigidBodyDynamics {
 class RBDL_DLLAPI Model {
 
 public:
+
+  Model();
 
   Model(ModelDatad &model_data);
 
@@ -495,8 +499,16 @@ public:
    */
   unsigned int dof_count;
 
+  ModelDatad* getModelData(){
+    if(!model_data_){
+      throw std::runtime_error("this model has no model data allocated");
+    }
+    return model_data_.get();
+  }
+
 private:
 
+  boost::shared_ptr<ModelDatad> model_data_;
 };
 
 /** @} */
