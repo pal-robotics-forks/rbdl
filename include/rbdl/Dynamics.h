@@ -47,14 +47,14 @@ struct Model;
 
 template <typename T>
 void InverseDynamics (
-    Model &model,
+    const Model &model,
     ModelData<T> &model_data,
     const Math::VectorN<T> &Q,
     const Math::VectorN<T> &QDot,
     const Math::VectorN<T> &QDDot,
     Math::VectorN<T> &Tau,
     std::vector<Math::SpatialVector<T> > *f_ext = NULL) {
-  LOG << "-------- " << __func__ << " --------" << std::endl;
+  //LOG << "-------- " << __func__ << " --------" << std::endl;
 
   // Reset the velocity of the root body
   model_data.v[0].setZero();
@@ -129,6 +129,14 @@ void InverseDynamics (
   }
 }
 
+void InverseDynamics (
+    Model &model,
+    const Math::VectorNd &Q,
+    const Math::VectorNd &QDot,
+    const Math::VectorNd &QDDot,
+    Math::VectorNd &Tau,
+    std::vector<Math::SpatialVectord> *f_ext = NULL);
+
 
 /** \brief Computes the coriolis forces
  *
@@ -166,23 +174,23 @@ RBDL_DLLAPI void NonlinearEffects (
  */
 template <typename T>
 RBDL_DLLAPI void ForwardDynamics (
-    Model &model,
+    const Model &model,
     ModelData<T> &model_data,
     const Math::VectorN<T> &Q,
     const Math::VectorN<T> &QDot,
     const Math::VectorN<T> &Tau,
     Math::VectorN<T> &QDDot,
     std::vector<SpatialVector<T> > *f_ext = NULL) {
-  LOG << "-------- " << __func__ << " --------" << std::endl;
+  //LOG << "-------- " << __func__ << " --------" << std::endl;
 
   SpatialVector<T> spatial_gravity (0., 0., 0., model.gravity[0], model.gravity[1], model.gravity[2]);
 
   unsigned int i = 0;
 
-//  LOG << "Q          = " << Q.transpose() << std::endl;
-//  LOG << "QDot       = " << QDot.transpose() << std::endl;
-//  LOG << "Tau        = " << Tau.transpose() << std::endl;
-//  LOG << "---" << std::endl;
+  //  LOG << "Q          = " << Q.transpose() << std::endl;
+  //  LOG << "QDot       = " << QDot.transpose() << std::endl;
+  //  LOG << "Tau        = " << Tau.transpose() << std::endl;
+  //  LOG << "---" << std::endl;
 
   // Reset the velocity of the root body
   model_data.v[0].setZero();
@@ -256,8 +264,8 @@ RBDL_DLLAPI void ForwardDynamics (
 
         model_data.pA[lambda] += model_data.X_lambda[i].applyTranspose(pa);
 #endif
-       // LOG << "pA[" << lambda << "] = "
-       //     << model_data.pA[lambda].transpose() << std::endl;
+        // LOG << "pA[" << lambda << "] = "
+        //     << model_data.pA[lambda].transpose() << std::endl;
       }
     } else if (model.mJoints[i].mDoFCount == 3){
       //&& model.mJoints[i].mJointType != JointTypeCustom) {
@@ -305,9 +313,9 @@ RBDL_DLLAPI void ForwardDynamics (
 
         model_data.pA[lambda] += model_data.X_lambda[i].applyTranspose(pa);
 #endif
-//        LOG << "pA[" << lambda << "] = "
-//            << model_data.pA[lambda].transpose()
-//            << std::endl;
+        //        LOG << "pA[" << lambda << "] = "
+        //            << model_data.pA[lambda].transpose()
+        //            << std::endl;
       }
     }/* else if (model.mJoints[i].mJointType == JointTypeCustom) {
       unsigned int kI   = model.mJoints[i].custom_joint_index;
@@ -405,8 +413,17 @@ RBDL_DLLAPI void ForwardDynamics (
     } */
   }
 
-//  LOG << "QDDot = " << QDDot.transpose() << std::endl;
+  //  LOG << "QDDot = " << QDDot.transpose() << std::endl;
 }
+
+void ForwardDynamics(
+    Model &model,
+    const Math::VectorNd &Q,
+    const Math::VectorNd &QDot,
+    const Math::VectorNd &Tau,
+    Math::VectorNd &QDDot,
+    std::vector<SpatialVectord> *f_ext = NULL);
+
 
 /** \brief Computes forward dynamics by building and solving the full Lagrangian equation
  *
@@ -429,12 +446,12 @@ RBDL_DLLAPI void ForwardDynamics (
 
 template <typename T>
 void CompositeRigidBodyAlgorithm (
-    Model& model,
+    const Model& model,
     ModelData<T> &model_data,
     const VectorN<T> &Q,
     MatrixN<T> &H,
     bool update_kinematics = true) {
-  LOG << "-------- " << __func__ << " --------" << std::endl;
+  //LOG << "-------- " << __func__ << " --------" << std::endl;
 
   H.setZero();
   assert (H.rows() == model.dof_count && H.cols() == model.dof_count);
@@ -474,9 +491,9 @@ void CompositeRigidBodyAlgorithm (
         } else if (model.mJoints[j].mDoFCount == 3) {
           Vector3<T> H_temp2 =
               (F.transpose() * model_data.multdof3_S[j]).transpose();
-//          LOG << F.transpose() << std::endl
-//              << model_data.multdof3_S[j] << std::endl;
-//          LOG << H_temp2.transpose() << std::endl;
+          //          LOG << F.transpose() << std::endl
+          //              << model_data.multdof3_S[j] << std::endl;
+          //          LOG << H_temp2.transpose() << std::endl;
 
           H. template block<1,3>(dof_index_i,dof_index_j) = H_temp2.transpose();
           H. template block<3,1>(dof_index_j,dof_index_i) = H_temp2;
@@ -579,6 +596,11 @@ void CompositeRigidBodyAlgorithm (
   }
 }
 
+void CompositeRigidBodyAlgorithm (
+    Model& model,
+    const VectorNd &Q,
+    MatrixNd &H,
+    bool update_kinematics = true);
 
 RBDL_DLLAPI void ForwardDynamicsLagrangian (
     Model &model,

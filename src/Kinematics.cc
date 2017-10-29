@@ -20,6 +20,19 @@ namespace RigidBodyDynamics {
 
 using namespace Math;
 
+void UpdateKinematics(
+    Model &model,
+    const VectorNd &Q,
+    const VectorNd &QDot,
+    const VectorNd &QDDot){
+
+  UpdateKinematics<double>(
+        model,
+        *model.getModelData(),
+        Q,
+        QDot,
+        QDDot);
+}
 
 void UpdateKinematicsCustom (Model &model,
                              const Math::VectorNd *Q,
@@ -64,8 +77,24 @@ Math::Matrix3d CalcBodyWorldOrientation (
         update_kinematics);
 }
 
-RBDL_DLLAPI void CalcPointJacobian (
+Math::Vector3d CalcBaseToBodyCoordinates (
     Model &model,
+    const Math::Vector3d &Q,
+    unsigned int body_id,
+    const Math::Vector3d &base_point_position,
+    bool update_kinematics){
+
+  return CalcBaseToBodyCoordinates<double> (
+        model,
+        *model.getModelData(),
+        Q,
+        body_id,
+        base_point_position,
+        update_kinematics);
+}
+
+RBDL_DLLAPI void CalcPointJacobian (
+    const Model &model,
     ModelDatad &model_data,
     const VectorNd &Q,
     unsigned int body_id,
@@ -130,8 +159,27 @@ RBDL_DLLAPI void CalcPointJacobian (
   }
 }
 
-RBDL_DLLAPI void CalcOrientationJacobian (
+void CalcPointJacobian (
     Model &model,
+    const VectorNd &Q,
+    unsigned int body_id,
+    const Vector3d &point_position,
+    MatrixNd &G,
+    bool update_kinematics) {
+
+
+  CalcPointJacobian (
+        model,
+        *model.getModelData(),
+        Q,
+        body_id,
+        point_position,
+        G,
+        update_kinematics);
+}
+
+RBDL_DLLAPI void CalcOrientationJacobian (
+    const Model &model,
     ModelDatad &model_data,
     const VectorNd &Q,
     unsigned int body_id,
@@ -197,8 +245,22 @@ RBDL_DLLAPI void CalcOrientationJacobian (
   }
 }
 
+void CalcOrientationJacobian (Model &model,
+                              const Math::VectorNd &Q,
+                              unsigned int body_id,
+                              Math::MatrixNd &G,
+                              bool update_kinematics){
+
+  CalcOrientationJacobian (model,
+                           *model.getModelData(),
+                           Q,
+                           body_id,
+                           G,
+                           update_kinematics);
+}
+
 RBDL_DLLAPI void CalcPointJacobian6D (
-    Model &model,
+    const Model &model,
     ModelDatad &model_data,
     const VectorNd &Q,
     unsigned int body_id,
@@ -263,8 +325,24 @@ RBDL_DLLAPI void CalcPointJacobian6D (
   }
 }
 
+void CalcPointJacobian6D (Model &model,
+                          const Math::VectorNd &Q,
+                          unsigned int body_id,
+                          const Math::Vector3d &point_position,
+                          Math::MatrixNd &G,
+                          bool update_kinematics){
+
+  CalcPointJacobian6D(model,
+                      *model.getModelData(),
+                      Q,
+                      body_id,
+                      point_position,
+                      G,
+                      update_kinematics);
+}
+
 RBDL_DLLAPI void CalcPointJacobian6DBodyFrame (
-    Model &model,
+    const Model &model,
     ModelDatad &model_data,
     const VectorNd &Q,
     unsigned int body_id,
@@ -333,8 +411,23 @@ RBDL_DLLAPI void CalcPointJacobian6DBodyFrame (
   G = point_trans.toMatrix()*(body_trans.toMatrix())*G;
 }
 
+RBDL_DLLAPI void CalcPointJacobian6DBodyFrame (Model &model,
+                                               const Math::VectorNd &Q,
+                                               unsigned int body_id,
+                                               const Math::Vector3d &point_position,
+                                               Math::MatrixNd &G,
+                                               bool update_kinematics){
+  return CalcPointJacobian6DBodyFrame (model,
+                                       *model.getModelData(),
+                                       Q,
+                                       body_id,
+                                       point_position,
+                                       G,
+                                       update_kinematics);
+}
+
 RBDL_DLLAPI void CalcBodySpatialJacobian (
-    Model &model,
+    const Model &model,
     ModelDatad &model_data,
     const VectorNd &Q,
     unsigned int body_id,
@@ -399,7 +492,7 @@ RBDL_DLLAPI void CalcBodySpatialJacobian (
 }
 
 RBDL_DLLAPI Vector3d CalcPointVelocity (
-    Model &model,
+    const Model &model,
     ModelDatad &model_data,
     const VectorNd &Q,
     const VectorNd &QDot,
@@ -444,8 +537,26 @@ RBDL_DLLAPI Vector3d CalcPointVelocity (
 }
 
 
-RBDL_DLLAPI Vector3d CalcPointAngularVelocity (
+RBDL_DLLAPI Vector3d CalcPointVelocity (
     Model &model,
+    const VectorNd &Q,
+    const VectorNd &QDot,
+    unsigned int body_id,
+    const Vector3d &point_position,
+    bool update_kinematics) {
+
+  return CalcPointVelocity (
+        model,
+        *model.getModelData(),
+        Q,
+        QDot,
+        body_id,
+        point_position,
+        update_kinematics);
+}
+
+RBDL_DLLAPI Vector3d CalcPointAngularVelocity (
+    const Model &model,
     ModelDatad &model_data,
     const VectorNd &Q,
     const VectorNd &QDot,
@@ -489,8 +600,26 @@ RBDL_DLLAPI Vector3d CalcPointAngularVelocity (
       );
 }
 
-RBDL_DLLAPI Math::SpatialVectord CalcPointVelocity6D(
+RBDL_DLLAPI Vector3d CalcPointAngularVelocity (
     Model &model,
+    const VectorNd &Q,
+    const VectorNd &QDot,
+    unsigned int body_id,
+    const Vector3d &point_position,
+    bool update_kinematics){
+
+  return  CalcPointAngularVelocity (
+        model,
+        *model.getModelData(),
+        Q,
+        QDot,
+        body_id,
+        point_position,
+        update_kinematics);
+}
+
+RBDL_DLLAPI Math::SpatialVectord CalcPointVelocity6D(
+    const Model &model,
     ModelDatad &model_data,
     const Math::VectorNd &Q,
     const Math::VectorNd &QDot,
@@ -525,6 +654,25 @@ RBDL_DLLAPI Math::SpatialVectord CalcPointVelocity6D(
   return SpatialTransformd (
         CalcBodyWorldOrientation (model, model_data, Q, reference_body_id, false).transpose(),
         reference_point).apply(model_data.v[reference_body_id]);
+}
+
+
+RBDL_DLLAPI Math::SpatialVectord CalcPointVelocity6D(
+    Model &model,
+    const Math::VectorNd &Q,
+    const Math::VectorNd &QDot,
+    unsigned int body_id,
+    const Math::Vector3d &point_position,
+    bool update_kinematics) {
+
+  return CalcPointVelocity6D(
+        model,
+        *model.getModelData(),
+        Q,
+        QDot,
+        body_id,
+        point_position,
+        update_kinematics);
 }
 
 RBDL_DLLAPI Vector3d CalcPointAcceleration (
@@ -575,6 +723,84 @@ RBDL_DLLAPI Vector3d CalcPointAcceleration (
       );
 }
 
+Vector3d CalcPointAcceleration (
+    Model &model,
+    const VectorNd &Q,
+    const VectorNd &QDot,
+    const VectorNd &QDDot,
+    unsigned int body_id,
+    const Vector3d &point_position,
+    bool update_kinematics) {
+
+  return CalcPointAcceleration (
+        model,
+        *model.getModelData(),
+        Q,
+        QDot,
+        QDDot,
+        body_id,
+        point_position,
+        update_kinematics);
+}
+
+Vector3d CalcPointAngularAcceleration(
+    const Model &model,
+    ModelDatad &model_data,
+    const VectorNd &Q,
+    const VectorNd &QDot,
+    const VectorNd &QDDot,
+    unsigned int body_id,
+    const Vector3d &point_position,
+    bool update_kinematics) {
+  LOG << "-------- " << __func__ << " --------" << std::endl;
+
+  // Reset the velocity of the root body
+  model_data.v[0].setZero();
+  model_data.a[0].setZero();
+
+  if (update_kinematics)
+    UpdateKinematics (model, model_data, Q, QDot, QDDot);
+
+  LOG << std::endl;
+
+  unsigned int reference_body_id = body_id;
+  Vector3d reference_point = point_position;
+
+  if (model.IsFixedBodyId(body_id)) {
+    unsigned int fbody_id = body_id - model.fixed_body_discriminator;
+    reference_body_id = model.mFixedBodies[fbody_id].mMovableParent;
+    Vector3d base_coords =
+        CalcBodyToBaseCoordinates (model, model_data, Q, body_id, point_position, false);
+    reference_point =
+        CalcBaseToBodyCoordinates (model, model_data, Q, reference_body_id,base_coords,false);
+  }
+
+  SpatialTransformd p_X_i (
+        CalcBodyWorldOrientation (model, model_data, Q, reference_body_id, false).transpose(),
+        reference_point);
+
+  return p_X_i.apply(model_data.a[reference_body_id]).segment(0, 3);
+}
+
+Vector3d CalcPointAngularAcceleration(
+    Model &model,
+    const VectorNd &Q,
+    const VectorNd &QDot,
+    const VectorNd &QDDot,
+    unsigned int body_id,
+    const Vector3d &point_position,
+    bool update_kinematics) {
+
+  return CalcPointAngularAcceleration(
+        model,
+        *model.getModelData(),
+        Q,
+        QDot,
+        QDDot,
+        body_id,
+        point_position,
+        update_kinematics);
+}
 
 RBDL_DLLAPI Vector3d CalcPointAccelerationBias (
     const Model &model,
@@ -623,9 +849,28 @@ RBDL_DLLAPI Vector3d CalcPointAccelerationBias (
       );
 }
 
+Vector3d CalcPointAccelerationBias (
+    Model &model,
+    const VectorNd &Q,
+    const VectorNd &QDot,
+    unsigned int body_id,
+    const Vector3d &point_position,
+    bool update_kinematics){
+
+  return CalcPointAccelerationBias (
+        model,
+        *model.getModelData(),
+        Q,
+        QDot,
+        body_id,
+        point_position,
+        update_kinematics);
+
+}
+
 
 RBDL_DLLAPI SpatialVectord CalcPointAcceleration6D(
-    Model &model,
+    const Model &model,
     ModelDatad &model_data,
     const VectorNd &Q,
     const VectorNd &QDot,
@@ -667,8 +912,30 @@ RBDL_DLLAPI SpatialVectord CalcPointAcceleration6D(
           + SpatialVectord (0, 0, 0, a_dash[0], a_dash[1], a_dash[2]));
 }
 
-RBDL_DLLAPI SpatialVectord CalcPointAcceleration6DBias(
+SpatialVectord CalcPointAcceleration6D(
     Model &model,
+    const VectorNd &Q,
+    const VectorNd &QDot,
+    const VectorNd &QDDot,
+    unsigned int body_id,
+    const Vector3d &point_position,
+    bool update_kinematics) {
+
+
+  return CalcPointAcceleration6D(
+        model,
+        *model.getModelData(),
+        Q,
+        QDot,
+        QDDot,
+        body_id,
+        point_position,
+        update_kinematics);
+
+}
+
+RBDL_DLLAPI SpatialVectord CalcPointAcceleration6DBias(
+    const Model &model,
     ModelDatad &model_data,
     const VectorNd &Q,
     const VectorNd &QDot,
@@ -707,6 +974,24 @@ RBDL_DLLAPI SpatialVectord CalcPointAcceleration6DBias(
       ).cross(Vector3d (p_v_i[3], p_v_i[4], p_v_i[5]));
   return (p_X_i.apply(model_data.a_bias[reference_body_id])
           + SpatialVectord (0, 0, 0, a_dash[0], a_dash[1], a_dash[2]));
+}
+
+SpatialVectord CalcPointAcceleration6DBias(
+    Model &model,
+    const VectorNd &Q,
+    const VectorNd &QDot,
+    unsigned int body_id,
+    const Vector3d &point_position,
+    bool update_kinematics) {
+
+  return CalcPointAcceleration6DBias(
+        model,
+        *model.getModelData(),
+        Q,
+        QDot,
+        body_id,
+        point_position,
+        update_kinematics);
 }
 
 RBDL_DLLAPI bool InverseKinematics (

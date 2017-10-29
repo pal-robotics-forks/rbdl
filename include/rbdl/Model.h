@@ -29,6 +29,8 @@
 // as members need to have a special allocater. This can be achieved with
 // the following macro.
 
+#include <rbdl/enum.h>
+
 #ifdef EIGEN_CORE_H
 //EIGEN_DEFINE_STL_VECTOR_SPECIALIZATION(RigidBodyDynamics::Joint);
 //EIGEN_DEFINE_STL_VECTOR_SPECIALIZATION(RigidBodyDynamics::Body);
@@ -42,12 +44,12 @@ namespace RigidBodyDynamics {
   class Joint;
 //  class CustomJoint;
 
-  enum class FloatingBaseType{
-    FixedBase,
-    XYZ_RollPitchYaw,
-    XYZ_Quaternion,
-    XY_Yaw
-  };
+BETTER_ENUM(FloatingBaseType, int,
+  FixedBase,
+  XYZ_RollPitchYaw,
+  XYZ_Quaternion,
+  XY_Yaw,
+  NO_TYPE);
 
 /** \page modeling_page Model 
  *

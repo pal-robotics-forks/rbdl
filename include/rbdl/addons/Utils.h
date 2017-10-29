@@ -5,14 +5,42 @@
 #include <exception>
 #include <rbdl/Kinematics.h>
 
+//Transform a spatial velocity vector to linear and angular vel
+inline void spatialVelocity2vector(const RigidBodyDynamics::Math::SpatialVectord v0,
+                                   const RigidBodyDynamics::Math::Vector3d &pointOfForce,
+                                   Eigen::Vector3d &linear_vel,
+                                   Eigen::Vector3d &angular_vel){
+
+  linear_vel = v0.block<3,1>(3, 0) - pointOfForce.cross(v0.block<3,1>(0, 0));
+  angular_vel = v0.block<3,1>(0, 0);
+}
+
+inline  RigidBodyDynamics::Math::SpatialVectord force2spatialVector(const Eigen::Vector3d &pointOfForce, const Eigen::Vector3d &force){
+  RigidBodyDynamics::Math::SpatialVectord result;
+
+  Eigen::Vector3d n0;
+  n0 = pointOfForce.cross(force);
+
+  result(0) = n0(0);
+  result(1) = n0(1);
+  result(2) = n0(2);
+
+  result(3) = force(0);
+  result(4) = force(1);
+  result(5) = force(2);
+
+  return result;
+}
+
 inline Eigen::Isometry3d getBodyToBaseTransform(const RigidBodyDynamics::Model &model,
                                                 RigidBodyDynamics::ModelDatad &model_data,
-                                                const Eigen::VectorXd &Q, const std::string &name, bool update){
+                                                const Eigen::VectorXd &Q, const std::string &name,
+                                                const Eigen::Vector3d &tip_position, bool update){
 
   assert(model.dof_count == Q.rows());
   unsigned int id = model.GetBodyId(name.c_str());
 
-  Eigen::Vector3d position = RigidBodyDynamics::CalcBodyToBaseCoordinates(model, model_data, Q, id, Eigen::Vector3d(0., 0., 0.), update);
+  Eigen::Vector3d position = RigidBodyDynamics::CalcBodyToBaseCoordinates(model, model_data, Q, id, tip_position, update);
   Eigen::Matrix3d rotation = RigidBodyDynamics::CalcBodyWorldOrientation(model, model_data, Q, id, update).transpose();
 
   Eigen::Isometry3d temp;
@@ -20,7 +48,16 @@ inline Eigen::Isometry3d getBodyToBaseTransform(const RigidBodyDynamics::Model &
   temp = ( Eigen::AngleAxisd(rotation) );
   temp.translation() = position;
   return temp;
+}
 
+inline Eigen::Isometry3d getBodyToBaseTransform(RigidBodyDynamics::Model &model,
+                                                const Eigen::VectorXd &Q, const std::string &name, const Eigen::Vector3d &tip_position, bool update){
+  return getBodyToBaseTransform(model, *model.getModelData(), Q, name, tip_position, update);
+}
+
+inline Eigen::Isometry3d getBodyToBaseTransform(RigidBodyDynamics::Model &model, const std::string &name,  const Eigen::Vector3d &tip_position){
+
+  return getBodyToBaseTransform(model, Eigen::VectorXd::Zero(model.q_size), name, tip_position, false);
 }
 
 // This method does not update the internal state of the model, it querys directly the internal data structure
@@ -58,6 +95,51 @@ inline unsigned int getParentBodyId(RigidBodyDynamics::Model &model, const std::
   }
 }
 
+inline Eigen::Vector3d getBodyLinearVelocity(RigidBodyDynamics::Model &model, const std::string &name, const Eigen::Vector3d &tip_position){
+  unsigned int id = model.GetBodyId(name.c_str());
+  return RigidBodyDynamics::CalcPointVelocity(model, Eigen::VectorXd::Zero(model.q_size),
+                                              Eigen::VectorXd::Zero(model.qdot_size),
+                                              id, tip_position, false);
+}
+
+inline Eigen::Vector3d getBodyAngularVelocity(RigidBodyDynamics::Model &model, const std::string &name){
+  unsigned int id = model.GetBodyId(name.c_str());
+  return RigidBodyDynamics::CalcPointAngularVelocity(model, Eigen::VectorXd::Zero(model.q_size),
+                                                     Eigen::VectorXd::Zero(model.qdot_size),
+                                                     id, Eigen::Vector3d::Zero(), false);
+}
+
+inline std::pair<Eigen::Vector3d, Eigen::Vector3d> getBodyVelocity(RigidBodyDynamics::Model &model, const std::string &name, const Eigen::Vector3d &tip_position){
+  return std::make_pair(getBodyLinearVelocity(model, name, tip_position),
+                        getBodyAngularVelocity(model, name));
+}
+
+inline Eigen::Vector3d getBodyLinearAcceleration(RigidBodyDynamics::Model &model, const std::string &name, Eigen::Vector3d &tip_position){
+  unsigned int id = model.GetBodyId(name.c_str());
+  return RigidBodyDynamics::CalcPointAcceleration(model, *model.getModelData(), Eigen::VectorXd::Zero(model.q_size),
+                                                  Eigen::VectorXd::Zero(model.qdot_size),
+                                                  Eigen::VectorXd::Zero(model.q_size),
+                                                  id, tip_position, false);
+}
+
+inline Eigen::Vector3d getBodyAngularAcceleration(RigidBodyDynamics::Model &model, const std::string &name, Eigen::Vector3d &tip_position){
+  unsigned int id = model.GetBodyId(name.c_str());
+  return RigidBodyDynamics::CalcPointAngularAcceleration(model, *model.getModelData(), Eigen::VectorXd::Zero(model.q_size),
+                                                         Eigen::VectorXd::Zero(model.qdot_size),
+                                                         Eigen::VectorXd::Zero(model.q_size),
+                                                         id, tip_position, false);
+}
+
+inline std::pair<Eigen::Vector3d, Eigen::Vector3d> getBodyAcceleration(RigidBodyDynamics::Model &model, const std::string &name, Eigen::Vector3d &tip_position){
+  return std::make_pair(getBodyLinearAcceleration(model, name, tip_position),
+                        getBodyAngularAcceleration(model, name, tip_position));
+}
+
+inline Eigen::Isometry3d getBodyTransform(RigidBodyDynamics::Model &model,
+                                          const std::string &name){
+
+  return getBodyTransform(model, *model.getModelData(), name);
+}
 
 inline void createGeneralizedVector(const Eigen::Vector3d &floatingBasePosition, const Eigen::Quaterniond &floatingBaseOrientation,
                                     const Eigen::VectorXd &jointStates, Eigen::VectorXd &state){

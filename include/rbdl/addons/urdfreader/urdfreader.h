@@ -61,7 +61,41 @@ namespace RigidBodyDynamics {
 
     // With subtree parsing
 
+    bool URDFReadFromParamServer(Model* model, ModelDatad &model_data, const std::vector<std::string> &tipLinks,
+                                 FloatingBaseType floatingBaseType, bool verbose = false);
+
     bool URDFReadFromParamServer(Model* model, ModelDatad &model_data, FloatingBaseType floatingBaseType, const std::vector<std::string> &tipLinks,
+                                 std::vector<std::string> &joint_names,
+                                 std::vector<double> &position_min,  std::vector<double> &position_max,
+                                 std::vector<double> &vel_min,  std::vector<double> &vel_max,
+                                 std::vector<double> &damping, std::vector<double> &friction,
+                                 std::vector<double> &max_effort,
+                                 bool verbose = false);
+
+    // With defautl model data allocation
+
+    bool URDFReadFromParamServer(Model* model, FloatingBaseType floatingBaseType, bool verbose = false);
+
+    bool URDFReadFromParamServer(Model* model, const std::vector<std::string> &tipLinks,
+                                 FloatingBaseType floatingBaseType, bool verbose = false);
+
+    bool URDFReadFromURDF(urdf::Model &urdf_model, Model* model, FloatingBaseType floatingBaseType,
+                          std::vector<std::string> &joint_names,
+                          std::vector<double> &position_min,  std::vector<double> &position_max,
+                          std::vector<double> &vel_min,  std::vector<double> &vel_max,
+                          std::vector<double> &damping, std::vector<double> &friction,
+                          std::vector<double> &max_effort,
+                          bool verbose = false);
+
+    bool URDFReadFromParamServer(Model* model, FloatingBaseType floatingBaseType,
+                                 std::vector<std::string> &joint_names,
+                                 std::vector<double> &position_min,  std::vector<double> &position_max,
+                                 std::vector<double> &vel_min,  std::vector<double> &vel_max,
+                                 std::vector<double> &damping, std::vector<double> &friction,
+                                 std::vector<double> &max_effort,
+                                 bool verbose = false);
+
+    bool URDFReadFromParamServer(Model* model, FloatingBaseType floatingBaseType, const std::vector<std::string> &tipLinks,
                                  std::vector<std::string> &joint_names,
                                  std::vector<double> &position_min,  std::vector<double> &position_max,
                                  std::vector<double> &vel_min,  std::vector<double> &vel_max,

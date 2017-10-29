@@ -131,7 +131,7 @@ RBDL_DLLAPI std::string GetModelHierarchy (const Model &model, const ModelDatad 
   return result.str();
 }
 
-RBDL_DLLAPI std::string GetNamedBodyOriginsOverview (Model &model, ModelDatad &model_data) {
+RBDL_DLLAPI std::string GetNamedBodyOriginsOverview (const Model &model, ModelDatad &model_data) {
   stringstream result ("");
 
   VectorNd Q (VectorNd::Zero(model.dof_count));
@@ -152,7 +152,7 @@ RBDL_DLLAPI std::string GetNamedBodyOriginsOverview (Model &model, ModelDatad &m
 }
 
 RBDL_DLLAPI void CalcCenterOfMass (
-    Model &model, 
+    const Model &model,
     ModelDatad &model_data,
     const Math::VectorNd &q, 
     const Math::VectorNd &qdot, 
@@ -195,6 +195,28 @@ RBDL_DLLAPI void CalcCenterOfMass (
     htot = Xtrans (com).applyAdjoint (htot);
     angular_momentum->set (htot[0], htot[1], htot[2]);
   }
+}
+
+void CalcCenterOfMass (
+    Model &model,
+    const Math::VectorNd &q,
+    const Math::VectorNd &qdot,
+    double &mass,
+    Math::Vector3d &com,
+    Math::Vector3d *com_velocity,
+    Math::Vector3d *angular_momentum,
+    bool update_kinematics) {
+
+  CalcCenterOfMass (
+      model,
+      *model.getModelData(),
+      q,
+      qdot,
+      mass,
+      com,
+      com_velocity,
+      angular_momentum,
+      update_kinematics);
 }
 
 RBDL_DLLAPI double CalcPotentialEnergy (
