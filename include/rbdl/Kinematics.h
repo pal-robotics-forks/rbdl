@@ -325,13 +325,13 @@ RBDL_DLLAPI Math::Vector3<T> CalcBaseToBodyCoordinates (
   Matrix3<T> body_rotation = model_data.X_base[body_id].E;
   Vector3<T> body_position = model_data.X_base[body_id].r;
 
-  return body_rotation * (base_point_position - body_position);
-
+  Vector3<T> position = body_rotation * (base_point_position - body_position);
+  return position;
 }
 
 Math::Vector3d CalcBaseToBodyCoordinates (
     Model &model,
-    const Math::Vector3d &Q,
+    const Math::VectorNd &Q,
     unsigned int body_id,
     const Math::Vector3d &base_point_position,
     bool update_kinematics = true);
@@ -363,13 +363,9 @@ RBDL_DLLAPI Math::Matrix3<T> CalcBodyWorldOrientation (
 
   if (body_id >= model.fixed_body_discriminator) {
     unsigned int fbody_id = body_id - model.fixed_body_discriminator;
-    model_data.mFixedBodiesData[fbody_id].mBaseTransform =
-        model.mFixedBodies[fbody_id].mParentTransform
-        * model_data.X_base[model.mFixedBodies[fbody_id].mMovableParent];
-
-    return model_data.mFixedBodiesData[fbody_id].mBaseTransform.E;
+    return (model.mFixedBodies[fbody_id].mParentTransform
+        * model_data.X_base[model.mFixedBodies[fbody_id].mMovableParent]).E;
   }
-
   return model_data.X_base[body_id].E;
 }
 

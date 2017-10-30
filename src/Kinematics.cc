@@ -54,7 +54,7 @@ Vector3d CalcBodyToBaseCoordinates (
     bool update_kinematics)
 {
 
-  return CalcBodyToBaseCoordinates(
+  return CalcBodyToBaseCoordinates<double>(
         model,
         *model.getModelData(),
         Q,
@@ -69,7 +69,7 @@ Math::Matrix3d CalcBodyWorldOrientation (
     const unsigned int body_id,
     bool update_kinematics)
 {
-  return CalcBodyWorldOrientation(
+  return CalcBodyWorldOrientation<double>(
         model,
         *model.getModelData(),
         Q,
@@ -77,9 +77,8 @@ Math::Matrix3d CalcBodyWorldOrientation (
         update_kinematics);
 }
 
-Math::Vector3d CalcBaseToBodyCoordinates (
-    Model &model,
-    const Math::Vector3d &Q,
+Math::Vector3d CalcBaseToBodyCoordinates (Model &model,
+    const VectorNd &Q,
     unsigned int body_id,
     const Math::Vector3d &base_point_position,
     bool update_kinematics){

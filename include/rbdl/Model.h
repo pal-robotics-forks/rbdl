@@ -389,7 +389,7 @@ public:
     return false;
   }
 
-  bool IsBodyId (unsigned int id) {
+  bool IsBodyId (unsigned int id) const{
     if (id > 0 && id < mBodies.size())
       return true;
     if (id >= fixed_body_discriminator 

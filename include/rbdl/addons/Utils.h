@@ -37,7 +37,7 @@ inline Eigen::Isometry3d getBodyToBaseTransform(const RigidBodyDynamics::Model &
                                                 const Eigen::VectorXd &Q, const std::string &name,
                                                 const Eigen::Vector3d &tip_position, bool update){
 
-  assert(model.dof_count == Q.rows());
+  assert(model.q_size == Q.rows());
   unsigned int id = model.GetBodyId(name.c_str());
 
   Eigen::Vector3d position = RigidBodyDynamics::CalcBodyToBaseCoordinates(model, model_data, Q, id, tip_position, update);

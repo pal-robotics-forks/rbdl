@@ -23,14 +23,6 @@ struct FixedBodyData{
   }
 };
 
-//template <typename T, typename C, typename B>
-//void cast_vector(const std::vector< B<T> > &in, std::vector< B<C> > &out){
-//  for(size_t i=0; i<in.size(); ++i){
-////    C casted = in[i]. template cast<C>();
-//    out.push_back(in[i].cast<C>());
-//  }
-//}
-
 using FixedBodyDataD = FixedBodyData<double>;
 
 template <typename T>
@@ -77,8 +69,7 @@ public:
   /// \brief The velocity dependent spatial acceleration
   std::vector<Math::SpatialVector<T> > c;
 
-
-  std::vector<FixedBodyData<T> > mFixedBodiesData;
+//  std::vector<FixedBodyData<T> > mFixedBodiesData;
 
   /// \brief Internal forces on the body (used only InverseDynamics())
   std::vector<Math::SpatialVector<T> > f;
@@ -163,10 +154,10 @@ public:
       casted.c.push_back(c[i]. template cast<C>());
     }
 
-    /// @todo shoul this be in model data??
-    for(size_t i=0; i<mFixedBodiesData.size(); ++i){
-      casted.mFixedBodiesData.push_back(mFixedBodiesData[i]. template cast<C>());
-    }
+//    /// @todo shoul this be in model data??
+//    for(size_t i=0; i<mFixedBodiesData.size(); ++i){
+//      casted.mFixedBodiesData.push_back(mFixedBodiesData[i]. template cast<C>());
+//    }
 
     for(size_t i=0; i<f.size(); ++i){
       casted.f.push_back(f[i]. template cast<C>());

@@ -31,7 +31,7 @@ void InverseDynamics (
     Math::VectorNd &Tau,
     std::vector<Math::SpatialVectord> *f_ext) {
 
-  InverseDynamics(
+  InverseDynamics<double>(
         model,
         *model.getModelData(),
         Q,
@@ -65,7 +65,7 @@ void CompositeRigidBodyAlgorithm (
     MatrixNd &H,
     bool update_kinematics){
 
-  CompositeRigidBodyAlgorithm (
+  CompositeRigidBodyAlgorithm<double> (
         model,
         *model.getModelData(),
         Q,
