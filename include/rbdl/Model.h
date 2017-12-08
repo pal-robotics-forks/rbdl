@@ -32,26 +32,21 @@
 #include <rbdl/enum.h>
 
 #ifdef EIGEN_CORE_H
-//EIGEN_DEFINE_STL_VECTOR_SPECIALIZATION(RigidBodyDynamics::Joint);
-//EIGEN_DEFINE_STL_VECTOR_SPECIALIZATION(RigidBodyDynamics::Body);
-//EIGEN_DEFINE_STL_VECTOR_SPECIALIZATION(RigidBodyDynamics::FixedBody);
+// EIGEN_DEFINE_STL_VECTOR_SPECIALIZATION(RigidBodyDynamics::Joint);
+// EIGEN_DEFINE_STL_VECTOR_SPECIALIZATION(RigidBodyDynamics::Body);
+// EIGEN_DEFINE_STL_VECTOR_SPECIALIZATION(RigidBodyDynamics::FixedBody);
 #endif
 
 /** \brief Namespace for all structures of the RigidBodyDynamics library
 */
-namespace RigidBodyDynamics {
-
-  class Joint;
+namespace RigidBodyDynamics
+{
+class Joint;
 //  class CustomJoint;
 
-BETTER_ENUM(FloatingBaseType, int,
-  FixedBase,
-  XYZ_RollPitchYaw,
-  XYZ_Quaternion,
-  XY_Yaw,
-  NO_TYPE);
+BETTER_ENUM(FloatingBaseType, int, FixedBase, XYZ_RollPitchYaw, XYZ_Quaternion, XY_Yaw, NO_TYPE);
 
-/** \page modeling_page Model 
+/** \page modeling_page Model
  *
  * \section model_structure Model Structure
  *
@@ -61,10 +56,11 @@ BETTER_ENUM(FloatingBaseType, int,
  * variables that describe the state of the rigid body system. Furthermore
  * it contains variables that are used as temporary variables in the
  * algorithms.
- * 
- * There are multiple ways of creating \link RigidBodyDynamics::Model Models\endlink for RBDL:
  *
- *   \li Loading models from Lua files using the \ref luamodel_introduction 
+ * There are multiple ways of creating \link RigidBodyDynamics::Model Models\endlink for
+ RBDL:
+ *
+ *   \li Loading models from Lua files using the \ref luamodel_introduction
  *       "LuaModel" addon
  *   \li Loading models from URDF (the Unified Robot Description Format) xml
  *       files or strings using the URDFReader addon
@@ -85,7 +81,7 @@ BETTER_ENUM(FloatingBaseType, int,
  *
  * \link RigidBodyDynamics::Body Bodies \endlink are created by calling one
  * of its constructors. Usually they are created by specifying the mass,
- * center of mass and the inertia at the center of mass. 
+ * center of mass and the inertia at the center of mass.
  * \link RigidJointDynamics::Joint Joints \endlink are similarly created and is
  * described in detail in \ref joint_description.
  *
@@ -93,7 +89,7 @@ BETTER_ENUM(FloatingBaseType, int,
  * parent body by its id, the transformation from the parent origin to the
  * joint origin, the joint specification as an object, and the body itself.
  * These parameters are then fed to the function
- * RigidBodyDynamics::Model::AddBody() or 
+ * RigidBodyDynamics::Model::AddBody() or
  * RigidBodyDynamics::Model::AppendBody().
  *
  * To create a model with a floating base (a.k.a a model with a free-flyer
@@ -125,7 +121,7 @@ BETTER_ENUM(FloatingBaseType, int,
  * storage of temporary values. It is designed for use of the Articulated
  * Rigid Body Algorithm (which is implemented in ForwardDynamics()) and
  * follows the numbering as described in Featherstones book.
- * 
+ *
  * Please note that body 0 is the root body and the moving bodies start at
  * index 1. This numbering scheme is very beneficial in terms of
  * readability of the code as the resulting code is very similar to the
@@ -135,10 +131,9 @@ BETTER_ENUM(FloatingBaseType, int,
  *
  * \note To query the number of degrees of freedom use Model::dof_count.
  */
-class RBDL_DLLAPI Model {
-
+class RBDL_DLLAPI Model
+{
 public:
-
   Model();
 
   Model(ModelDatad &model_data);
@@ -146,13 +141,13 @@ public:
   // Structural information
   /// \brief The id of the parents body
   std::vector<unsigned int> lambda;
-  /** \brief The index of the parent degree of freedom that is directly 
+  /** \brief The index of the parent degree of freedom that is directly
     influencing the current one*/
   std::vector<unsigned int> lambda_q;
   /// \brief Contains the ids of all the children of a given body
-  std::vector<std::vector<unsigned int> >mu;
+  std::vector<std::vector<unsigned int> > mu;
 
-  /** \brief The size of the \f$\mathbf{q}\f$-vector. 
+  /** \brief The size of the \f$\mathbf{q}\f$-vector.
    * For models without spherical joints the value is the same as
    * Model::dof_count, otherwise additional values for the w-component of the
    * Quaterniond is stored at the end of \f$\mathbf{q}\f$.
@@ -160,10 +155,10 @@ public:
    * \sa \ref joint_description for more details.
    */
   unsigned int q_size;
-  /** \brief The size of the 
+  /** \brief The size of the
    *
    * (\f$\mathbf{\dot{q}}, \mathbf{\ddot{q}}\f$,
-   * and \f$\mathbf{\tau}\f$-vector. 
+   * and \f$\mathbf{\tau}\f$-vector.
    *
    * \sa \ref joint_description for more details.
    */
@@ -187,7 +182,7 @@ public:
   /// \brief Transformations from the parent body to the frame of the joint.
   // It is expressed in the coordinate frame of the parent.
   std::vector<Math::SpatialTransformd> X_T;
-  /// \brief The number of fixed joints that have been declared before 
+  /// \brief The number of fixed joints that have been declared before
   ///  each joint.
   std::vector<unsigned int> mFixedJointCount;
 
@@ -196,26 +191,26 @@ public:
   /// \brief Motion subspace for joints with 3 degrees of freedom
   std::vector<unsigned int> multdof3_w_index;
 
-//  std::vector<CustomJoint*> mCustomJoints;
+  //  std::vector<CustomJoint*> mCustomJoints;
 
   ////////////////////////////////////
   // Dynamics variables
 
-//  /// \brief The spatial inertia of the bodies
-//  std::vector<Math::SpatialMatrixd> IA;
-//  /// \brief The spatial bias force
-//  std::vector<Math::SpatialVectord> pA;
-//  /// \brief Temporary variable U_i (RBDA p. 130)
-//  std::vector<Math::SpatialVectord> U;
-//  /// \brief Temporary variable D_i (RBDA p. 130)
-//  Math::VectorNd d;
-//  /// \brief Temporary variable u (RBDA p. 130)
-//  Math::VectorNd u;
+  //  /// \brief The spatial inertia of the bodies
+  //  std::vector<Math::SpatialMatrixd> IA;
+  //  /// \brief The spatial bias force
+  //  std::vector<Math::SpatialVectord> pA;
+  //  /// \brief Temporary variable U_i (RBDA p. 130)
+  //  std::vector<Math::SpatialVectord> U;
+  //  /// \brief Temporary variable D_i (RBDA p. 130)
+  //  Math::VectorNd d;
+  //  /// \brief Temporary variable u (RBDA p. 130)
+  //  Math::VectorNd u;
 
-//  /// \brief The spatial inertia of body i (used only in
-//  ///  CompositeRigidBodyAlgorithm())
-//  std::vector<Math::SpatialRigidBodyInertiad> Ic;
-//  std::vector<Math::SpatialVectord> hc;
+  //  /// \brief The spatial inertia of body i (used only in
+  //  ///  CompositeRigidBodyAlgorithm())
+  //  std::vector<Math::SpatialRigidBodyInertiad> Ic;
+  //  std::vector<Math::SpatialVectord> hc;
 
   ////////////////////////////////////
   // Bodies
@@ -230,7 +225,7 @@ public:
    * are fixed to a moving body. The value of max(unsigned int) is
    * determined via std::numeric_limits<unsigned int>::max() and the
    * default value of fixed_body_discriminator is max (unsigned int) / 2.
-   * 
+   *
    * On normal systems max (unsigned int) is 4294967294 which means there
    * could be a total of 2147483646 movable and / or fixed bodies.
    */
@@ -270,50 +265,39 @@ public:
    * \param parent_id   id of the parent body
    * \param joint_frame the transformation from the parent frame to the origin
    *                    of the joint frame (represents X_T in RBDA)
-   * \param joint       specification for the joint that describes the 
+   * \param joint       specification for the joint that describes the
    *                    connection
    * \param body        specification of the body itself
-   * \param body_name   human readable name for the body (can be used to 
+   * \param body_name   human readable name for the body (can be used to
    *                    retrieve its id with GetBodyId())
    *
    * \returns id of the added body
    */
-  unsigned int AddBody (ModelDatad &model_data,
-      const unsigned int parent_id,
-      const Math::SpatialTransformd &joint_frame,
-      const Joint &joint,
-      const Body &body,
-      std::string body_name = ""
-      );
+  unsigned int AddBody(ModelDatad &model_data, const unsigned int parent_id,
+                       const Math::SpatialTransformd &joint_frame, const Joint &joint,
+                       const Body &body, std::string body_name = "");
 
-  unsigned int AddBodySphericalJoint (ModelDatad &model_data,
-      const unsigned int parent_id,
-      const Math::SpatialTransformd &joint_frame,
-      const Joint &joint,
-      const Body &body,
-      std::string body_name = "" 
-      );
+  unsigned int AddBodySphericalJoint(ModelDatad &model_data, const unsigned int parent_id,
+                                     const Math::SpatialTransformd &joint_frame,
+                                     const Joint &joint, const Body &body,
+                                     std::string body_name = "");
 
-  /** \brief Adds a Body to the model such that the previously added Body 
+  /** \brief Adds a Body to the model such that the previously added Body
    * is the Parent.
    *
    * This function is basically the same as Model::AddBody() however the
    * most recently added body (or body 0) is taken as parent.
    */
-  unsigned int AppendBody (ModelDatad &model_data,
-      const Math::SpatialTransformd &joint_frame,
-      const Joint &joint,
-      const Body &body,
-      std::string body_name = ""
-      );
+  unsigned int AppendBody(ModelDatad &model_data, const Math::SpatialTransformd &joint_frame,
+                          const Joint &joint, const Body &body, std::string body_name = "");
 
-//  unsigned int AddBodyCustomJoint (ModelDatad &model_data,
-//      const unsigned int parent_id,
-//      const Math::SpatialTransformd &joint_frame,
-//      CustomJoint *custom_joint,
-//      const Body &body,
-//      std::string body_name = ""
-//      );
+  //  unsigned int AddBodyCustomJoint (ModelDatad &model_data,
+  //      const unsigned int parent_id,
+  //      const Math::SpatialTransformd &joint_frame,
+  //      CustomJoint *custom_joint,
+  //      const Body &body,
+  //      std::string body_name = ""
+  //      );
 
   /** \brief Specifies the dynamical parameters of the first body and
    *  \brief assigns it a 6 DoF joint.
@@ -323,7 +307,7 @@ public:
    * parameter of this function is then added by a 6th joint to the model.
    *
    * The floating base has the following order of degrees of freedom:
-   * 
+   *
    * \li translation X
    * \li translation Y
    * \li translation Z
@@ -339,7 +323,7 @@ public:
    *
    *  \returns id of the body with 6 DoF
    */
-  unsigned int SetFloatingBaseBody (ModelDatad &model_data, const Body &body);
+  unsigned int SetFloatingBaseBody(ModelDatad &model_data, const Body &body);
 
   /** \brief Returns the id of a body that was passed to AddBody()
    *
@@ -349,26 +333,29 @@ public:
    * \note Instead of querying this function repeatedly, it might be
    * advisable to query it once and reuse the returned id.
    *
-   * \returns the id of the body or \c std::numeric_limits<unsigned 
+   * \returns the id of the body or \c std::numeric_limits<unsigned
    *          int>::max() if the id was not found.
    */
-  unsigned int GetBodyId (const char *body_name) const {
-    if (mBodyNameMap.count(body_name) == 0) {
-        std::stringstream ss;
-        ss<<"GET BODY ID: ID does not exist: "<<body_name;
-        throw std::runtime_error(ss.str());
-        assert(mBodyNameMap.count(body_name) == 0);
-       return std::numeric_limits<unsigned int>::max();
+  unsigned int GetBodyId(const char *body_name) const
+  {
+    if (mBodyNameMap.count(body_name) == 0)
+    {
+      std::stringstream ss;
+      ss << "GET BODY ID: ID does not exist: " << body_name;
+      throw std::runtime_error(ss.str());
+      assert(mBodyNameMap.count(body_name) == 0);
+      return std::numeric_limits<unsigned int>::max();
     }
     return mBodyNameMap.find(body_name)->second;
   }
 
   /** \brief Returns the name of a body for a given body id */
-  std::string GetBodyName (unsigned int body_id) const {
-    std::map<std::string, unsigned int>::const_iterator iter 
-      = mBodyNameMap.begin();
+  std::string GetBodyName(unsigned int body_id) const
+  {
+    std::map<std::string, unsigned int>::const_iterator iter = mBodyNameMap.begin();
 
-    while (iter != mBodyNameMap.end()) {
+    while (iter != mBodyNameMap.end())
+    {
       if (iter->second == body_id)
         return iter->first;
 
@@ -380,20 +367,23 @@ public:
 
   /** \brief Checks whether the body is rigidly attached to another body.
   */
-  bool IsFixedBodyId (unsigned int body_id) const{
-    if (body_id >= fixed_body_discriminator 
-        && body_id < std::numeric_limits<unsigned int>::max() 
-        && body_id - fixed_body_discriminator < mFixedBodies.size()) {
+  bool IsFixedBodyId(unsigned int body_id) const
+  {
+    if (body_id >= fixed_body_discriminator &&
+        body_id < std::numeric_limits<unsigned int>::max() &&
+        body_id - fixed_body_discriminator < mFixedBodies.size())
+    {
       return true;
     }
     return false;
   }
 
-  bool IsBodyId (unsigned int id) const{
+  bool IsBodyId(unsigned int id) const
+  {
     if (id > 0 && id < mBodies.size())
       return true;
-    if (id >= fixed_body_discriminator 
-        && id < std::numeric_limits<unsigned int>::max()) {
+    if (id >= fixed_body_discriminator && id < std::numeric_limits<unsigned int>::max())
+    {
       if (id - fixed_body_discriminator < mFixedBodies.size())
         return true;
     }
@@ -407,81 +397,75 @@ public:
    * freedom. This function returns the id of the actual
    * non-virtual parent body.
    */
-  unsigned int GetParentBodyId (unsigned int id) {
-    if (id >= fixed_body_discriminator) {
+  unsigned int GetParentBodyId(unsigned int id)
+  {
+    if (id >= fixed_body_discriminator)
+    {
       return mFixedBodies[id - fixed_body_discriminator].mMovableParent;
     }
 
-    unsigned int parent_id = lambda[id]; 
+    unsigned int parent_id = lambda[id];
 
-    while (mBodies[parent_id].mIsVirtual) {
+    while (mBodies[parent_id].mIsVirtual)
+    {
       parent_id = lambda[parent_id];
     }
 
     return parent_id;
   }
 
-  /** Returns the joint frame transformtion, i.e. the second argument to 
+  /** Returns the joint frame transformtion, i.e. the second argument to
     Model::AddBody().
     */
-  Math::SpatialTransformd GetJointFrame (unsigned int id) {
-    if (id >= fixed_body_discriminator) {
+  Math::SpatialTransformd GetJointFrame(unsigned int id)
+  {
+    if (id >= fixed_body_discriminator)
+    {
       return mFixedBodies[id - fixed_body_discriminator].mParentTransform;
     }
 
     unsigned int child_id = id;
     unsigned int parent_id = lambda[id];
-    if (mBodies[parent_id].mIsVirtual) {
-      while (mBodies[parent_id].mIsVirtual) {
+    if (mBodies[parent_id].mIsVirtual)
+    {
+      while (mBodies[parent_id].mIsVirtual)
+      {
         child_id = parent_id;
         parent_id = lambda[child_id];
       }
       return X_T[child_id];
-    } else
-      return X_T[id];	
+    }
+    else
+      return X_T[id];
   }
 
   /** Sets the joint frame transformtion, i.e. the second argument to Model
     ::AddBody().
     */
-  void SetJointFrame (unsigned int id, 
-      const Math::SpatialTransformd &transform) {
-    if (id >= fixed_body_discriminator) {
+  void SetJointFrame(unsigned int id, const Math::SpatialTransformd &transform)
+  {
+    if (id >= fixed_body_discriminator)
+    {
       std::cerr << "Error: setting of parent transform "
-        << "not supported for fixed bodies!" << std::endl;
+                << "not supported for fixed bodies!" << std::endl;
       abort();
     }
 
     unsigned int child_id = id;
     unsigned int parent_id = lambda[id];
-    if (mBodies[parent_id].mIsVirtual) {
-      while (mBodies[parent_id].mIsVirtual) {
+    if (mBodies[parent_id].mIsVirtual)
+    {
+      while (mBodies[parent_id].mIsVirtual)
+      {
         child_id = parent_id;
         parent_id = lambda[child_id];
       }
       X_T[child_id] = transform;
-    } else if (id > 0) {
+    }
+    else if (id > 0)
+    {
       X_T[id] = transform;
     }
-  }
-
-  /** Gets the Quaterniond for body i (only valid if body i is connected by
-   * a JointTypeSpherical joint)
-   *
-   * See \ref joint_singularities for details.
-   */
-  template <typename T>
-  Math::Quaternion<T> GetQuaternion (unsigned int i,
-      const Math::VectorN<T> &Q) const {
-    /*
-    assert (mJoints[i].mJointType == JointTypeSpherical);
-    unsigned int q_index = mJoints[i].q_index;
-    return Math::Quaternion<T> ( Q[q_index],
-        Q[q_index + 1],
-        Q[q_index + 2],
-        Q[multdof3_w_index[i]]);
-        */
-    return Math::Quaternion<T>();
   }
 
   /** Sets the Quaterniond for body i (only valid if body i is connected by
@@ -489,9 +473,7 @@ public:
    *
    * See \ref joint_singularities for details.
    */
-  void SetQuaternion (unsigned int i,
-      const Math::Quaterniond &quat,
-      Math::VectorNd &Q) const;
+  void SetQuaternion(unsigned int i, const Math::Quaterniond &quat, Math::VectorNd &Q) const;
 
 
   /** \brief number of degrees of freedoms of the model
@@ -501,15 +483,16 @@ public:
    */
   unsigned int dof_count;
 
-  ModelDatad* getModelData(){
-    if(!model_data_){
+  ModelDatad *getModelData()
+  {
+    if (!model_data_)
+    {
       throw std::runtime_error("this model has no model data allocated");
     }
     return model_data_.get();
   }
 
 private:
-
   boost::shared_ptr<ModelDatad> model_data_;
 };
 

@@ -8,15 +8,15 @@
 #ifndef RBDL_KINEMATICS_H
 #define RBDL_KINEMATICS_H
 
+#include "rbdl/Logging.h"
+#include "rbdl/Model.h"
 #include "rbdl/rbdl_math.h"
 #include <assert.h>
 #include <iostream>
-#include "rbdl/Logging.h"
-#include "rbdl/Model.h"
 #include <rbdl/Joint.h>
 
-namespace RigidBodyDynamics {
-
+namespace RigidBodyDynamics
+{
 using namespace Math;
 /** \page kinematics_page Kinematics
  * All functions related to kinematics are specified in the \ref
@@ -35,7 +35,8 @@ using namespace Math;
 /** \brief Updates and computes velocities and accelerations of the bodies
  *
  * This function updates the kinematic variables such as body velocities
- * and accelerations in the model to reflect the variables passed to this function.
+ * and accelerations in the model to reflect the variables passed to this
+ * function.
  *
  * \param model the model
  * \param Q     the positional variables of the model
@@ -43,12 +44,10 @@ using namespace Math;
  * \param QDDot the generalized accelerations of the joints
  */
 template <typename T>
-RBDL_DLLAPI void UpdateKinematics(
-    const Model &model,
-    ModelData<T> &model_data,
-    const VectorN<T> &Q,
-    const VectorN<T> &QDot,
-    const VectorN<T> &QDDot) {
+RBDL_DLLAPI void UpdateKinematics(const Model &model, ModelData<T> &model_data,
+                                  const VectorN<T> &Q, const VectorN<T> &QDot,
+                                  const VectorN<T> &QDDot)
+{
   //  LOG << "-------- " << __func__ << " --------" << std::endl;
 
   assert(Q.rows() == model.q_size);
@@ -57,46 +56,48 @@ RBDL_DLLAPI void UpdateKinematics(
 
   unsigned int i;
 
-  SpatialVectord spatial_gravity (0.,
-                                  0.,
-                                  0.,
-                                  model.gravity[0],
-      model.gravity[1],
-      model.gravity[2]);
+  SpatialVectord spatial_gravity(0., 0., 0., model.gravity[0], model.gravity[1],
+                                 model.gravity[2]);
 
   model_data.a[0].setZero();
-  //model_data.a[0] = spatial_gravity;
+  // model_data.a[0] = spatial_gravity;
 
-  for (i = 1; i < model.mBodies.size(); i++) {
+  for (i = 1; i < model.mBodies.size(); i++)
+  {
     unsigned int q_index = model.mJoints[i].q_index;
 
     Joint joint = model.mJoints[i];
     unsigned int lambda = model.lambda[i];
 
-    jcalc (model, model_data, i, Q, QDot);
+    jcalc(model, model_data, i, Q, QDot);
 
     model_data.X_lambda[i] = model_data.X_J[i] * model.X_T[i];
 
-    if (lambda != 0) {
+    if (lambda != 0)
+    {
       model_data.X_base[i] = model_data.X_lambda[i] * model_data.X_base[lambda];
       model_data.v[i] = model_data.X_lambda[i].apply(model_data.v[lambda]) + model_data.v_J[i];
-      model_data.a_bias[i] = model_data.X_lambda[i].apply(model_data.a_bias[lambda]) + model_data.c[i];
-    } else {
+      model_data.a_bias[i] =
+          model_data.X_lambda[i].apply(model_data.a_bias[lambda]) + model_data.c[i];
+    }
+    else
+    {
       model_data.X_base[i] = model_data.X_lambda[i];
       model_data.v[i] = model_data.v_J[i];
       model_data.a_bias[i].setZero();
     }
 
-    model_data.c[i] = model_data.c_J[i] + crossm(model_data.v[i],model_data.v_J[i]);
+    model_data.c[i] = model_data.c_J[i] + crossm(model_data.v[i], model_data.v_J[i]);
     model_data.a[i] = model_data.X_lambda[i].apply(model_data.a[lambda]) + model_data.c[i];
 
-    //if(model.mJoints[i].mJointType != JointTypeCustom){
-    if (model.mJoints[i].mDoFCount == 1) {
+    // if(model.mJoints[i].mJointType != JointTypeCustom){
+    if (model.mJoints[i].mDoFCount == 1)
+    {
       model_data.a[i] = model_data.a[i] + model_data.S[i] * QDDot[q_index];
-    } else if (model.mJoints[i].mDoFCount == 3) {
-      Vector3d omegadot_temp (QDDot[q_index],
-                              QDDot[q_index + 1],
-          QDDot[q_index + 2]);
+    }
+    else if (model.mJoints[i].mDoFCount == 3)
+    {
+      Vector3d omegadot_temp(QDDot[q_index], QDDot[q_index + 1], QDDot[q_index + 2]);
       model_data.a[i] = model_data.a[i] + model_data.multdof3_S[i] * omegadot_temp;
     }
     //    } else {
@@ -111,17 +112,16 @@ RBDL_DLLAPI void UpdateKinematics(
   }
 
   //  for (i = 1; i < model.mBodies.size(); i++) {
-  //    //LOG << "a[" << i << "] = " << model_data.a[i].transpose() << std::endl;
+  //    //LOG << "a[" << i << "] = " << model_data.a[i].transpose() <<
+  //    std::endl;
   //  }
 }
 
-void UpdateKinematics(
-    Model &model,
-    const VectorNd &Q,
-    const VectorNd &QDot,
-    const VectorNd &QDDot);
+void UpdateKinematics(Model &model, const VectorNd &Q, const VectorNd &QDot,
+                      const VectorNd &QDDot);
 
-/** \brief Selectively updates model internal states of body positions, velocities and/or accelerations.
+/** \brief Selectively updates model internal states of body positions,
+ velocities and/or accelerations.
  *
  * This function updates the kinematic variables such as body velocities and
  * accelerations in the model to reflect the variables passed to this function.
@@ -136,80 +136,97 @@ void UpdateKinematics(
  * \param QDDot the generalized accelerations of the joints
  */
 template <typename T>
-void UpdateKinematicsCustom (const Model &model,
-                             ModelData<T>  &model_data,
-                             const Math::VectorN<T> *Q,
-                             const Math::VectorN<T> *QDot,
-                             const Math::VectorN<T> *QDDot
-                             ){
+void UpdateKinematicsCustom(const Model &model, ModelData<T> &model_data,
+                            const Math::VectorN<T> *Q, const Math::VectorN<T> *QDot,
+                            const Math::VectorN<T> *QDDot)
+{
   unsigned int i;
 
-  if (Q) {
+  if (Q)
+  {
     assert(Q->rows() == model.q_size);
-    for (i = 1; i < model.mBodies.size(); i++) {
+    for (i = 1; i < model.mBodies.size(); i++)
+    {
       unsigned int lambda = model.lambda[i];
 
-      VectorN<T> QDot_zero (VectorN<T>::Zero (model.q_size));
+      VectorN<T> QDot_zero(VectorN<T>::Zero(model.q_size));
 
-      jcalc<T> (model, model_data, i, (*Q), QDot_zero);
+      jcalc<T>(model, model_data, i, (*Q), QDot_zero);
 
       model_data.X_lambda[i] = model_data.X_J[i] * model.X_T[i];
 
-      if (lambda != 0) {
+      if (lambda != 0)
+      {
         model_data.X_base[i] = model_data.X_lambda[i] * model_data.X_base[lambda];
-      } else {
+      }
+      else
+      {
         model_data.X_base[i] = model_data.X_lambda[i];
       }
     }
   }
 
-  if (QDot) {
+  if (QDot)
+  {
     assert(Q->rows() == model.q_size);
     assert(QDot->rows() == model.qdot_size);
 
-    for (i = 1; i < model.mBodies.size(); i++) {
+    for (i = 1; i < model.mBodies.size(); i++)
+    {
       unsigned int lambda = model.lambda[i];
 
-      jcalc (model, model_data, i, *Q, *QDot);
+      jcalc(model, model_data, i, *Q, *QDot);
 
-      if (lambda != 0) {
-        model_data.v[i] = model_data.X_lambda[i].apply(model_data.v[lambda]) + model_data.v_J[i];
-        model_data.c[i] = model_data.c_J[i] + crossm(model_data.v[i],model_data.v_J[i]);
-        model_data.a_bias[i] = model_data.X_lambda[i].apply(model_data.a_bias[lambda]) + model_data.c[i];
-      } else {
+      if (lambda != 0)
+      {
+        model_data.v[i] =
+            model_data.X_lambda[i].apply(model_data.v[lambda]) + model_data.v_J[i];
+        model_data.c[i] = model_data.c_J[i] + crossm(model_data.v[i], model_data.v_J[i]);
+        model_data.a_bias[i] =
+            model_data.X_lambda[i].apply(model_data.a_bias[lambda]) + model_data.c[i];
+      }
+      else
+      {
         model_data.v[i] = model_data.v_J[i];
-        model_data.c[i] = model_data.c_J[i] + crossm(model_data.v[i],model_data.v_J[i]);
-        model_data.a_bias[i] = model_data.X_lambda[i].apply(model_data.a_bias[lambda]) + model_data.c[i];
+        model_data.c[i] = model_data.c_J[i] + crossm(model_data.v[i], model_data.v_J[i]);
+        model_data.a_bias[i] =
+            model_data.X_lambda[i].apply(model_data.a_bias[lambda]) + model_data.c[i];
       }
       // LOG << "v[" << i << "] = " << model_data.v[i].transpose() << std::endl;
     }
   }
 
-  if (QDDot) {
+  if (QDDot)
+  {
     assert(Q->rows() == model.q_size);
     assert(QDot->rows() == model.qdot_size);
     assert(QDDot->rows() == model.qdot_size);
 
-    for (i = 1; i < model.mBodies.size(); i++) {
+    for (i = 1; i < model.mBodies.size(); i++)
+    {
       unsigned int q_index = model.mJoints[i].q_index;
 
       unsigned int lambda = model.lambda[i];
 
-      if (lambda != 0) {
+      if (lambda != 0)
+      {
         model_data.a[i] = model_data.X_lambda[i].apply(model_data.a[lambda]) + model_data.c[i];
-      } else {
+      }
+      else
+      {
         model_data.a[i] = model_data.c[i];
       }
 
       //      if( model.mJoints[i].mJointType != JointTypeCustom){
-      if (model.mJoints[i].mDoFCount == 1) {
+      if (model.mJoints[i].mDoFCount == 1)
+      {
         model_data.a[i] = model_data.a[i] + model_data.S[i] * (*QDDot)[q_index];
-      } else if (model.mJoints[i].mDoFCount == 3) {
-        Vector3<T> omegadot_temp ((*QDDot)[q_index],
-                                  (*QDDot)[q_index + 1],
-            (*QDDot)[q_index + 2]);
-        model_data.a[i] = model_data.a[i]
-                          + model_data.multdof3_S[i] * omegadot_temp;
+      }
+      else if (model.mJoints[i].mDoFCount == 3)
+      {
+        Vector3<T> omegadot_temp((*QDDot)[q_index], (*QDDot)[q_index + 1],
+                                 (*QDDot)[q_index + 2]);
+        model_data.a[i] = model_data.a[i] + model_data.multdof3_S[i] * omegadot_temp;
       }
       //      } else {
       //        unsigned int k = model.mJoints[i].custom_joint_index;
@@ -218,17 +235,17 @@ void UpdateKinematicsCustom (const Model &model,
       //        unsigned int joint_dof_count = custom_joint->mDoFCount;
 
       //        model_data.a[i] = model_data.a[i]
-      //                          + (  (model.mCustomJoints[k]->S). template cast<T>()
-      //                               *(QDDot->block(q_index, 0, joint_dof_count, 1)));
+      //                          + (  (model.mCustomJoints[k]->S). template
+      //                          cast<T>()
+      //                               *(QDDot->block(q_index, 0,
+      //                               joint_dof_count, 1)));
       //      }
     }
   }
 }
 
-void UpdateKinematicsCustom (Model &model,
-                             const Math::VectorNd *Q,
-                             const Math::VectorNd *QDot,
-                             const Math::VectorNd *QDDot);
+void UpdateKinematicsCustom(Model &model, const Math::VectorNd *Q,
+                            const Math::VectorNd *QDot, const Math::VectorNd *QDDot);
 
 /** \brief Returns the base coordinates of a point given in body coordinates.
  *
@@ -242,19 +259,19 @@ void UpdateKinematicsCustom (Model &model,
  * \returns a 3-D vector with coordinates of the point in base coordinates
  */
 template <typename T>
-Vector3<T> CalcBodyToBaseCoordinates (
-    const Model &model,
-    ModelData<T> &model_data,
-    const VectorN<T> &Q,
-    unsigned int body_id,
-    const Vector3d &point_body_coordinates,
-    bool update_kinematics = true) {
+Vector3<T> CalcBodyToBaseCoordinates(const Model &model, ModelData<T> &model_data,
+                                     const VectorN<T> &Q, unsigned int body_id,
+                                     const Vector3d &point_body_coordinates,
+                                     bool update_kinematics = true)
+{
   // update the Kinematics if necessary
-  if (update_kinematics) {
+  if (update_kinematics)
+  {
     UpdateKinematicsCustom<T>(model, model_data, &Q, NULL, NULL);
   }
 
-  if (body_id >= model.fixed_body_discriminator) {
+  if (body_id >= model.fixed_body_discriminator)
+  {
     unsigned int fbody_id = body_id - model.fixed_body_discriminator;
     unsigned int parent_id = model.mFixedBodies[fbody_id].mMovableParent;
 
@@ -265,9 +282,9 @@ Vector3<T> CalcBodyToBaseCoordinates (
     Matrix3<T> parent_body_rotation = model_data.X_base[parent_id].E.transpose();
     Vector3<T> parent_body_position = model_data.X_base[parent_id].r;
 
-    return (parent_body_position
-            + (parent_body_rotation
-               * (fixed_position + fixed_rotation * (point_body_coordinates.cast<T>()))) );
+    return (parent_body_position +
+            (parent_body_rotation *
+             (fixed_position + fixed_rotation * (point_body_coordinates.cast<T>()))));
   }
 
   Matrix3<T> body_rotation = model_data.X_base[body_id].E.transpose();
@@ -276,11 +293,9 @@ Vector3<T> CalcBodyToBaseCoordinates (
   return body_position + body_rotation * point_body_coordinates.cast<T>();
 }
 
-Vector3d CalcBodyToBaseCoordinates (Model &model,
-                                    const VectorNd &Q,
-                                    unsigned int body_id,
-                                    const Vector3d &point_body_coordinates,
-                                    bool update_kinematics = true);
+Vector3d CalcBodyToBaseCoordinates(Model &model, const VectorNd &Q, unsigned int body_id,
+                                   const Vector3d &point_body_coordinates,
+                                   bool update_kinematics = true);
 
 /** \brief Returns the body coordinates of a point given in base coordinates.
  *
@@ -294,19 +309,17 @@ Vector3d CalcBodyToBaseCoordinates (Model &model,
  * \returns a 3-D vector with coordinates of the point in body coordinates
  */
 template <typename T>
-RBDL_DLLAPI Math::Vector3<T> CalcBaseToBodyCoordinates (
-    const Model &model,
-    ModelData<T>  &model_data,
-    const Math::VectorN<T> &Q,
-    unsigned int body_id,
-    const Math::Vector3<T> &base_point_position,
-    bool update_kinematics = true){
-
-  if (update_kinematics) {
+RBDL_DLLAPI Math::Vector3<T> CalcBaseToBodyCoordinates(
+    const Model &model, ModelData<T> &model_data, const Math::VectorN<T> &Q, unsigned int body_id,
+    const Math::Vector3<T> &base_point_position, bool update_kinematics = true)
+{
+  if (update_kinematics)
+  {
     UpdateKinematicsCustom<T>(model, model_data, &Q, NULL, NULL);
   }
 
-  if (body_id >= model.fixed_body_discriminator) {
+  if (body_id >= model.fixed_body_discriminator)
+  {
     unsigned int fbody_id = body_id - model.fixed_body_discriminator;
     unsigned int parent_id = model.mFixedBodies[fbody_id].mMovableParent;
 
@@ -316,10 +329,9 @@ RBDL_DLLAPI Math::Vector3<T> CalcBaseToBodyCoordinates (
     Matrix3<T> parent_body_rotation = model_data.X_base[parent_id].E;
     Vector3<T> parent_body_position = model_data.X_base[parent_id].r;
 
-    return (fixed_rotation
-            * ( - fixed_position
-                - parent_body_rotation
-                * (parent_body_position - base_point_position)));
+    return (fixed_rotation *
+            (-fixed_position -
+             parent_body_rotation * (parent_body_position - base_point_position)));
   }
 
   Matrix3<T> body_rotation = model_data.X_base[body_id].E;
@@ -329,12 +341,10 @@ RBDL_DLLAPI Math::Vector3<T> CalcBaseToBodyCoordinates (
   return position;
 }
 
-Math::Vector3d CalcBaseToBodyCoordinates (
-    Model &model,
-    const Math::VectorNd &Q,
-    unsigned int body_id,
-    const Math::Vector3d &base_point_position,
-    bool update_kinematics = true);
+Math::Vector3d CalcBaseToBodyCoordinates(Model &model, const Math::VectorNd &Q,
+                                         unsigned int body_id,
+                                         const Math::Vector3d &base_point_position,
+                                         bool update_kinematics = true);
 
 /** \brief Returns the orientation of a given body as 3x3 matrix
  *
@@ -349,34 +359,35 @@ Math::Vector3d CalcBaseToBodyCoordinates (
  */
 
 template <typename T>
-RBDL_DLLAPI Math::Matrix3<T> CalcBodyWorldOrientation (
-    const Model &model,
-    ModelData<T>  &model_data,
-    const Math::VectorN<T> &Q,
-    const unsigned int body_id,
-    bool update_kinematics = true){
-
+RBDL_DLLAPI Math::Matrix3<T> CalcBodyWorldOrientation(const Model &model, ModelData<T> &model_data,
+                                                      const Math::VectorN<T> &Q,
+                                                      const unsigned int body_id,
+                                                      bool update_kinematics = true)
+{
   // update the Kinematics if necessary
-  if (update_kinematics) {
+  if (update_kinematics)
+  {
     UpdateKinematicsCustom<T>(model, model_data, &Q, NULL, NULL);
   }
 
-  if (body_id >= model.fixed_body_discriminator) {
+  if (body_id >= model.fixed_body_discriminator)
+  {
     unsigned int fbody_id = body_id - model.fixed_body_discriminator;
-    return (model.mFixedBodies[fbody_id].mParentTransform
-        * model_data.X_base[model.mFixedBodies[fbody_id].mMovableParent]).E;
+    return (model.mFixedBodies[fbody_id].mParentTransform *
+            model_data.X_base[model.mFixedBodies[fbody_id].mMovableParent])
+        .E;
   }
   return model_data.X_base[body_id].E;
 }
 
-Math::Matrix3d CalcBodyWorldOrientation (Model &model,
-                                         const Math::VectorNd &Q,
-                                         const unsigned int body_id,
-                                         bool update_kinematics = true);
+Math::Matrix3d CalcBodyWorldOrientation(Model &model, const Math::VectorNd &Q,
+                                        const unsigned int body_id,
+                                        bool update_kinematics = true);
 
 /** \brief Computes the point jacobian for a point on a body
  *
- * If a position of a point is computed by a function \f$g(q(t))\f$ for which its
+ * If a position of a point is computed by a function \f$g(q(t))\f$ for which
+ * its
  * time derivative is \f$\frac{d}{dt} g(q(t)) = G(q)\dot{q}\f$ then this
  * function computes the jacobian matrix \f$G(q)\f$.
  *
@@ -384,8 +395,10 @@ Math::Matrix3d CalcBodyWorldOrientation (Model &model,
  * \param Q       state vector of the internal joints
  * \param body_id the id of the body
  * \param point_position the position of the point in body-local data
- * \param G       a matrix of dimensions 3 x \#qdot_size where the result will be stored in
- * \param update_kinematics whether UpdateKinematics() should be called or not (default: true)
+ * \param G       a matrix of dimensions 3 x \#qdot_size where the result will
+ * be stored in
+ * \param update_kinematics whether UpdateKinematics() should be called or not
+ * (default: true)
  *
  * The result will be returned via the G argument.
  *
@@ -394,33 +407,21 @@ Math::Matrix3d CalcBodyWorldOrientation (Model &model,
  * have been set to zero, e.g. by calling G.setZero().
  *
  */
-RBDL_DLLAPI void CalcPointJacobian (const Model &model,
-                                    ModelDatad  &model_data,
-                                    const Math::VectorNd &Q,
-                                    unsigned int body_id,
-                                    const Math::Vector3d &point_position,
-                                    Math::MatrixNd &G,
-                                    bool update_kinematics = true);
+RBDL_DLLAPI void CalcPointJacobian(const Model &model, ModelDatad &model_data,
+                                   const Math::VectorNd &Q, unsigned int body_id,
+                                   const Math::Vector3d &point_position,
+                                   Math::MatrixNd &G, bool update_kinematics = true);
 
-void CalcPointJacobian (Model &model,
-                        const Math::VectorNd &Q,
-                        unsigned int body_id,
-                        const Math::Vector3d &point_position,
-                        Math::MatrixNd &G,
-                        bool update_kinematics = true);
+void CalcPointJacobian(Model &model, const Math::VectorNd &Q, unsigned int body_id,
+                       const Math::Vector3d &point_position, Math::MatrixNd &G,
+                       bool update_kinematics = true);
 
-RBDL_DLLAPI void CalcOrientationJacobian (const Model &model,
-                                          ModelDatad  &model_data,
-                                          const Math::VectorNd &Q,
-                                          unsigned int body_id,
-                                          Math::MatrixNd &G,
-                                          bool update_kinematics = true);
+RBDL_DLLAPI void CalcOrientationJacobian(const Model &model, ModelDatad &model_data,
+                                         const Math::VectorNd &Q, unsigned int body_id,
+                                         Math::MatrixNd &G, bool update_kinematics = true);
 
-void CalcOrientationJacobian (Model &model,
-                              const Math::VectorNd &Q,
-                              unsigned int body_id,
-                              Math::MatrixNd &G,
-                              bool update_kinematics = true);
+void CalcOrientationJacobian(Model &model, const Math::VectorNd &Q, unsigned int body_id,
+                             Math::MatrixNd &G, bool update_kinematics = true);
 
 /** \brief Computes a 6-D Jacobian for a point on a body
  *
@@ -432,8 +433,10 @@ void CalcOrientationJacobian (Model &model,
  * \param Q       state vector of the internal joints
  * \param body_id the id of the body
  * \param point_position the position of the point in body-local data
- * \param G       a matrix of dimensions 6 x \#qdot_size where the result will be stored in
- * \param update_kinematics whether UpdateKinematics() should be called or not (default: true)
+ * \param G       a matrix of dimensions 6 x \#qdot_size where the result will
+ * be stored in
+ * \param update_kinematics whether UpdateKinematics() should be called or not
+ * (default: true)
  *
  * The result will be returned via the G argument.
  *
@@ -442,35 +445,24 @@ void CalcOrientationJacobian (Model &model,
  * have been set to zero, e.g. by calling G.setZero().
  *
  */
-RBDL_DLLAPI void CalcPointJacobian6D (const Model &model,
-                                      ModelDatad  &model_data,
-                                      const Math::VectorNd &Q,
-                                      unsigned int body_id,
-                                      const Math::Vector3d &point_position,
-                                      Math::MatrixNd &G,
-                                      bool update_kinematics = true);
+RBDL_DLLAPI void CalcPointJacobian6D(const Model &model, ModelDatad &model_data,
+                                     const Math::VectorNd &Q, unsigned int body_id,
+                                     const Math::Vector3d &point_position,
+                                     Math::MatrixNd &G, bool update_kinematics = true);
 
-RBDL_DLLAPI void CalcPointJacobian6D (Model &model,
-                                      const Math::VectorNd &Q,
-                                      unsigned int body_id,
-                                      const Math::Vector3d &point_position,
-                                      Math::MatrixNd &G,
-                                      bool update_kinematics = true);
+RBDL_DLLAPI void CalcPointJacobian6D(Model &model, const Math::VectorNd &Q,
+                                     unsigned int body_id, const Math::Vector3d &point_position,
+                                     Math::MatrixNd &G, bool update_kinematics = true);
 
-RBDL_DLLAPI void CalcPointJacobian6DBodyFrame (const Model &model,
-                                               ModelDatad  &model_data,
-                                               const Math::VectorNd &Q,
-                                               unsigned int body_id,
-                                               const Math::Vector3d &point_position,
-                                               Math::MatrixNd &G,
-                                               bool update_kinematics = true);
+RBDL_DLLAPI void CalcPointJacobian6DBodyFrame(const Model &model, ModelDatad &model_data,
+                                              const Math::VectorNd &Q, unsigned int body_id,
+                                              const Math::Vector3d &point_position,
+                                              Math::MatrixNd &G, bool update_kinematics = true);
 
-RBDL_DLLAPI void CalcPointJacobian6DBodyFrame (Model &model,
-                                               const Math::VectorNd &Q,
-                                               unsigned int body_id,
-                                               const Math::Vector3d &point_position,
-                                               Math::MatrixNd &G,
-                                               bool update_kinematics = true);
+RBDL_DLLAPI void CalcPointJacobian6DBodyFrame(Model &model, const Math::VectorNd &Q,
+                                              unsigned int body_id,
+                                              const Math::Vector3d &point_position,
+                                              Math::MatrixNd &G, bool update_kinematics = true);
 
 /** \brief Computes the spatial jacobian for a body
  *
@@ -482,8 +474,10 @@ RBDL_DLLAPI void CalcPointJacobian6DBodyFrame (Model &model,
  * \param model   rigid body model
  * \param Q       state vector of the internal joints
  * \param body_id the id of the body
- * \param G       a matrix of size 6 x \#qdot_size where the result will be stored in
- * \param update_kinematics whether UpdateKinematics() should be called or not (default: true)
+ * \param G       a matrix of size 6 x \#qdot_size where the result will be
+ * stored in
+ * \param update_kinematics whether UpdateKinematics() should be called or not
+ * (default: true)
  *
  * The result will be returned via the G argument and represents the
  * body Jacobian expressed at the origin of the body.
@@ -492,92 +486,74 @@ RBDL_DLLAPI void CalcPointJacobian6DBodyFrame (Model &model,
  * Before calling this function one has to ensure that all other values
  * have been set to zero, e.g. by calling G.setZero().
  */
-RBDL_DLLAPI void CalcBodySpatialJacobian (
-    const Model &model,
-    ModelDatad  &model_data,
-    const Math::VectorNd &Q,
-    unsigned int body_id,
-    Math::MatrixNd &G,
-    bool update_kinematics = true
-                             );
+RBDL_DLLAPI void CalcBodySpatialJacobian(const Model &model, ModelDatad &model_data,
+                                         const Math::VectorNd &Q, unsigned int body_id,
+                                         Math::MatrixNd &G, bool update_kinematics = true);
 
-/** \brief Computes the velocity of a point on a body 
+/** \brief Computes the velocity of a point on a body
  *
  * \param model   rigid body model
  * \param Q       state vector of the internal joints
  * \param QDot    velocity vector of the internal joints
  * \param body_id the id of the body
  * \param point_position the position of the point in body-local data
- * \param update_kinematics whether UpdateKinematics() should be called or not (default: true)
+ * \param update_kinematics whether UpdateKinematics() should be called or not
+ * (default: true)
  *
  * \returns The cartesian velocity of the point in global frame (output)
  */
-RBDL_DLLAPI Math::Vector3d CalcPointVelocity (
-    const Model &model,
-    ModelDatad  &model_data,
-    const Math::VectorNd &Q,
-    const Math::VectorNd &QDot,
-    unsigned int body_id,
-    const Math::Vector3d &point_position,
-    bool update_kinematics = true);
+RBDL_DLLAPI Math::Vector3d CalcPointVelocity(const Model &model, ModelDatad &model_data,
+                                             const Math::VectorNd &Q,
+                                             const Math::VectorNd &QDot, unsigned int body_id,
+                                             const Math::Vector3d &point_position,
+                                             bool update_kinematics = true);
 
-RBDL_DLLAPI Math::Vector3d CalcPointVelocity (
-    Model &model,
-    const Math::VectorNd &Q,
-    const Math::VectorNd &QDot,
-    unsigned int body_id,
-    const Math::Vector3d &point_position,
-    bool update_kinematics = true);
+RBDL_DLLAPI Math::Vector3d CalcPointVelocity(Model &model, const Math::VectorNd &Q,
+                                             const Math::VectorNd &QDot, unsigned int body_id,
+                                             const Math::Vector3d &point_position,
+                                             bool update_kinematics = true);
 
-RBDL_DLLAPI Math::Vector3d CalcPointAngularVelocity (
-    const Model &model,
-    ModelDatad  &model_data,
-    const Math::VectorNd &Q,
-    const Math::VectorNd &QDot,
-    unsigned int body_id,
-    const Math::Vector3d &point_position,
-    bool update_kinematics = true);
+RBDL_DLLAPI Math::Vector3d CalcPointAngularVelocity(const Model &model, ModelDatad &model_data,
+                                                    const Math::VectorNd &Q,
+                                                    const Math::VectorNd &QDot,
+                                                    unsigned int body_id,
+                                                    const Math::Vector3d &point_position,
+                                                    bool update_kinematics = true);
 
-RBDL_DLLAPI Math::Vector3d CalcPointAngularVelocity (
-    Model &model,
-    const Math::VectorNd &Q,
-    const Math::VectorNd &QDot,
-    unsigned int body_id,
-    const Math::Vector3d &point_position,
-    bool update_kinematics = true);
+RBDL_DLLAPI Math::Vector3d CalcPointAngularVelocity(Model &model, const Math::VectorNd &Q,
+                                                    const Math::VectorNd &QDot,
+                                                    unsigned int body_id,
+                                                    const Math::Vector3d &point_position,
+                                                    bool update_kinematics = true);
 
-/** \brief Computes angular and linear velocity of a point that is fixed on a body
+/** \brief Computes angular and linear velocity of a point that is fixed on a
+ * body
  *
  * \param model   rigid body model
  * \param Q       state vector of the internal joints
  * \param QDot    velocity vector of the internal joints
  * \param body_id the id of the body
  * \param point_position the position of the point in body-local data
- * \param update_kinematics whether UpdateKinematics() should be called or not (default: true)
+ * \param update_kinematics whether UpdateKinematics() should be called or not
+ * (default: true)
  *
  * \returns The a 6-D vector for which the first three elements are the
  * angular velocity and the last three elements the linear velocity in the
  * global reference system.
  */
 RBDL_DLLAPI
-Math::SpatialVectord CalcPointVelocity6D (
-    const Model &model,
-    ModelDatad  &model_data,
-    const Math::VectorNd &Q,
-    const Math::VectorNd &QDot,
-    unsigned int body_id,
-    const Math::Vector3d &point_position,
-    bool update_kinematics = true);
+Math::SpatialVectord CalcPointVelocity6D(const Model &model, ModelDatad &model_data,
+                                         const Math::VectorNd &Q,
+                                         const Math::VectorNd &QDot, unsigned int body_id,
+                                         const Math::Vector3d &point_position,
+                                         bool update_kinematics = true);
 
-Math::SpatialVectord CalcPointVelocity6D (
-    Model &model,
-    const Math::VectorNd &Q,
-    const Math::VectorNd &QDot,
-    unsigned int body_id,
-    const Math::Vector3d &point_position,
-    bool update_kinematics = true);
+Math::SpatialVectord CalcPointVelocity6D(Model &model, const Math::VectorNd &Q,
+                                         const Math::VectorNd &QDot, unsigned int body_id,
+                                         const Math::Vector3d &point_position,
+                                         bool update_kinematics = true);
 
-/** \brief Computes the linear acceleration of a point on a body 
+/** \brief Computes the linear acceleration of a point on a body
  *
  * \param model   rigid body model
  * \param Q       state vector of the internal joints
@@ -585,7 +561,8 @@ Math::SpatialVectord CalcPointVelocity6D (
  * \param QDDot    velocity vector of the internal joints
  * \param body_id the id of the body
  * \param point_position the position of the point in body-local data
- * \param update_kinematics whether UpdateKinematics() should be called or not (default: true)
+ * \param update_kinematics whether UpdateKinematics() should be called or not
+ * (default: true)
  *
  * \returns The cartesian acceleration of the point in global frame (output)
  *
@@ -599,64 +576,39 @@ Math::SpatialVectord CalcPointVelocity6D (
  * acceleration has to be added to the result.
  */
 RBDL_DLLAPI
-Math::Vector3d CalcPointAcceleration (
-    const Model &model,
-    ModelDatad  &model_data,
-    const Math::VectorNd &Q,
-    const Math::VectorNd &QDot,
-    const Math::VectorNd &QDDot,
-    unsigned int body_id,
-    const Math::Vector3d &point_position,
-    bool update_kinematics = true);
+Math::Vector3d CalcPointAcceleration(const Model &model, ModelDatad &model_data,
+                                     const Math::VectorNd &Q, const Math::VectorNd &QDot,
+                                     const Math::VectorNd &QDDot, unsigned int body_id,
+                                     const Math::Vector3d &point_position,
+                                     bool update_kinematics = true);
 
-Math::Vector3d CalcPointAcceleration (
-    Model &model,
-    const Math::VectorNd &Q,
-    const Math::VectorNd &QDot,
-    const Math::VectorNd &QDDot,
-    unsigned int body_id,
-    const Math::Vector3d &point_position,
-    bool update_kinematics = true);
+Math::Vector3d CalcPointAcceleration(Model &model, const Math::VectorNd &Q,
+                                     const Math::VectorNd &QDot, const Math::VectorNd &QDDot,
+                                     unsigned int body_id, const Math::Vector3d &point_position,
+                                     bool update_kinematics = true);
 
-Vector3d CalcPointAngularAcceleration(
-    const Model &model,
-    ModelDatad &model_data,
-    const VectorNd &Q,
-    const VectorNd &QDot,
-    const VectorNd &QDDot,
-    unsigned int body_id,
-    const Vector3d &point_position,
-    bool update_kinematics);
+Vector3d CalcPointAngularAcceleration(const Model &model, ModelDatad &model_data,
+                                      const VectorNd &Q, const VectorNd &QDot,
+                                      const VectorNd &QDDot, unsigned int body_id,
+                                      const Vector3d &point_position, bool update_kinematics);
 
-Vector3d CalcPointAngularAcceleration(
-    Model &model,
-    const VectorNd &Q,
-    const VectorNd &QDot,
-    const VectorNd &QDDot,
-    unsigned int body_id,
-    const Vector3d &point_position,
-    bool update_kinematics);
+Vector3d CalcPointAngularAcceleration(Model &model, const VectorNd &Q, const VectorNd &QDot,
+                                      const VectorNd &QDDot, unsigned int body_id,
+                                      const Vector3d &point_position, bool update_kinematics);
 
 RBDL_DLLAPI
-Math::Vector3d CalcPointAccelerationBias(
-    const Model &model,
-    ModelDatad  &model_data,
-    const Math::VectorNd &Q,
-    const Math::VectorNd &QDot,
-    unsigned int body_id,
-    const Math::Vector3d &point_position,
-    bool update_kinematics = true);
+Math::Vector3d CalcPointAccelerationBias(const Model &model, ModelDatad &model_data,
+                                         const Math::VectorNd &Q,
+                                         const Math::VectorNd &QDot, unsigned int body_id,
+                                         const Math::Vector3d &point_position,
+                                         bool update_kinematics = true);
 
-Math::Vector3d CalcPointAccelerationBias(
-    Model &model,
-    const Math::VectorNd &Q,
-    const Math::VectorNd &QDot,
-    unsigned int body_id,
-    const Math::Vector3d &point_position,
-    bool update_kinematics = true);
+Math::Vector3d CalcPointAccelerationBias(Model &model, const Math::VectorNd &Q,
+                                         const Math::VectorNd &QDot, unsigned int body_id,
+                                         const Math::Vector3d &point_position,
+                                         bool update_kinematics = true);
 
-
-/** \brief Computes linear and angular acceleration of a point on a body 
+/** \brief Computes linear and angular acceleration of a point on a body
  *
  * \param model   rigid body model
  * \param Q       state vector of the internal joints
@@ -664,7 +616,8 @@ Math::Vector3d CalcPointAccelerationBias(
  * \param QDDot    velocity vector of the internal joints
  * \param body_id the id of the body
  * \param point_position the position of the point in body-local data
- * \param update_kinematics whether UpdateKinematics() should be called or not (default: true)
+ * \param update_kinematics whether UpdateKinematics() should be called or not
+ * (default: true)
  *
  * \returns A 6-D vector where the first three elements are the angular
  * acceleration and the last three elements the linear accelerations of
@@ -680,48 +633,37 @@ Math::Vector3d CalcPointAccelerationBias(
  * acceleration has to be added to the result.
  */
 RBDL_DLLAPI
-Math::SpatialVectord CalcPointAcceleration6D (
-    const Model &model,
-    ModelDatad  &model_data,
-    const Math::VectorNd &Q,
-    const Math::VectorNd &QDot,
-    const Math::VectorNd &QDDot,
-    unsigned int body_id,
-    const Math::Vector3d &point_position,
-    bool update_kinematics = true);
+Math::SpatialVectord CalcPointAcceleration6D(const Model &model, ModelDatad &model_data,
+                                             const Math::VectorNd &Q, const Math::VectorNd &QDot,
+                                             const Math::VectorNd &QDDot, unsigned int body_id,
+                                             const Math::Vector3d &point_position,
+                                             bool update_kinematics = true);
 
-Math::SpatialVectord CalcPointAcceleration6D (
-    Model &model,
-    const Math::VectorNd &Q,
-    const Math::VectorNd &QDot,
-    const Math::VectorNd &QDDot,
-    unsigned int body_id,
-    const Math::Vector3d &point_position,
-    bool update_kinematics = true);
+Math::SpatialVectord CalcPointAcceleration6D(Model &model, const Math::VectorNd &Q,
+                                             const Math::VectorNd &QDot,
+                                             const Math::VectorNd &QDDot, unsigned int body_id,
+                                             const Math::Vector3d &point_position,
+                                             bool update_kinematics = true);
 
 RBDL_DLLAPI
-Math::SpatialVectord CalcPointAcceleration6DBias (
-    const Model &model,
-    ModelDatad  &model_data,
-    const Math::VectorNd &Q,
-    const Math::VectorNd &QDot,
-    unsigned int body_id,
-    const Math::Vector3d &point_position,
-    bool update_kinematics = true);
+Math::SpatialVectord CalcPointAcceleration6DBias(const Model &model, ModelDatad &model_data,
+                                                 const Math::VectorNd &Q,
+                                                 const Math::VectorNd &QDot, unsigned int body_id,
+                                                 const Math::Vector3d &point_position,
+                                                 bool update_kinematics = true);
 
-Math::SpatialVectord CalcPointAcceleration6DBias (
-    Model &model,
-    const Math::VectorNd &Q,
-    const Math::VectorNd &QDot,
-    unsigned int body_id,
-    const Math::Vector3d &point_position,
-    bool update_kinematics = true);
+Math::SpatialVectord CalcPointAcceleration6DBias(Model &model, const Math::VectorNd &Q,
+                                                 const Math::VectorNd &QDot, unsigned int body_id,
+                                                 const Math::Vector3d &point_position,
+                                                 bool update_kinematics = true);
 
-/** \brief Computes the inverse kinematics iteratively using a damped Levenberg-Marquardt method (also known as Damped Least Squares method)
+/** \brief Computes the inverse kinematics iteratively using a damped
+ * Levenberg-Marquardt method (also known as Damped Least Squares method)
  *
  * \param model rigid body model
  * \param Qinit initial guess for the state
- * \param body_id a vector of all bodies for which we we have kinematic target positions
+ * \param body_id a vector of all bodies for which we we have kinematic target
+ * positions
  * \param body_point a vector of points in body local coordinates that are
  * to be matched to target positions
  * \param target_pos a vector of target positions
@@ -745,26 +687,20 @@ Math::SpatialVectord CalcPointAcceleration6DBias (
  * 0.9) can be helpful. Otherwise values of 0.0001, 0.001, 0.01, 0.1 might
  * yield good results. See the literature for best practices.
  *
- * \warning The actual accuracy might be rather low (~1.0e-2)! Use this function with a
+ * \warning The actual accuracy might be rather low (~1.0e-2)! Use this function
+ * with a
  * grain of suspicion.
  */
 RBDL_DLLAPI
-bool InverseKinematics (
-    Model &model,
-    ModelDatad  &model_data,
-    const Math::VectorNd &Qinit,
-    const std::vector<unsigned int>& body_id,
-    const std::vector<Math::Vector3d>& body_point,
-    const std::vector<Math::Vector3d>& target_pos,
-    Math::VectorNd &Qres,
-    double step_tol = 1.0e-12,
-    double lambda = 0.01,
-    unsigned int max_iter = 50
-                            );
+bool InverseKinematics(Model &model, ModelDatad &model_data, const Math::VectorNd &Qinit,
+                       const std::vector<unsigned int> &body_id,
+                       const std::vector<Math::Vector3d> &body_point,
+                       const std::vector<Math::Vector3d> &target_pos,
+                       Math::VectorNd &Qres, double step_tol = 1.0e-12,
+                       double lambda = 0.01, unsigned int max_iter = 50);
 
 /** @} */
-
 }
 
 /* RBDL_KINEMATICS_H */
-#endif 
+#endif
