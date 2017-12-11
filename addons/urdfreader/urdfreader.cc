@@ -220,40 +220,42 @@ namespace RigidBodyDynamics {
 
 
 
-    bool construct_model(Model &rbdl_model, LinkPtr urdf_link, int parent_id, FloatingBaseType floatingBaseType,
-                         const std::vector<std::string> &tipLinks, bool verbose){
-
+    int initialize_link(Model &rbdl_model, LinkPtr urdf_link, int parent_id,
+                        FloatingBaseType floatingBaseType)
+    {
       int new_id = 0;
-      if(urdf_link->parent_joint.get()){
+      if (urdf_link->parent_joint.get())
+      {
         JointPtr urdf_joint = urdf_link->parent_joint;
         // create the joint
         Joint rbdl_joint;
-        if ((urdf_joint->type == urdf::Joint::REVOLUTE || urdf_joint->type == urdf::Joint::CONTINUOUS)  && !urdf_joint->mimic) {
-          rbdl_joint = Joint (SpatialVector (urdf_joint->axis.x, urdf_joint->axis.y, urdf_joint->axis.z, 0., 0., 0.));
+        if ((urdf_joint->type == urdf::Joint::REVOLUTE || urdf_joint->type == urdf::Joint::CONTINUOUS) &&
+            !urdf_joint->mimic)
+        {
+          rbdl_joint = Joint(SpatialVector(urdf_joint->axis.x, urdf_joint->axis.y,
+                                           urdf_joint->axis.z, 0., 0., 0.));
         }
-        else if (urdf_joint->type == urdf::Joint::PRISMATIC && !urdf_joint->mimic) {
-          rbdl_joint = Joint (SpatialVector (0., 0., 0., urdf_joint->axis.x, urdf_joint->axis.y, urdf_joint->axis.z));
+        else if (urdf_joint->type == urdf::Joint::PRISMATIC && !urdf_joint->mimic)
+        {
+          rbdl_joint = Joint(SpatialVector(0., 0., 0., urdf_joint->axis.x, urdf_joint->axis.y,
+                                           urdf_joint->axis.z));
         }
-        else if (urdf_joint->type == urdf::Joint::FIXED || urdf_joint->mimic) {
-          rbdl_joint = Joint (JointTypeFixed);
+        else if (urdf_joint->type == urdf::Joint::FIXED || urdf_joint->mimic)
+        {
+          rbdl_joint = Joint(JointTypeFixed);
         }
 
         // compute the joint transformation
         Vector3d joint_rpy;
         Vector3d joint_translation;
-        urdf_joint->parent_to_joint_origin_transform.rotation.getRPY (joint_rpy[0], joint_rpy[1], joint_rpy[2]);
-        joint_translation.set (
-              urdf_joint->parent_to_joint_origin_transform.position.x,
-              urdf_joint->parent_to_joint_origin_transform.position.y,
-              urdf_joint->parent_to_joint_origin_transform.position.z
-              );
+        urdf_joint->parent_to_joint_origin_transform.rotation.getRPY(joint_rpy[0], joint_rpy[1],
+                                                                     joint_rpy[2]);
+        joint_translation.set(urdf_joint->parent_to_joint_origin_transform.position.x,
+                              urdf_joint->parent_to_joint_origin_transform.position.y,
+                              urdf_joint->parent_to_joint_origin_transform.position.z);
         SpatialTransform rbdl_joint_frame =
-            Xrot (joint_rpy[0], Vector3d (1., 0., 0.))
-            * Xrot (joint_rpy[1], Vector3d (0., 1., 0.))
-            * Xrot (joint_rpy[2], Vector3d (0., 0., 1.))
-            * Xtrans (Vector3d (
-                        joint_translation
-                        ));
+            Xrot(joint_rpy[0], Vector3d(1., 0., 0.)) * Xrot(joint_rpy[1], Vector3d(0., 1., 0.)) *
+            Xrot(joint_rpy[2], Vector3d(0., 0., 1.)) * Xtrans(Vector3d(joint_translation));
 
         // assemble the body
         Vector3d link_inertial_position;
@@ -262,152 +264,195 @@ namespace RigidBodyDynamics {
         double link_inertial_mass = 0;
 
         // but only if we actually have inertial data
-        if (urdf_link->inertial) {
+        if (urdf_link->inertial)
+        {
           link_inertial_mass = urdf_link->inertial->mass;
 
-          link_inertial_position.set (
-                urdf_link->inertial->origin.position.x,
-                urdf_link->inertial->origin.position.y,
-                urdf_link->inertial->origin.position.z
-                );
-          urdf_link->inertial->origin.rotation.getRPY (link_inertial_rpy[0], link_inertial_rpy[1], link_inertial_rpy[2]);
+          link_inertial_position.set(urdf_link->inertial->origin.position.x,
+                                     urdf_link->inertial->origin.position.y,
+                                     urdf_link->inertial->origin.position.z);
+          urdf_link->inertial->origin.rotation.getRPY(link_inertial_rpy[0], link_inertial_rpy[1],
+                                                      link_inertial_rpy[2]);
 
-          link_inertial_inertia(0,0) = urdf_link->inertial->ixx;
-          link_inertial_inertia(0,1) = urdf_link->inertial->ixy;
-          link_inertial_inertia(0,2) = urdf_link->inertial->ixz;
+          link_inertial_inertia(0, 0) = urdf_link->inertial->ixx;
+          link_inertial_inertia(0, 1) = urdf_link->inertial->ixy;
+          link_inertial_inertia(0, 2) = urdf_link->inertial->ixz;
 
-          link_inertial_inertia(1,0) = urdf_link->inertial->ixy;
-          link_inertial_inertia(1,1) = urdf_link->inertial->iyy;
-          link_inertial_inertia(1,2) = urdf_link->inertial->iyz;
+          link_inertial_inertia(1, 0) = urdf_link->inertial->ixy;
+          link_inertial_inertia(1, 1) = urdf_link->inertial->iyy;
+          link_inertial_inertia(1, 2) = urdf_link->inertial->iyz;
 
-          link_inertial_inertia(2,0) = urdf_link->inertial->ixz;
-          link_inertial_inertia(2,1) = urdf_link->inertial->iyz;
-          link_inertial_inertia(2,2) = urdf_link->inertial->izz;
+          link_inertial_inertia(2, 0) = urdf_link->inertial->ixz;
+          link_inertial_inertia(2, 1) = urdf_link->inertial->iyz;
+          link_inertial_inertia(2, 2) = urdf_link->inertial->izz;
 
 
-          if (link_inertial_rpy != Vector3d (0., 0., 0.)) {
-            cerr << "Error while processing body '" << urdf_link->name <<
-                    "': rotation of body frames not yet supported. Please rotate the joint frame instead." << endl;
+          if (link_inertial_rpy != Vector3d(0., 0., 0.))
+          {
+            cerr << "Error while processing body '" << urdf_link->name
+                 << "': rotation of body frames not yet supported. Please rotate the joint frame instead."
+                 << endl;
           }
         }
-        Body rbdl_body = Body (link_inertial_mass, link_inertial_position, link_inertial_inertia);
+        Body rbdl_body = Body(link_inertial_mass, link_inertial_position, link_inertial_inertia);
 
-        new_id = rbdl_model.AddBody (parent_id, rbdl_joint_frame, rbdl_joint, rbdl_body, urdf_link->name);
+        new_id = rbdl_model.AddBody(parent_id, rbdl_joint_frame, rbdl_joint, rbdl_body,
+                                    urdf_link->name);
       }
-      else{
-        //If a floating base is desired we need to compute the inertia data of the floating base link,
-        //if the floating base has no inertial details, then it makes no sense to make it floating
-        //base (Like kdl). (The root is the only link allowed to be floating base
+      else
+      {
+        // If a floating base is desired we need to compute the inertia data of the floating
+        // base link,
+        // if the floating base has no inertial details, then it makes no sense to make it
+        // floating
+        // base (Like kdl). (The root is the only link allowed to be floating base
 
-        if(floatingBaseType != +FloatingBaseType::FixedBase){
+        if (floatingBaseType != +FloatingBaseType::FixedBase)
+        {
           double link_inertial_mass = 0;
           Vector3d link_inertial_position;
           Vector3d link_inertial_rpy;
           Matrix3d link_inertial_inertia = Matrix3d::Zero();
 
-          if (urdf_link->inertial) {
+          if (urdf_link->inertial)
+          {
             link_inertial_mass = urdf_link->inertial->mass;
 
-            link_inertial_position.set (
-                  urdf_link->inertial->origin.position.x,
-                  urdf_link->inertial->origin.position.y,
-                  urdf_link->inertial->origin.position.z
-                  );
-            urdf_link->inertial->origin.rotation.getRPY (link_inertial_rpy[0], link_inertial_rpy[1], link_inertial_rpy[2]);
+            link_inertial_position.set(urdf_link->inertial->origin.position.x,
+                                       urdf_link->inertial->origin.position.y,
+                                       urdf_link->inertial->origin.position.z);
+            urdf_link->inertial->origin.rotation.getRPY(
+                link_inertial_rpy[0], link_inertial_rpy[1], link_inertial_rpy[2]);
 
-            link_inertial_inertia(0,0) = urdf_link->inertial->ixx;
-            link_inertial_inertia(0,1) = urdf_link->inertial->ixy;
-            link_inertial_inertia(0,2) = urdf_link->inertial->ixz;
+            link_inertial_inertia(0, 0) = urdf_link->inertial->ixx;
+            link_inertial_inertia(0, 1) = urdf_link->inertial->ixy;
+            link_inertial_inertia(0, 2) = urdf_link->inertial->ixz;
 
-            link_inertial_inertia(1,0) = urdf_link->inertial->ixy;
-            link_inertial_inertia(1,1) = urdf_link->inertial->iyy;
-            link_inertial_inertia(1,2) = urdf_link->inertial->iyz;
+            link_inertial_inertia(1, 0) = urdf_link->inertial->ixy;
+            link_inertial_inertia(1, 1) = urdf_link->inertial->iyy;
+            link_inertial_inertia(1, 2) = urdf_link->inertial->iyz;
 
-            link_inertial_inertia(2,0) = urdf_link->inertial->ixz;
-            link_inertial_inertia(2,1) = urdf_link->inertial->iyz;
-            link_inertial_inertia(2,2) = urdf_link->inertial->izz;
+            link_inertial_inertia(2, 0) = urdf_link->inertial->ixz;
+            link_inertial_inertia(2, 1) = urdf_link->inertial->iyz;
+            link_inertial_inertia(2, 2) = urdf_link->inertial->izz;
 
 
-            if (link_inertial_rpy != Vector3d (0., 0., 0.)) {
-              cerr << "Error while processing body '" << urdf_link->name <<
-                      "': rotation of body frames not yet supported. Please rotate the joint frame instead." << endl;
+            if (link_inertial_rpy != Vector3d(0., 0., 0.))
+            {
+              cerr << "Error while processing body '" << urdf_link->name
+                   << "': rotation of body frames not yet supported. Please rotate the joint frame instead."
+                   << endl;
             }
           }
 
-          Body base = Body (link_inertial_mass, link_inertial_position, link_inertial_inertia);
-          //make floating base
-          if(floatingBaseType == +FloatingBaseType::XY_Yaw){
-
+          Body base = Body(link_inertial_mass, link_inertial_position, link_inertial_inertia);
+          // make floating base
+          if (floatingBaseType == +FloatingBaseType::XY_Yaw)
+          {
             ROS_DEBUG_STREAM("CREATING PLANAR FLOATING BASE");
-            Joint floating_base_joint (
-                  SpatialVector (0., 0., 0., 1., 0., 0.),
-                  SpatialVector (0., 0., 0., 0., 1., 0.),
-                  SpatialVector (0., 0., 1., 0., 0., 0.)
-                  );
+            Joint floating_base_joint(SpatialVector(0., 0., 0., 1., 0., 0.),
+                                      SpatialVector(0., 0., 0., 0., 1., 0.),
+                                      SpatialVector(0., 0., 1., 0., 0., 0.));
 
-            new_id = rbdl_model.AddBody (0, Xtrans (Vector3d (0., 0., 0.)), floating_base_joint, base, urdf_link->name);
+            new_id = rbdl_model.AddBody(0, Xtrans(Vector3d(0., 0., 0.)), floating_base_joint,
+                                        base, urdf_link->name);
           }
-          else if(floatingBaseType == +FloatingBaseType::XYZ_RollPitchYaw){
-
+          else if (floatingBaseType == +FloatingBaseType::XYZ_RollPitchYaw)
+          {
             ROS_DEBUG_STREAM("Creating 6D FLOATING BASE");
-            Joint floating_base_joint (
-                  SpatialVector (0., 0., 0., 1., 0., 0.),
-                  SpatialVector (0., 0., 0., 0., 1., 0.),
-                  SpatialVector (0., 0., 0., 0., 0., 1.),
-                  SpatialVector (0., 0., 1., 0., 0., 0.),
-                  SpatialVector (0., 1., 0., 0., 0., 0.),
-                  SpatialVector (1., 0., 0., 0., 0., 0.)
-                  );
+            Joint floating_base_joint(
+                SpatialVector(0., 0., 0., 1., 0., 0.), SpatialVector(0., 0., 0., 0., 1., 0.),
+                SpatialVector(0., 0., 0., 0., 0., 1.), SpatialVector(0., 0., 1., 0., 0., 0.),
+                SpatialVector(0., 1., 0., 0., 0., 0.), SpatialVector(1., 0., 0., 0., 0., 0.));
 
-            new_id = rbdl_model.AddBody(0, Xtrans (Vector3d (0., 0., 0.)), floating_base_joint, base, urdf_link->name);
+            new_id = rbdl_model.AddBody(0, Xtrans(Vector3d(0., 0., 0.)), floating_base_joint,
+                                        base, urdf_link->name);
           }
-          else if(floatingBaseType == +FloatingBaseType::XYZ_Quaternion){
-
+          else if (floatingBaseType == +FloatingBaseType::XYZ_Quaternion)
+          {
             ROS_DEBUG_STREAM("Creating 6D QUATERNION FLOATING BASE");
             Joint root_joint = JointTypeFloatingBase;
 
-            SpatialTransform root_joint_frame = SpatialTransform ();
+            SpatialTransform root_joint_frame = SpatialTransform();
 
-            new_id = rbdl_model.AddBody(0, root_joint_frame,
-                                        root_joint,
-                                        base,
-                                        urdf_link->name);
-
+            new_id = rbdl_model.AddBody(0, root_joint_frame, root_joint, base, urdf_link->name);
           }
-          else{
-            std::cerr<<static_cast<int>(floatingBaseType)<<std::endl;
+          else
+          {
+            std::cerr << static_cast<int>(floatingBaseType) << std::endl;
             throw std::runtime_error("Floating base type not supported in rbdl parser");
           }
         }
       }
 
+      return (new_id);
+    }
+
+
+    bool construct_model_cuttips(Model &rbdl_model, LinkPtr urdf_link, int parent_id,
+                                FloatingBaseType floatingBaseType,
+                                const std::vector<std::string> &tipLinks, bool verbose)
+    {
+      int new_id = initialize_link(rbdl_model, urdf_link, parent_id, floatingBaseType);
+
       /* The current link is a desired tip */
       bool tip_found = false;
-      for(unsigned int i=0; i<tipLinks.size() && !tip_found; ++i){
-        if(tipLinks[i] == urdf_link->name){
+      for (unsigned int i = 0; i < tipLinks.size() && !tip_found; ++i)
+      {
+        if (tipLinks[i] == urdf_link->name)
+        {
           tip_found = true;
         }
       }
 
-      if(!tip_found){
-        for(unsigned int i=0; i< urdf_link->child_links.size(); ++i){
+      if (!tip_found)
+      {
+        for (unsigned int i = 0; i < urdf_link->child_links.size(); ++i)
+        {
           /* Check that the branch contains atleast on of the specified links */
           bool found = false;
-          for(unsigned int j=0; j<tipLinks.size() && !found; ++j){
+          for (unsigned int j = 0; j < tipLinks.size() && !found; ++j)
+          {
             found = isLinkInUrdfModel(urdf_link->child_links[i], tipLinks[j]);
           }
-          if(found){
-            construct_model(rbdl_model, urdf_link->child_links[i], new_id, floatingBaseType, tipLinks, verbose);
+          if (found)
+          {
+            construct_model_cuttips(rbdl_model, urdf_link->child_links[i], new_id,
+                                   floatingBaseType, tipLinks, verbose);
           }
         }
-
       }
 
       return true;
     }
 
 
-    bool construct_model_depht_first(Model &rbdl_model, urdf::Model &urdf_model,
+    bool construct_model_omitlinks(Model &rbdl_model, LinkPtr urdf_link, int parent_id,
+                                   FloatingBaseType floatingBaseType,
+                                   const std::vector<std::string> &omit_links, bool verbose)
+    {
+      /* The current link is a desired tip */
+      for (unsigned int i = 0; i < omit_links.size(); ++i)
+      {
+        if (omit_links[i] == urdf_link->name)
+        {
+          return true;
+        }
+      }
+
+      int new_id = initialize_link(rbdl_model, urdf_link, parent_id, floatingBaseType);
+
+      for (unsigned int i = 0; i < urdf_link->child_links.size(); ++i)
+      {
+        construct_model_omitlinks(rbdl_model, urdf_link->child_links[i], new_id,
+                                  floatingBaseType, omit_links, verbose);
+      }
+
+      return true;
+    }
+
+
+    bool construct_model_depth_first(Model &rbdl_model, urdf::Model &urdf_model,
                                      FloatingBaseType floatingBaseType, bool verbose){
 
       boost::shared_ptr<urdf::Link> root(boost::const_pointer_cast<urdf::Link>(urdf_model.getRoot()));
@@ -415,16 +460,26 @@ namespace RigidBodyDynamics {
       return construct_model(rbdl_model, root, 0, floatingBaseType, verbose);
     }
 
-    bool construct_model_depht_first(Model &rbdl_model, urdf::Model &urdf_model, FloatingBaseType floatingBaseType,
+
+    bool construct_model_depth_first_cuttips(Model &rbdl_model, urdf::Model &urdf_model, FloatingBaseType floatingBaseType,
                                      const std::vector<std::string> &tipLinks, bool verbose){
 
       boost::shared_ptr<urdf::Link> root(boost::const_pointer_cast<urdf::Link>(urdf_model.getRoot()));
 
-      return construct_model(rbdl_model, root, 0, floatingBaseType, tipLinks, verbose);
+      return construct_model_cuttips(rbdl_model, root, 0, floatingBaseType, tipLinks, verbose);
     }
 
 
-    bool construct_model_breath_first (Model* rbdl_model, urdf::Model &urdf_model, bool floating_base, bool verbose) {
+    bool construct_model_depth_first_omitlinks(Model &rbdl_model, urdf::Model &urdf_model, FloatingBaseType floatingBaseType,
+                                     const std::vector<std::string> &omit_links, bool verbose){
+
+      boost::shared_ptr<urdf::Link> root(boost::const_pointer_cast<urdf::Link>(urdf_model.getRoot()));
+
+      return construct_model_omitlinks(rbdl_model, root, 0, floatingBaseType, omit_links, verbose);
+    }
+
+
+    bool construct_model_breadth_first (Model* rbdl_model, urdf::Model &urdf_model, bool floating_base, bool verbose) {
       LinkPtr urdf_root_link;
 
       verbose = true;
@@ -689,7 +744,7 @@ namespace RigidBodyDynamics {
         return false;
       }
 
-      if (!construct_model_depht_first (*model, urdf_model, floatingBaseType, verbose)) {
+      if (!construct_model_depth_first (*model, urdf_model, floatingBaseType, verbose)) {
         cerr << "Error constructing model from urdf file." << endl;
         return false;
       }
@@ -707,7 +762,7 @@ namespace RigidBodyDynamics {
         return false;
       }
 
-      if (!construct_model_depht_first (*model, urdf_model, floatingBaseType, verbose)) {
+      if (!construct_model_depth_first (*model, urdf_model, floatingBaseType, verbose)) {
         cerr << "Error constructing model from urdf file." << endl;
         return false;
       }
@@ -719,12 +774,27 @@ namespace RigidBodyDynamics {
 
     bool URDFReadFromURDF(urdf::Model &urdf_model, Model* model, FloatingBaseType floatingBaseType, bool verbose){
 
-      if (!construct_model_depht_first (*model, urdf_model, floatingBaseType, verbose)) {
+      if (!construct_model_depth_first (*model, urdf_model, floatingBaseType, verbose)) {
         cerr << "Error constructing model from urdf file." << endl;
         return false;
       }
 
       model->gravity.set (0., 0., -9.81);
+      return true;
+    }
+
+
+    bool URDFReadFromURDF(urdf::Model &urdf_model, Model *model, FloatingBaseType floatingBaseType,
+                          const std::vector<std::string> &omit_links, bool verbose)
+    {
+      if (!construct_model_depth_first_omitlinks(*model, urdf_model, floatingBaseType,
+                                                 omit_links, verbose))
+      {
+        cerr << "Error constructing model from urdf file." << endl;
+        return false;
+      }
+
+      model->gravity.set(0., 0., -9.81);
       return true;
     }
 
@@ -803,6 +873,21 @@ namespace RigidBodyDynamics {
 
     }
 
+    bool URDFReadFromURDF(urdf::Model &urdf_model, Model *model, FloatingBaseType floatingBaseType,
+                          std::vector<std::string> &joint_names, std::vector<double> &position_min,
+                          std::vector<double> &position_max, std::vector<double> &vel_min,
+                          std::vector<double> &vel_max, std::vector<double> &damping,
+                          std::vector<double> &friction, std::vector<double> &max_effort,
+                          const std::vector<std::string> &omit_links, bool verbose)
+    {
+      bool urdfOK = URDFReadFromURDF(urdf_model, model, floatingBaseType, omit_links, verbose);
+      bool extraOK = parseExtraInformation(urdf_model, model, joint_names, position_min,
+                                           position_max, vel_min, vel_max, damping, friction,
+                                           max_effort, floatingBaseType);
+
+      return urdfOK && extraOK;
+    }
+
     bool URDFReadFromParamServer(Model* model, FloatingBaseType floatingBaseType,
                                  std::vector<std::string> &joint_names,
                                  std::vector<double> &position_min,  std::vector<double> &position_max,
@@ -817,7 +902,7 @@ namespace RigidBodyDynamics {
         return false;
       }
 
-      if (!construct_model_depht_first (*model, urdf_model, floatingBaseType, verbose)) {
+      if (!construct_model_depth_first (*model, urdf_model, floatingBaseType, verbose)) {
         cerr << "Error constructing model from urdf file." << endl;
         return false;
       }
@@ -833,6 +918,7 @@ namespace RigidBodyDynamics {
       return extraOK;
     }
 
+
     bool URDFReadFromParamServer(Model* model, const std::vector<std::string> &tipLinks, FloatingBaseType floatingBaseType, bool verbose){
 
       urdf::Model urdf_model;
@@ -841,7 +927,7 @@ namespace RigidBodyDynamics {
         return false;
       }
 
-      if (!construct_model_depht_first (*model, urdf_model, floatingBaseType, tipLinks, verbose)) {
+      if (!construct_model_depth_first_cuttips (*model, urdf_model, floatingBaseType, tipLinks, verbose)) {
         cerr << "Error constructing model from urdf file." << endl;
         return false;
       }
@@ -865,7 +951,7 @@ namespace RigidBodyDynamics {
         return false;
       }
 
-      if (!construct_model_depht_first (*model, urdf_model, floatingBaseType, tipLinks, verbose)) {
+      if (!construct_model_depth_first_cuttips (*model, urdf_model, floatingBaseType, tipLinks, verbose)) {
         cerr << "Error constructing model from urdf file." << endl;
         return false;
       }
@@ -880,6 +966,7 @@ namespace RigidBodyDynamics {
 
       return extraOK;
     }
+
 
     ///////////////////////////
 
