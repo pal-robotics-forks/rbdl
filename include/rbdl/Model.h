@@ -22,8 +22,8 @@
 //#include "rbdl/Joint.h"
 #include "rbdl/Body.h"
 #include "rbdl/ModelData.h"
-
 #include <boost/shared_ptr.hpp>
+
 
 // std::vectors containing any objects that have Eigen matrices or vectors
 // as members need to have a special allocater. This can be achieved with

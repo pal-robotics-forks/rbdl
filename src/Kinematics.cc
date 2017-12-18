@@ -695,6 +695,7 @@ RBDL_DLLAPI SpatialVectord CalcPointAcceleration6D(const Model &model, ModelData
                                                    const Vector3d &point_position,
                                                    bool update_kinematics)
 {
+
   LOG << "-------- " << __func__ << " --------" << std::endl;
 
   // Reset the velocity of the root body
