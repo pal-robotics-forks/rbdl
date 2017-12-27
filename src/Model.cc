@@ -17,6 +17,8 @@
 #include "rbdl/Body.h"
 #include "rbdl/Joint.h"
 
+#include "rbdl/rbdl_utils.h"
+
 using namespace RigidBodyDynamics;
 using namespace RigidBodyDynamics::Math;
 
@@ -501,5 +503,17 @@ unsigned int Model::AddBodyCustomJoint (
       body_name);
 
   return body_id;
+}
+
+unsigned int Model::GetBodyId (const char *body_name) const {
+  if (mBodyNameMap.count(body_name) == 0) {
+      std::stringstream ss;
+      ss<<"GET BODY ID: ID does not exist: "<<body_name<<std::endl;
+      ss<<Utils::GetModelHierarchy(*this);
+      throw std::runtime_error(ss.str());
+      assert(mBodyNameMap.count(body_name) == 0);
+     return std::numeric_limits<unsigned int>::max();
+  }
+  return mBodyNameMap.find(body_name)->second;
 }
 
