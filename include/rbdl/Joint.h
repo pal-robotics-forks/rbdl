@@ -1089,7 +1089,7 @@ void jcalc_X_lambda_S(const Model &model, ModelData<T> &model_data, unsigned int
 template <typename T>
 Math::Quaternion<T> GetQuaternion(const RigidBodyDynamics::Model &model, unsigned int i, const Math::VectorN<T> &Q)
 {
-  assert(mJoints[i].mJointType == JointTypeSpherical);
+  //assert(mJoints[i].mJointType == JointTypeSpherical);
   const unsigned int q_index = model.mJoints[i].q_index;
   return Math::Quaternion<T>(Q[q_index], Q[q_index + 1], Q[q_index + 2],
                              Q[model.multdof3_w_index[i]]);

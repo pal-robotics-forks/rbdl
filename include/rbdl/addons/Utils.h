@@ -73,11 +73,6 @@ inline Eigen::Isometry3d getBodyToBaseTransform(RigidBodyDynamics::Model &model,
   return getBodyToBaseTransform(model, Eigen::VectorXd::Zero(model.q_size), name, Eigen::Vector3d::Zero(), false);
 }
 
-inline Eigen::Isometry3d getBodyToBaseTransform(RigidBodyDynamics::Model &model, const std::string &name,  const Eigen::Vector3d &tip_position){
-
-  return getBodyToBaseTransform(model, Eigen::VectorXd::Zero(model.q_size), name, tip_position, false);
-}
-
 inline Eigen::Vector3d getBodyLinearVelocity(RigidBodyDynamics::Model &model, const std::string &name, const Eigen::Vector3d &tip_position){
   unsigned int id = model.GetBodyId(name.c_str());
   return RigidBodyDynamics::CalcPointVelocity(model, Eigen::VectorXd::Zero(model.q_size),
@@ -153,6 +148,7 @@ inline unsigned int getParentBodyId(RigidBodyDynamics::Model &model, const std::
   }
 }
 
+/*
 inline Eigen::Vector3d getBodyLinearVelocity(RigidBodyDynamics::Model &model, const std::string &name, const Eigen::Vector3d &tip_position){
   unsigned int id = model.GetBodyId(name.c_str());
   return RigidBodyDynamics::CalcPointVelocity(model, Eigen::VectorXd::Zero(model.q_size),
@@ -193,6 +189,7 @@ inline std::pair<Eigen::Vector3d, Eigen::Vector3d> getBodyAcceleration(RigidBody
                         getBodyAngularAcceleration(model, name, tip_position));
 }
 
+*/
 inline Eigen::Isometry3d getBodyTransform(RigidBodyDynamics::Model &model,
                                           const std::string &name){
 
