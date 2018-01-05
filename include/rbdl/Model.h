@@ -336,18 +336,11 @@ public:
    * \returns the id of the body or \c std::numeric_limits<unsigned
    *          int>::max() if the id was not found.
    */
-  unsigned int GetBodyId(const char *body_name) const
-  {
-    if (mBodyNameMap.count(body_name) == 0)
-    {
-      std::stringstream ss;
-      ss << "GET BODY ID: ID does not exist: " << body_name;
-      throw std::runtime_error(ss.str());
-      assert(mBodyNameMap.count(body_name) == 0);
-      return std::numeric_limits<unsigned int>::max();
-    }
-    return mBodyNameMap.find(body_name)->second;
-  }
+
+  unsigned int GetBodyId (const char *body_name) const;
+
+  unsigned int GetBodyId(const char *body_name, const ModelDatad &model_data) const;
+
 
   /** \brief Returns the name of a body for a given body id */
   std::string GetBodyName(unsigned int body_id) const
