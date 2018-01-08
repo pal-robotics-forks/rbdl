@@ -51,7 +51,7 @@ class Quaternion : public Vector4<T> {
           );
     }
     Quaternion& operator*=(const Quaternion &q) {
-      set (
+      this-> template set (
           q[3] * (*this)[0] + q[0] * (*this)[3] + q[1] * (*this)[2] - q[2] * (*this)[1],
           q[3] * (*this)[1] + q[1] * (*this)[3] + q[2] * (*this)[0] - q[0] * (*this)[2],
           q[3] * (*this)[2] + q[2] * (*this)[3] + q[0] * (*this)[1] - q[1] * (*this)[0],
