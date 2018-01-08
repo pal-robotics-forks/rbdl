@@ -8,6 +8,11 @@
 
 class Human36 : public ::testing::Test {
 protected:
+
+ RigidBodyDynamics::ModelDatad *model_data;
+ RigidBodyDynamics::ModelDatad *model_emulated_data;
+ RigidBodyDynamics::ModelDatad *model_3dof_data;
+
   RigidBodyDynamics::Model *model;
   RigidBodyDynamics::Model *model_emulated;
   RigidBodyDynamics::Model *model_3dof;
@@ -212,18 +217,18 @@ protected:
     Body null_body (0., Vector3d (0., 0., 0.), zero_matrix);
 
     Joint free_flyer (
-        SpatialVector (0., 0., 0., 1., 0., 0.),
-        SpatialVector (0., 0., 0., 0., 1., 0.),
-        SpatialVector (0., 0., 0., 0., 0., 1.),
-        SpatialVector (0., 1., 0., 0., 0., 0.),
-        SpatialVector (1., 0., 0., 0., 0., 0.),
-        SpatialVector (0., 0., 1., 0., 0., 0.)
+        SpatialVectord  (0., 0., 0., 1., 0., 0.),
+        SpatialVectord  (0., 0., 0., 0., 1., 0.),
+        SpatialVectord  (0., 0., 0., 0., 0., 1.),
+        SpatialVectord  (0., 1., 0., 0., 0., 0.),
+        SpatialVectord  (1., 0., 0., 0., 0., 0.),
+        SpatialVectord  (0., 0., 1., 0., 0., 0.)
         );
 
     Joint rot_yxz_emulated (
-        SpatialVector (0., 1., 0., 0., 0., 0.),
-        SpatialVector (1., 0., 0., 0., 0., 0.),
-        SpatialVector (0., 0., 1., 0., 0., 0.)
+        SpatialVectord  (0., 1., 0., 0., 0., 0.),
+        SpatialVectord  (1., 0., 0., 0., 0., 0.),
+        SpatialVectord  (0., 0., 1., 0., 0., 0.)
         );
 
     Joint trans_xyz = Joint(JointTypeTranslationXYZ);
@@ -231,12 +236,12 @@ protected:
     Joint rot_yxz_3dof = Joint(JointTypeEulerYXZ);
 
     Joint rot_yz (
-        SpatialVector (0., 1., 0., 0., 0., 0.),
-        SpatialVector (0., 0., 1., 0., 0., 0.)
+        SpatialVectord  (0., 1., 0., 0., 0., 0.),
+        SpatialVectord  (0., 0., 1., 0., 0., 0.)
         );
 
     Joint rot_y (
-        SpatialVector (0., 1., 0., 0., 0., 0.)
+        SpatialVectord  (0., 1., 0., 0., 0., 0.)
         );
 
     Joint fixed (JointTypeFixed);
@@ -244,69 +249,69 @@ protected:
     // Generate emulated model
     model_emulated->gravity = Vector3d (0., 0., -9.81);
 
-    body_id_emulated[BodyPelvis] = model_emulated->AddBody (0, Xtrans (Vector3d (0., 0., 0.)), free_flyer, pelvis_body, "pelvis");
+    body_id_emulated[BodyPelvis] = model_emulated->AddBody (*model_data, 0, Xtrans (Vector3d (0., 0., 0.)), free_flyer, pelvis_body, "pelvis");
 
     // right leg
-    body_id_emulated[BodyThighRight] = model_emulated->AddBody (body_id_emulated[BodyPelvis], Xtrans(Vector3d(0., -0.0872, 0.)), rot_yxz_emulated, thigh_body, "thigh_r");
-    body_id_emulated[BodyShankRight] = model_emulated->AppendBody (Xtrans(Vector3d(0., 0., -SegmentLengths[SegmentThigh])), rot_y, shank_body, "shank_r");
-    body_id_emulated[BodyFootRight]  = model_emulated->AppendBody (Xtrans(Vector3d(0., 0., -SegmentLengths[SegmentShank])), rot_yz, foot_body, "foot_r");
+    body_id_emulated[BodyThighRight] = model_emulated->AddBody (*model_data, body_id_emulated[BodyPelvis], Xtrans(Vector3d(0., -0.0872, 0.)), rot_yxz_emulated, thigh_body, "thigh_r");
+    body_id_emulated[BodyShankRight] = model_emulated->AppendBody (*model_data, Xtrans(Vector3d(0., 0., -SegmentLengths[SegmentThigh])), rot_y, shank_body, "shank_r");
+    body_id_emulated[BodyFootRight]  = model_emulated->AppendBody (*model_data, Xtrans(Vector3d(0., 0., -SegmentLengths[SegmentShank])), rot_yz, foot_body, "foot_r");
 
     // left leg
-    body_id_emulated[BodyThighLeft] = model_emulated->AddBody (body_id_emulated[BodyPelvis], Xtrans(Vector3d(0., 0.0872, 0.)), rot_yxz_emulated, thigh_body, "thigh_l");
-    body_id_emulated[BodyShankLeft] = model_emulated->AppendBody (Xtrans(Vector3d(0., 0., -SegmentLengths[SegmentThigh])), rot_y, shank_body, "shank_l");
-    body_id_emulated[BodyFootLeft]  = model_emulated->AppendBody (Xtrans(Vector3d(0., 0., -SegmentLengths[SegmentShank])), rot_yz, foot_body, "foot_l");
+    body_id_emulated[BodyThighLeft] = model_emulated->AddBody (*model_data, body_id_emulated[BodyPelvis], Xtrans(Vector3d(0., 0.0872, 0.)), rot_yxz_emulated, thigh_body, "thigh_l");
+    body_id_emulated[BodyShankLeft] = model_emulated->AppendBody (*model_data, Xtrans(Vector3d(0., 0., -SegmentLengths[SegmentThigh])), rot_y, shank_body, "shank_l");
+    body_id_emulated[BodyFootLeft]  = model_emulated->AppendBody (*model_data, Xtrans(Vector3d(0., 0., -SegmentLengths[SegmentShank])), rot_yz, foot_body, "foot_l");
 
     // trunk
-    body_id_emulated[BodyMiddleTrunk] = model_emulated->AddBody (body_id_emulated[BodyPelvis], Xtrans(Vector3d(0., 0., SegmentLengths[SegmentPelvis])), rot_yxz_emulated, middle_trunk_body, "middletrunk");
-    body_id_emulated[BodyUpperTrunk]  = model_emulated->AppendBody (Xtrans(Vector3d(0., 0., SegmentLengths[SegmentMiddleTrunk])), fixed, upper_trunk_body, "uppertrunk");
+    body_id_emulated[BodyMiddleTrunk] = model_emulated->AddBody (*model_data, body_id_emulated[BodyPelvis], Xtrans(Vector3d(0., 0., SegmentLengths[SegmentPelvis])), rot_yxz_emulated, middle_trunk_body, "middletrunk");
+    body_id_emulated[BodyUpperTrunk]  = model_emulated->AppendBody (*model_data, Xtrans(Vector3d(0., 0., SegmentLengths[SegmentMiddleTrunk])), fixed, upper_trunk_body, "uppertrunk");
 
     // right arm
-    body_id_emulated[BodyUpperArmRight] = model_emulated->AddBody (body_id_emulated[BodyUpperTrunk], Xtrans(Vector3d(0., -0.1900, SegmentLengths[SegmentUpperTrunk])), rot_yxz_emulated, upperarm_body, "upperarm_r");
-    body_id_emulated[BodyLowerArmRight] = model_emulated->AppendBody (Xtrans(Vector3d(0., 0., -SegmentLengths[SegmentUpperArm])), rot_y, lowerarm_body, "lowerarm_r");
-    body_id_emulated[BodyHandRight]  = model_emulated->AppendBody (Xtrans(Vector3d(0., 0., -SegmentLengths[SegmentLowerArm])), rot_yz, hand_body, "hand_r");
+    body_id_emulated[BodyUpperArmRight] = model_emulated->AddBody (*model_data, body_id_emulated[BodyUpperTrunk], Xtrans(Vector3d(0., -0.1900, SegmentLengths[SegmentUpperTrunk])), rot_yxz_emulated, upperarm_body, "upperarm_r");
+    body_id_emulated[BodyLowerArmRight] = model_emulated->AppendBody (*model_data, Xtrans(Vector3d(0., 0., -SegmentLengths[SegmentUpperArm])), rot_y, lowerarm_body, "lowerarm_r");
+    body_id_emulated[BodyHandRight]  = model_emulated->AppendBody (*model_data, Xtrans(Vector3d(0., 0., -SegmentLengths[SegmentLowerArm])), rot_yz, hand_body, "hand_r");
 
     // left arm
-    body_id_emulated[BodyUpperArmLeft] = model_emulated->AddBody (body_id_emulated[BodyUpperTrunk], Xtrans(Vector3d(0.,  0.1900, SegmentLengths[SegmentUpperTrunk])), rot_yxz_emulated, upperarm_body, "upperarm_l");
-    body_id_emulated[BodyLowerArmLeft] = model_emulated->AppendBody (Xtrans(Vector3d(0., 0., -SegmentLengths[SegmentUpperArm])), rot_y, lowerarm_body, "lowerarm_l");
-    body_id_emulated[BodyHandLeft]  = model_emulated->AppendBody (Xtrans(Vector3d(0., 0., -SegmentLengths[SegmentLowerArm])), rot_yz, hand_body, "hand_l");
+    body_id_emulated[BodyUpperArmLeft] = model_emulated->AddBody (*model_data, body_id_emulated[BodyUpperTrunk], Xtrans(Vector3d(0.,  0.1900, SegmentLengths[SegmentUpperTrunk])), rot_yxz_emulated, upperarm_body, "upperarm_l");
+    body_id_emulated[BodyLowerArmLeft] = model_emulated->AppendBody (*model_data, Xtrans(Vector3d(0., 0., -SegmentLengths[SegmentUpperArm])), rot_y, lowerarm_body, "lowerarm_l");
+    body_id_emulated[BodyHandLeft]  = model_emulated->AppendBody (*model_data, Xtrans(Vector3d(0., 0., -SegmentLengths[SegmentLowerArm])), rot_yz, hand_body, "hand_l");
 
     // head
-    body_id_emulated[BodyHead] = model_emulated->AddBody (body_id_emulated[BodyUpperTrunk], Xtrans(Vector3d(0., 0.1900, SegmentLengths[SegmentUpperTrunk])), rot_yxz_emulated, upperarm_body, "head");
+    body_id_emulated[BodyHead] = model_emulated->AddBody (*model_data, body_id_emulated[BodyUpperTrunk], Xtrans(Vector3d(0., 0.1900, SegmentLengths[SegmentUpperTrunk])), rot_yxz_emulated, upperarm_body, "head");
 
     // Generate 3dof model
     model_3dof->gravity = Vector3d (0., 0., -9.81);
 
-    unsigned int pelvis_trans = model_3dof->AddBody (0, Xtrans(Vector3d (0., 0., 0.)), trans_xyz, null_body, "pelvis_trans_xyz");
+    unsigned int pelvis_trans = model_3dof->AddBody (*model_data, 0, Xtrans(Vector3d (0., 0., 0.)), trans_xyz, null_body, "pelvis_trans_xyz");
 
-    body_id_3dof[BodyPelvis] = model_3dof->AddBody (pelvis_trans, Xtrans (Vector3d (0., 0., 0.)), rot_yxz_3dof, pelvis_body, "pelvis");
+    body_id_3dof[BodyPelvis] = model_3dof->AddBody (*model_data, pelvis_trans, Xtrans (Vector3d (0., 0., 0.)), rot_yxz_3dof, pelvis_body, "pelvis");
     //		body_id_3dof[BodyPelvis] = model_3dof->AddBody (0, Xtrans (Vector3d (0., 0., 0.)), free_flyer, pelvis_body, "pelvis");
 
     // right leg
-    body_id_3dof[BodyThighRight] = model_3dof->AddBody (body_id_3dof[BodyPelvis], Xtrans(Vector3d(0., -0.0872, 0.)), rot_yxz_3dof, thigh_body, "thigh_r");
-    body_id_3dof[BodyShankRight] = model_3dof->AppendBody (Xtrans(Vector3d(0., 0., -SegmentLengths[SegmentThigh])), rot_y, shank_body, "shank_r");
-    body_id_3dof[BodyFootRight]  = model_3dof->AppendBody (Xtrans(Vector3d(0., 0., -SegmentLengths[SegmentShank])), rot_yz, foot_body, "foot_r");
+    body_id_3dof[BodyThighRight] = model_3dof->AddBody (*model_data, body_id_3dof[BodyPelvis], Xtrans(Vector3d(0., -0.0872, 0.)), rot_yxz_3dof, thigh_body, "thigh_r");
+    body_id_3dof[BodyShankRight] = model_3dof->AppendBody (*model_data, Xtrans(Vector3d(0., 0., -SegmentLengths[SegmentThigh])), rot_y, shank_body, "shank_r");
+    body_id_3dof[BodyFootRight]  = model_3dof->AppendBody (*model_data, Xtrans(Vector3d(0., 0., -SegmentLengths[SegmentShank])), rot_yz, foot_body, "foot_r");
 
     // left leg
-    body_id_3dof[BodyThighLeft] = model_3dof->AddBody (body_id_3dof[BodyPelvis], Xtrans(Vector3d(0., 0.0872, 0.)), rot_yxz_3dof, thigh_body, "thigh_l");
-    body_id_3dof[BodyShankLeft] = model_3dof->AppendBody (Xtrans(Vector3d(0., 0., -SegmentLengths[SegmentThigh])), rot_y, shank_body, "shank_l");
-    body_id_3dof[BodyFootLeft]  = model_3dof->AppendBody (Xtrans(Vector3d(0., 0., -SegmentLengths[SegmentShank])), rot_yz, foot_body, "foot_l");
+    body_id_3dof[BodyThighLeft] = model_3dof->AddBody (*model_data, body_id_3dof[BodyPelvis], Xtrans(Vector3d(0., 0.0872, 0.)), rot_yxz_3dof, thigh_body, "thigh_l");
+    body_id_3dof[BodyShankLeft] = model_3dof->AppendBody (*model_data, Xtrans(Vector3d(0., 0., -SegmentLengths[SegmentThigh])), rot_y, shank_body, "shank_l");
+    body_id_3dof[BodyFootLeft]  = model_3dof->AppendBody (*model_data, Xtrans(Vector3d(0., 0., -SegmentLengths[SegmentShank])), rot_yz, foot_body, "foot_l");
 
     // trunk
-    body_id_3dof[BodyMiddleTrunk] = model_3dof->AddBody (body_id_3dof[BodyPelvis], Xtrans(Vector3d(0., 0., SegmentLengths[SegmentPelvis])), rot_yxz_3dof, middle_trunk_body, "middletrunk");
-    body_id_3dof[BodyUpperTrunk]  = model_3dof->AppendBody (Xtrans(Vector3d(0., 0., SegmentLengths[SegmentMiddleTrunk])), fixed, upper_trunk_body, "uppertrunk");
+    body_id_3dof[BodyMiddleTrunk] = model_3dof->AddBody (*model_data, body_id_3dof[BodyPelvis], Xtrans(Vector3d(0., 0., SegmentLengths[SegmentPelvis])), rot_yxz_3dof, middle_trunk_body, "middletrunk");
+    body_id_3dof[BodyUpperTrunk]  = model_3dof->AppendBody (*model_data, Xtrans(Vector3d(0., 0., SegmentLengths[SegmentMiddleTrunk])), fixed, upper_trunk_body, "uppertrunk");
 
     // right arm
-    body_id_3dof[BodyUpperArmRight] = model_3dof->AddBody (body_id_3dof[BodyUpperTrunk], Xtrans(Vector3d(0., -0.1900, SegmentLengths[SegmentUpperTrunk])), rot_yxz_3dof, upperarm_body, "upperarm_r");
-    body_id_3dof[BodyLowerArmRight] = model_3dof->AppendBody (Xtrans(Vector3d(0., 0., -SegmentLengths[SegmentUpperArm])), rot_y, lowerarm_body, "lowerarm_r");
-    body_id_3dof[BodyHandRight]  = model_3dof->AppendBody (Xtrans(Vector3d(0., 0., -SegmentLengths[SegmentLowerArm])), rot_yz, hand_body, "hand_r");
+    body_id_3dof[BodyUpperArmRight] = model_3dof->AddBody (*model_data, body_id_3dof[BodyUpperTrunk], Xtrans(Vector3d(0., -0.1900, SegmentLengths[SegmentUpperTrunk])), rot_yxz_3dof, upperarm_body, "upperarm_r");
+    body_id_3dof[BodyLowerArmRight] = model_3dof->AppendBody (*model_data, Xtrans(Vector3d(0., 0., -SegmentLengths[SegmentUpperArm])), rot_y, lowerarm_body, "lowerarm_r");
+    body_id_3dof[BodyHandRight]  = model_3dof->AppendBody (*model_data, Xtrans(Vector3d(0., 0., -SegmentLengths[SegmentLowerArm])), rot_yz, hand_body, "hand_r");
 
     // left arm
-    body_id_3dof[BodyUpperArmLeft] = model_3dof->AddBody (body_id_3dof[BodyUpperTrunk], Xtrans(Vector3d(0.,  0.1900, SegmentLengths[SegmentUpperTrunk])), rot_yxz_3dof, upperarm_body, "upperarm_l");
-    body_id_3dof[BodyLowerArmLeft] = model_3dof->AppendBody (Xtrans(Vector3d(0., 0., -SegmentLengths[SegmentUpperArm])), rot_y, lowerarm_body, "lowerarm_l");
-    body_id_3dof[BodyHandLeft]  = model_3dof->AppendBody (Xtrans(Vector3d(0., 0., -SegmentLengths[SegmentLowerArm])), rot_yz, hand_body, "hand_l");
+    body_id_3dof[BodyUpperArmLeft] = model_3dof->AddBody (*model_data, body_id_3dof[BodyUpperTrunk], Xtrans(Vector3d(0.,  0.1900, SegmentLengths[SegmentUpperTrunk])), rot_yxz_3dof, upperarm_body, "upperarm_l");
+    body_id_3dof[BodyLowerArmLeft] = model_3dof->AppendBody (*model_data, Xtrans(Vector3d(0., 0., -SegmentLengths[SegmentUpperArm])), rot_y, lowerarm_body, "lowerarm_l");
+    body_id_3dof[BodyHandLeft]  = model_3dof->AppendBody (*model_data, Xtrans(Vector3d(0., 0., -SegmentLengths[SegmentLowerArm])), rot_yz, hand_body, "hand_l");
 
     // head
-    body_id_3dof[BodyHead] = model_3dof->AddBody (body_id_3dof[BodyUpperTrunk], Xtrans(Vector3d(0., 0.1900, SegmentLengths[SegmentUpperTrunk])), rot_yxz_3dof, upperarm_body, "head");
+    body_id_3dof[BodyHead] = model_3dof->AddBody (*model_data, body_id_3dof[BodyUpperTrunk], Xtrans(Vector3d(0., 0.1900, SegmentLengths[SegmentUpperTrunk])), rot_yxz_3dof, upperarm_body, "head");
   }
 
   void initConstraintSets () {
@@ -319,13 +324,13 @@ protected:
     unsigned int hand_l_emulated = model_emulated->GetBodyId ("hand_l");
 
     constraints_1B1C_emulated.AddConstraint (foot_r_emulated, Vector3d (0.1, 0., -0.05), Vector3d (1., 0., 0.));
-    constraints_1B1C_emulated.Bind (*model_emulated);
+    constraints_1B1C_emulated.Bind (*model_emulated, *model_emulated_data);
 
     constraints_1B4C_emulated.AddConstraint (foot_r_emulated, Vector3d (0.1, 0., -0.05), Vector3d (1., 0., 0.));
     constraints_1B4C_emulated.AddConstraint (foot_r_emulated, Vector3d (0.1, 0., -0.05), Vector3d (0., 1., 0.));
     constraints_1B4C_emulated.AddConstraint (foot_r_emulated, Vector3d (0.1, 0., -0.05), Vector3d (0., 0., 1.));
     constraints_1B4C_emulated.AddConstraint (foot_r_emulated, Vector3d (-0.1, 0., -0.05), Vector3d (1., 0., 0.));
-    constraints_1B4C_emulated.Bind (*model_emulated);
+    constraints_1B4C_emulated.Bind (*model_emulated, *model_emulated_data);
 
     constraints_4B4C_emulated.AddConstraint (foot_r_emulated, Vector3d (0.1, 0., -0.05), Vector3d (1., 0., 0.));
     constraints_4B4C_emulated.AddConstraint (foot_r_emulated, Vector3d (0.1, 0., -0.05), Vector3d (0., 1., 0.));
@@ -346,7 +351,7 @@ protected:
     constraints_4B4C_emulated.AddConstraint (hand_l_emulated, Vector3d (0.1, 0., -0.05), Vector3d (0., 1., 0.));
     constraints_4B4C_emulated.AddConstraint (hand_l_emulated, Vector3d (0.1, 0., -0.05), Vector3d (0., 0., 1.));
     constraints_4B4C_emulated.AddConstraint (hand_l_emulated, Vector3d (-0.1, 0., -0.05), Vector3d (1., 0., 0.));
-    constraints_4B4C_emulated.Bind (*model);
+    constraints_4B4C_emulated.Bind (*model, *model_emulated_data);
 
     unsigned int foot_r_3dof = model_3dof->GetBodyId ("foot_r");
     unsigned int foot_l_3dof = model_3dof->GetBodyId ("foot_l");
@@ -354,13 +359,13 @@ protected:
     unsigned int hand_l_3dof = model_3dof->GetBodyId ("hand_l");
 
     constraints_1B1C_3dof.AddConstraint (foot_r_3dof, Vector3d (0.1, 0., -0.05), Vector3d (1., 0., 0.));
-    constraints_1B1C_3dof.Bind (*model_3dof);
+    constraints_1B1C_3dof.Bind (*model_3dof, *model_3dof_data);
 
     constraints_1B4C_3dof.AddConstraint (foot_r_3dof, Vector3d (0.1, 0., -0.05), Vector3d (1., 0., 0.));
     constraints_1B4C_3dof.AddConstraint (foot_r_3dof, Vector3d (0.1, 0., -0.05), Vector3d (0., 1., 0.));
     constraints_1B4C_3dof.AddConstraint (foot_r_3dof, Vector3d (0.1, 0., -0.05), Vector3d (0., 0., 1.));
     constraints_1B4C_3dof.AddConstraint (foot_r_3dof, Vector3d (-0.1, 0., -0.05), Vector3d (1., 0., 0.));
-    constraints_1B4C_3dof.Bind (*model_3dof);
+    constraints_1B4C_3dof.Bind (*model_3dof, *model_3dof_data);
 
     constraints_4B4C_3dof.AddConstraint (foot_r_3dof, Vector3d (0.1, 0., -0.05), Vector3d (1., 0., 0.));
     constraints_4B4C_3dof.AddConstraint (foot_r_3dof, Vector3d (0.1, 0., -0.05), Vector3d (0., 1., 0.));
@@ -381,7 +386,7 @@ protected:
     constraints_4B4C_3dof.AddConstraint (hand_l_3dof, Vector3d (0.1, 0., -0.05), Vector3d (0., 1., 0.));
     constraints_4B4C_3dof.AddConstraint (hand_l_3dof, Vector3d (0.1, 0., -0.05), Vector3d (0., 0., 1.));
     constraints_4B4C_3dof.AddConstraint (hand_l_3dof, Vector3d (-0.1, 0., -0.05), Vector3d (1., 0., 0.));
-    constraints_4B4C_3dof.Bind (*model_3dof);
+    constraints_4B4C_3dof.Bind (*model_3dof, *model_3dof_data);
   }
 
   void randomizeStates () {
@@ -401,9 +406,15 @@ protected:
     using namespace RigidBodyDynamics::Math;
 
     initParameters();
-    model_emulated = new RigidBodyDynamics::Model();
-    model_3dof = new RigidBodyDynamics::Model();
+
+    model_emulated_data = new ModelDatad;
+    model_3dof_data = new ModelDatad;
+
+    model_emulated = new RigidBodyDynamics::Model(*model_emulated_data);
+    model_3dof = new RigidBodyDynamics::Model(*model_3dof_data);
     model = model_emulated;
+    model_data = model_emulated_data;
+
     generate();
     initConstraintSets();
 

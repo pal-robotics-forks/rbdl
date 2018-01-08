@@ -32,11 +32,11 @@ protected:
         Vector3d (1., 1., 1.)
         );
     joint_rotzyx = Joint (
-        SpatialVector (0., 0., 1., 0., 0., 0.),
-        SpatialVector (0., 1., 0., 0., 0., 0.),
-        SpatialVector (1., 0., 0., 0., 0., 0.)
+        SpatialVectord (0., 0., 1., 0., 0., 0.),
+        SpatialVectord (0., 1., 0., 0., 0., 0.),
+        SpatialVectord (1., 0., 0., 0., 0., 0.)
         );
-    base_id = model->AddBody (0, Xtrans (Vector3d (0., 0., 0.)), joint_rotzyx, base);
+    base_id = model->AddBody (model_data, *model_data, 0, Xtrans (Vector3d (0., 0., 0.)), joint_rotzyx, base);
 
     // child body (3 DoF)
     child = Body (
@@ -44,7 +44,7 @@ protected:
         Vector3d (0., 1., 0.),
         Vector3d (1., 1., 1.)
         );
-    child_id = model->AddBody (base_id, Xtrans (Vector3d (1., 0., 0.)), joint_rotzyx, child);
+    child_id = model->AddBody (model_data, *model_data, base_id, Xtrans (Vector3d (1., 0., 0.)), joint_rotzyx, child);
 
     Q = VectorNd::Zero(model->dof_count);
     QDot = VectorNd::Zero(model->dof_count);

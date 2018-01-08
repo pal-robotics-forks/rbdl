@@ -70,7 +70,7 @@ const int NUMBER_OF_MODELS = 2;
   3. Implement the method jcalc. This method must populate X_J, v_J, c_J, and S.
 
         virtual void jcalc
-          model.X_J[joint_id]
+          model_data.X_J[joint_id]
           model.v_J
           model.c_J
           model.mCustomJoints[joint.custom_joint_index]->S = S
@@ -100,15 +100,15 @@ struct CustomJointTypeRevoluteX : public CustomJoint
                       const Math::VectorNd &q,
                       const Math::VectorNd &qdot)
   {
-    model.X_J[joint_id] = Xrotx(q[model.mJoints[joint_id].q_index]);
-    model.v_J[joint_id][0] = qdot[model.mJoints[joint_id].q_index];
+    model_data.X_J[joint_id] = Xrotx(q[model.mJoints[joint_id].q_index]);
+    model_data.v_J[joint_id][0] = qdot[model.mJoints[joint_id].q_index];
   }
 
   virtual void jcalc_X_lambda_S ( Model &model,
                                   unsigned int joint_id,
                                   const Math::VectorNd &q)
   {
-    model.X_lambda[joint_id] =
+    model_data.X_lambda[joint_id] =
         Xrotx (q[model.mJoints[joint_id].q_index])
         * model.X_T[joint_id];
 
@@ -145,7 +145,7 @@ struct CustomEulerZYXJoint : public CustomJoint
     double s2 = sin (q2);
     double c2 = cos (q2);
 
-    model.X_J[joint_id].E = Matrix3d(
+    model_data.X_J[joint_id].E = Matrix3d(
                               c0 * c1,                s0 * c1,     -s1,
                               c0 * s1 * s2 - s0 * c2, s0 * s1 * s2 + c0 * c2, c1 * s2,
                               c0 * s1 * c2 + s0 * s2, s0 * s1 * c2 - c0 * s2, c1 * c2
@@ -165,9 +165,9 @@ struct CustomEulerZYXJoint : public CustomJoint
     double qdot1 = qdot[model.mJoints[joint_id].q_index + 1];
     double qdot2 = qdot[model.mJoints[joint_id].q_index + 2];
 
-    model.v_J[joint_id] = S * Vector3d (qdot0, qdot1, qdot2);
+    model_data.v_J[joint_id] = S * Vector3d (qdot0, qdot1, qdot2);
 
-    model.c_J[joint_id].set(
+    model_data.c_J[joint_id].set(
           -c1*qdot0*qdot1,
           -s1*s2*qdot0*qdot1 + c1*c2*qdot0*qdot2 - s2*qdot1*qdot2,
           -s1*c2*qdot0*qdot1 - c1*s2*qdot0*qdot2 - c2*qdot1*qdot2,
@@ -191,7 +191,7 @@ struct CustomEulerZYXJoint : public CustomJoint
     double c2 = cos (q2);
 
 
-    model.X_lambda[joint_id] = SpatialTransform (
+    model_data.X_lambda[joint_id] = SpatialTransformd (
                                  Matrix3d(
                                    c0 * c1, s0 * c1, -s1,
                                    c0 * s1 * s2 - s0 * c2, s0 * s1 * s2 + c0 * c2, c1 * s2,
@@ -251,13 +251,13 @@ protected:
 
     unsigned int reference_body_id0 =
         reference0.AddBody ( 0,
-                             SpatialTransform(),
+                             SpatialTransformd(),
                              Joint(JointTypeEulerZYX),
                              body0);
 
     unsigned int custom_body_id0 =
         custom0.AddBodyCustomJoint (  0,
-                                      SpatialTransform(),
+                                      SpatialTransformd(),
                                       &custom_joint0,
                                       body0);
 
@@ -290,13 +290,13 @@ protected:
 
     unsigned int reference_body_id1 =
         reference1.AddBody ( 0,
-                             SpatialTransform(),
+                             SpatialTransformd(),
                              Joint(JointTypeRevoluteX),
                              body0);
 
     unsigned int custom_body_id1 =
         custom1.AddBodyCustomJoint (0,
-                                    SpatialTransform(),
+                                    SpatialTransformd(),
                                     &custom_joint1,
                                     body0);
 
@@ -401,13 +401,13 @@ TEST_F ( CustomJointSingleBodyFixture, UpdateKinematics ) {
         TEST_PREC));
 
     EXPECT_TRUE(EIGEN_MATRIX_NEAR (
-                  reference_model.at(idx).v[reference_body_id.at(idx)],
-                custom_model.at(idx).v[   custom_body_id.at(idx)],
+                  reference_model.at(idx).model_data.v[reference_body_id.at(idx)],
+                custom_model.at(idx).model_data.v[   custom_body_id.at(idx)],
         TEST_PREC));
 
     EXPECT_TRUE(EIGEN_MATRIX_NEAR (
-                  reference_model.at(idx).a[reference_body_id.at(idx)],
-                custom_model.at(idx).a[   custom_body_id.at(idx)],
+                  reference_model.at(idx).model_data.a[reference_body_id.at(idx)],
+                custom_model.at(idx).model_data.a[   custom_body_id.at(idx)],
         TEST_PREC));
   }
 }
@@ -445,8 +445,8 @@ TEST_F (CustomJointSingleBodyFixture, UpdateKinematicsCustom) {
                             NULL);
 
     EXPECT_TRUE(EIGEN_MATRIX_NEAR (
-                  reference_model.at(idx).v[reference_body_id.at(idx)],
-                custom_model.at(idx).v[   custom_body_id.at(idx)],
+                  reference_model.at(idx).model_data.v[reference_body_id.at(idx)],
+                custom_model.at(idx).model_data.v[   custom_body_id.at(idx)],
         TEST_PREC));
 
 
@@ -462,8 +462,8 @@ TEST_F (CustomJointSingleBodyFixture, UpdateKinematicsCustom) {
                             &qddot.at(idx));
 
     EXPECT_TRUE(EIGEN_MATRIX_NEAR (
-                  reference_model.at(idx).a[reference_body_id.at(idx)],
-                custom_model.at(idx).a[   custom_body_id.at(idx)],
+                  reference_model.at(idx).model_data.a[reference_body_id.at(idx)],
+                custom_model.at(idx).model_data.a[   custom_body_id.at(idx)],
         TEST_PREC));
   }
 

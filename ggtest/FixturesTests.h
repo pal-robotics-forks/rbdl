@@ -11,7 +11,8 @@ protected:
     using namespace RigidBodyDynamics::Math;
 
     ClearLogOutput();
-    model = new Model;
+    model_data = new ModelDatad;
+    model = new Model(*model_data);
 
     /* Basically a model like this, where X are the Center of Masses
      * and the CoM of the last (3rd) body comes out of the Y=X=0 plane.
@@ -26,19 +27,19 @@ protected:
      */
 
     body_a = Body (1., Vector3d (1., 0., 0.), Vector3d (1., 1., 1.));
-    joint_a = Joint( SpatialVector(0., 0., 1., 0., 0., 0.));
+    joint_a = Joint( SpatialVectord(0., 0., 1., 0., 0., 0.));
 
-    body_a_id = model->AddBody(0, Xtrans(Vector3d(0., 0., 0.)), joint_a, body_a);
+    body_a_id = model->AddBody(*model_data, 0, Xtrans(Vector3d(0., 0., 0.)), joint_a, body_a);
 
     body_b = Body (1., Vector3d (0., 1., 0.), Vector3d (1., 1., 1.));
-    joint_b = Joint ( SpatialVector (0., 1., 0., 0., 0., 0.));
+    joint_b = Joint ( SpatialVectord (0., 1., 0., 0., 0., 0.));
 
-    body_b_id = model->AddBody(1, Xtrans(Vector3d(1., 0., 0.)), joint_b, body_b);
+    body_b_id = model->AddBody(*model_data, 1, Xtrans(Vector3d(1., 0., 0.)), joint_b, body_b);
 
     body_c = Body (1., Vector3d (0., 0., 1.), Vector3d (1., 1., 1.));
-    joint_c = Joint ( SpatialVector (0., 0., 1., 0., 0., 0.));
+    joint_c = Joint ( SpatialVectord (0., 0., 1., 0., 0., 0.));
 
-    body_c_id = model->AddBody(2, Xtrans(Vector3d(0., 1., 0.)), joint_c, body_c);
+    body_c_id = model->AddBody(*model_data, 2, Xtrans(Vector3d(0., 1., 0.)), joint_c, body_c);
 
     Q = VectorNd::Constant ((size_t) model->dof_count, 0.);
     QDot = VectorNd::Constant ((size_t) model->dof_count, 0.);
@@ -56,6 +57,7 @@ protected:
     delete model;
   }
 
+  RigidBodyDynamics::ModelDatad *model_data;
   RigidBodyDynamics::Model *model;
 
   unsigned int body_a_id, body_b_id, body_c_id, ref_body_id;
@@ -77,7 +79,8 @@ protected:
     using namespace RigidBodyDynamics::Math;
 
     ClearLogOutput();
-    model = new Model;
+    model_data = new ModelDatad;
+    model = new Model(*model_data);
 
     model->gravity = Vector3d  (0., -9.81, 0.);
 
@@ -99,24 +102,24 @@ protected:
         Vector3d (0., 0., 0.),
         Vector3d (0., 0., 0.)
         );
-    joint_base_rot_z = Joint ( SpatialVector (0., 0., 1., 0., 0., 0.));
-    base_rot_z_id = model->AddBody (0, Xtrans (Vector3d (0., 0., 0.)), joint_base_rot_z, base_rot_z);
+    joint_base_rot_z = Joint ( SpatialVectord (0., 0., 1., 0., 0., 0.));
+    base_rot_z_id = model->AddBody (*model_data, 0, Xtrans (Vector3d (0., 0., 0.)), joint_base_rot_z, base_rot_z);
 
     base_rot_y = Body (
         0.,
         Vector3d (0., 0., 0.),
         Vector3d (0., 0., 0.)
         );
-    joint_base_rot_y = Joint ( SpatialVector (0., 1., 0., 0., 0., 0.));
-    base_rot_y_id = model->AppendBody (Xtrans (Vector3d (0., 0., 0.)), joint_base_rot_y, base_rot_y);
+    joint_base_rot_y = Joint ( SpatialVectord (0., 1., 0., 0., 0., 0.));
+    base_rot_y_id = model->AppendBody (*model_data, Xtrans (Vector3d (0., 0., 0.)), joint_base_rot_y, base_rot_y);
 
     base_rot_x = Body (
         1.,
         Vector3d (0.5, 0., 0.),
         Vector3d (1., 1., 1.)
         );
-    joint_base_rot_x = Joint ( SpatialVector (1., 0., 0., 0., 0., 0.));
-    base_rot_x_id = model->AddBody (base_rot_y_id, Xtrans (Vector3d (0., 0., 0.)), joint_base_rot_x, base_rot_x);
+    joint_base_rot_x = Joint ( SpatialVectord (1., 0., 0., 0., 0., 0.));
+    base_rot_x_id = model->AddBody (*model_data, base_rot_y_id, Xtrans (Vector3d (0., 0., 0.)), joint_base_rot_x, base_rot_x);
 
     // child body (3 DoF)
     child_rot_z = Body (
@@ -124,24 +127,24 @@ protected:
         Vector3d (0., 0., 0.),
         Vector3d (0., 0., 0.)
         );
-    joint_child_rot_z = Joint ( SpatialVector (0., 0., 1., 0., 0., 0.));
-    child_rot_z_id = model->AddBody (base_rot_x_id, Xtrans (Vector3d (1., 0., 0.)), joint_child_rot_z, child_rot_z);
+    joint_child_rot_z = Joint ( SpatialVectord (0., 0., 1., 0., 0., 0.));
+    child_rot_z_id = model->AddBody (*model_data, base_rot_x_id, Xtrans (Vector3d (1., 0., 0.)), joint_child_rot_z, child_rot_z);
 
     child_rot_y = Body (
         0.,
         Vector3d (0., 0., 0.),
         Vector3d (0., 0., 0.)
         );
-    joint_child_rot_y = Joint ( SpatialVector (0., 1., 0., 0., 0., 0.));
-    child_rot_y_id = model->AddBody (child_rot_z_id, Xtrans (Vector3d (0., 0., 0.)), joint_child_rot_y, child_rot_y);
+    joint_child_rot_y = Joint ( SpatialVectord (0., 1., 0., 0., 0., 0.));
+    child_rot_y_id = model->AddBody (*model_data, child_rot_z_id, Xtrans (Vector3d (0., 0., 0.)), joint_child_rot_y, child_rot_y);
 
     child_rot_x = Body (
         1.,
         Vector3d (0., 0.5, 0.),
         Vector3d (1., 1., 1.)
         );
-    joint_child_rot_x = Joint ( SpatialVector (1., 0., 0., 0., 0., 0.));
-    child_rot_x_id = model->AddBody (child_rot_y_id, Xtrans (Vector3d (0., 0., 0.)), joint_child_rot_x, child_rot_x);
+    joint_child_rot_x = Joint ( SpatialVectord (1., 0., 0., 0., 0., 0.));
+    child_rot_x_id = model->AddBody (*model_data, child_rot_y_id, Xtrans (Vector3d (0., 0., 0.)), joint_child_rot_x, child_rot_x);
 
     Q = VectorNd::Constant (model->mBodies.size() - 1, 0.);
     QDot = VectorNd::Constant (model->mBodies.size() - 1, 0.);
@@ -158,6 +161,8 @@ protected:
   virtual void TearDown() {
     delete model;
   }
+
+  RigidBodyDynamics::ModelDatad *model_data;
   RigidBodyDynamics::Model *model;
 
   unsigned int base_rot_z_id, base_rot_y_id, base_rot_x_id,
@@ -188,7 +193,8 @@ protected:
     using namespace RigidBodyDynamics::Math;
 
     ClearLogOutput();
-    model = new Model;
+    model_data = new ModelDatad;
+    model = new Model(*model_data);
 
     model->gravity = Vector3d  (0., -9.81, 0.);
 
@@ -209,14 +215,14 @@ protected:
         Vector3d (0.5, 0., 0.),
         Vector3d (1., 1., 1.)
         );
-    base_rot_x_id = model->AddBody (0, SpatialTransform(),
+    base_rot_x_id = model->AddBody (*model_data, 0, SpatialTransformd(),
         Joint (
-          SpatialVector (0., 0., 0., 1., 0., 0.),
-          SpatialVector (0., 0., 0., 0., 1., 0.),
-          SpatialVector (0., 0., 0., 0., 0., 1.),
-          SpatialVector (0., 0., 1., 0., 0., 0.),
-          SpatialVector (0., 1., 0., 0., 0., 0.),
-          SpatialVector (1., 0., 0., 0., 0., 0.)
+          SpatialVectord (0., 0., 0., 1., 0., 0.),
+          SpatialVectord (0., 0., 0., 0., 1., 0.),
+          SpatialVectord (0., 0., 0., 0., 0., 1.),
+          SpatialVectord (0., 0., 1., 0., 0., 0.),
+          SpatialVectord (0., 1., 0., 0., 0., 0.),
+          SpatialVectord (1., 0., 0., 0., 0., 0.)
           ),
         base_rot_x);
 
@@ -226,24 +232,24 @@ protected:
         Vector3d (0., 0., 0.),
         Vector3d (0., 0., 0.)
         );
-    joint_child_rot_z = Joint ( SpatialVector (0., 0., 1., 0., 0., 0.));
-    child_rot_z_id = model->AddBody (base_rot_x_id, Xtrans (Vector3d (1., 0., 0.)), joint_child_rot_z, child_rot_z);
+    joint_child_rot_z = Joint ( SpatialVectord (0., 0., 1., 0., 0., 0.));
+    child_rot_z_id = model->AddBody (*model_data, base_rot_x_id, Xtrans (Vector3d (1., 0., 0.)), joint_child_rot_z, child_rot_z);
 
     child_rot_y = Body (
         0.,
         Vector3d (0., 0., 0.),
         Vector3d (0., 0., 0.)
         );
-    joint_child_rot_y = Joint ( SpatialVector (0., 1., 0., 0., 0., 0.));
-    child_rot_y_id = model->AddBody (child_rot_z_id, Xtrans (Vector3d (0., 0., 0.)), joint_child_rot_y, child_rot_y);
+    joint_child_rot_y = Joint ( SpatialVectord (0., 1., 0., 0., 0., 0.));
+    child_rot_y_id = model->AddBody (*model_data, child_rot_z_id, Xtrans (Vector3d (0., 0., 0.)), joint_child_rot_y, child_rot_y);
 
     child_rot_x = Body (
         1.,
         Vector3d (0., 0.5, 0.),
         Vector3d (1., 1., 1.)
         );
-    joint_child_rot_x = Joint ( SpatialVector (1., 0., 0., 0., 0., 0.));
-    child_rot_x_id = model->AddBody (child_rot_y_id, Xtrans (Vector3d (0., 0., 0.)), joint_child_rot_x, child_rot_x);
+    joint_child_rot_x = Joint ( SpatialVectord (1., 0., 0., 0., 0., 0.));
+    child_rot_x_id = model->AddBody (*model_data, child_rot_y_id, Xtrans (Vector3d (0., 0., 0.)), joint_child_rot_x, child_rot_x);
 
     // child body (3 DoF)
     child_2_rot_z = Body (
@@ -251,24 +257,24 @@ protected:
         Vector3d (0., 0., 0.),
         Vector3d (0., 0., 0.)
         );
-    joint_child_2_rot_z = Joint ( SpatialVector (0., 0., 1., 0., 0., 0.));
-    child_2_rot_z_id = model->AddBody (child_rot_x_id, Xtrans (Vector3d (1., 0., 0.)), joint_child_2_rot_z, child_2_rot_z);
+    joint_child_2_rot_z = Joint ( SpatialVectord (0., 0., 1., 0., 0., 0.));
+    child_2_rot_z_id = model->AddBody (*model_data, child_rot_x_id, Xtrans (Vector3d (1., 0., 0.)), joint_child_2_rot_z, child_2_rot_z);
 
     child_2_rot_y = Body (
         0.,
         Vector3d (0., 0., 0.),
         Vector3d (0., 0., 0.)
         );
-    joint_child_2_rot_y = Joint ( SpatialVector (0., 1., 0., 0., 0., 0.));
-    child_2_rot_y_id = model->AddBody (child_2_rot_z_id, Xtrans (Vector3d (0., 0., 0.)), joint_child_2_rot_y, child_2_rot_y);
+    joint_child_2_rot_y = Joint ( SpatialVectord (0., 1., 0., 0., 0., 0.));
+    child_2_rot_y_id = model->AddBody (*model_data, child_2_rot_z_id, Xtrans (Vector3d (0., 0., 0.)), joint_child_2_rot_y, child_2_rot_y);
 
     child_2_rot_x = Body (
         1.,
         Vector3d (0., 0.5, 0.),
         Vector3d (1., 1., 1.)
         );
-    joint_child_2_rot_x = Joint ( SpatialVector (1., 0., 0., 0., 0., 0.));
-    child_2_rot_x_id = model->AddBody (child_2_rot_y_id, Xtrans (Vector3d (0., 0., 0.)), joint_child_2_rot_x, child_2_rot_x);
+    joint_child_2_rot_x = Joint ( SpatialVectord (1., 0., 0., 0., 0., 0.));
+    child_2_rot_x_id = model->AddBody (*model_data, child_2_rot_y_id, Xtrans (Vector3d (0., 0., 0.)), joint_child_2_rot_x, child_2_rot_x);
 
     Q = VectorNd::Constant (model->dof_count, 0.);
     QDot = VectorNd::Constant (model->dof_count, 0.);
@@ -281,6 +287,8 @@ protected:
   virtual void TearDown () {
     delete model;
   }
+
+  RigidBodyDynamics::ModelDatad *model_data;
   RigidBodyDynamics::Model *model;
 
   unsigned int base_rot_z_id, base_rot_y_id, base_rot_x_id,
@@ -306,7 +314,8 @@ class SimpleFixture : public ::testing::Test {
 protected:
   virtual void SetUp () {
     ClearLogOutput();
-    model = new RigidBodyDynamics::Model;
+    model_data = new RigidBodyDynamics::ModelDatad;
+    model = new RigidBodyDynamics::Model(*model_data);
     model->gravity = RigidBodyDynamics::Math::Vector3d (0., -9.81, 0.);
   }
   virtual void TearDown() {
@@ -319,6 +328,7 @@ protected:
     Tau = RigidBodyDynamics::Math::VectorNd::Zero (model->dof_count);
   }
 
+  RigidBodyDynamics::ModelDatad *model_data;
   RigidBodyDynamics::Model *model;
 
   RigidBodyDynamics::Math::VectorNd Q;
@@ -334,7 +344,8 @@ protected:
     using namespace RigidBodyDynamics::Math;
 
     ClearLogOutput();
-    model = new Model;
+    model_data = new ModelDatad;
+    model = new Model(*model_data);
 
     /* Basically a model like this, where X are the Center of Masses
      * and the CoM of the last (3rd) body comes out of the Y=X=0 plane.
@@ -349,19 +360,19 @@ protected:
      */
 
     body_a = Body (1., Vector3d (1., 0., 0.), Vector3d (1., 1., 1.));
-    joint_a = Joint( SpatialVector (0., 0., 1., 0., 0., 0.));
+    joint_a = Joint( SpatialVectord (0., 0., 1., 0., 0., 0.));
 
-    body_a_id = model->AddBody(0, Xtrans(Vector3d(0., 0., 0.)), joint_a, body_a);
+    body_a_id = model->AddBody(*model_data, 0, Xtrans(Vector3d(0., 0., 0.)), joint_a, body_a);
 
     body_b = Body (1., Vector3d (0., 1., 0.), Vector3d (1., 1., 1.));
     joint_b = Joint (JointTypeFixed);
 
-    body_b_id = model->AddBody(1, Xtrans(Vector3d(1., 0., 0.)), joint_b, body_b);
+    body_b_id = model->AddBody(*model_data, 1, Xtrans(Vector3d(1., 0., 0.)), joint_b, body_b);
 
     body_c = Body (1., Vector3d (0., 0., 1.), Vector3d (1., 1., 1.));
-    joint_c = Joint ( SpatialVector (0., 0., 1., 0., 0., 0.));
+    joint_c = Joint ( SpatialVectord (0., 0., 1., 0., 0., 0.));
 
-    body_c_id = model->AddBody(2, Xtrans(Vector3d(0., 1., 0.)), joint_c, body_c);
+    body_c_id = model->AddBody(*model_data, 2, Xtrans(Vector3d(0., 1., 0.)), joint_c, body_c);
 
     Q = VectorNd::Constant ((size_t) model->dof_count, 0.);
     QDot = VectorNd::Constant ((size_t) model->dof_count, 0.);
@@ -378,6 +389,7 @@ protected:
     delete model;
   }
 
+  RigidBodyDynamics::ModelDatad *model_data;
   RigidBodyDynamics::Model *model;
 
   unsigned int body_a_id, body_b_id, body_c_id, ref_body_id;
@@ -400,7 +412,9 @@ protected:
     using namespace RigidBodyDynamics::Math;
 
     ClearLogOutput();
-    model_movable = new Model;
+
+    model_movable_data = new ModelDatad;
+    model_movable = new Model(*model_movable_data);
 
     /* Basically a model like this, where X are the Center of Masses
      * and the CoM of the last (3rd) body comes out of the Y=X=0 plane.
@@ -415,19 +429,19 @@ protected:
      */
 
     body_a = Body (1., Vector3d (1., 0., 0.), Vector3d (1., 1., 1.));
-    joint_a = Joint( SpatialVector (0., 0., 1., 0., 0., 0.));
+    joint_a = Joint( SpatialVectord (0., 0., 1., 0., 0., 0.));
 
-    body_a_id = model_movable->AddBody(0, Xtrans(Vector3d(0., 0., 0.)), joint_a, body_a);
+    body_a_id = model_movable->AddBody(*model_movable_data, 0, Xtrans(Vector3d(0., 0., 0.)), joint_a, body_a);
 
     body_b = Body (1., Vector3d (0., 1., 0.), Vector3d (1., 1., 1.));
-    joint_b = Joint ( SpatialVector (0., 1., 0., 0., 0., 0.));
+    joint_b = Joint ( SpatialVectord (0., 1., 0., 0., 0., 0.));
 
-    body_b_id = model_movable->AddBody(body_a_id, Xtrans(Vector3d(1., 0., 0.)), joint_b, body_b);
+    body_b_id = model_movable->AddBody(*model_movable_data, body_a_id, Xtrans(Vector3d(1., 0., 0.)), joint_b, body_b);
 
     body_c = Body (1., Vector3d (0., 0., 1.), Vector3d (1., 1., 1.));
-    joint_c = Joint ( SpatialVector (0., 0., 1., 0., 0., 0.));
+    joint_c = Joint ( SpatialVectord (0., 0., 1., 0., 0., 0.));
 
-    body_c_id = model_movable->AddBody(body_b_id, Xtrans(Vector3d(0., 1., 0.)), joint_c, body_c);
+    body_c_id = model_movable->AddBody(*model_movable_data, body_b_id, Xtrans(Vector3d(0., 1., 0.)), joint_c, body_c);
 
     Q = VectorNd::Constant ((size_t) model_movable->dof_count, 0.);
     QDot = VectorNd::Constant ((size_t) model_movable->dof_count, 0.);
@@ -437,12 +451,13 @@ protected:
     H_movable = MatrixNd::Zero ((size_t) model_movable->dof_count, (size_t) model_movable->dof_count);
 
     // Assemble the fixed joint model
-    model_fixed = new Model;
+    model_fixed_data = new ModelDatad;
+    model_fixed = new Model(*model_fixed_data);
 
-    body_a_fixed_id = model_fixed->AddBody(0, Xtrans(Vector3d(0., 0., 0.)), joint_a, body_a);
+    body_a_fixed_id = model_fixed->AddBody(*model_fixed_data, 0, Xtrans(Vector3d(0., 0., 0.)), joint_a, body_a);
     Joint joint_fixed (JointTypeFixed);
-    body_b_fixed_id = model_fixed->AddBody(body_a_fixed_id, Xtrans(Vector3d(1., 0., 0.)), joint_fixed, body_b);
-    body_c_fixed_id = model_fixed->AddBody(body_b_fixed_id, Xtrans(Vector3d(0., 1., 0.)), joint_c, body_c);
+    body_b_fixed_id = model_fixed->AddBody(*model_fixed_data, body_a_fixed_id, Xtrans(Vector3d(1., 0., 0.)), joint_fixed, body_b);
+    body_c_fixed_id = model_fixed->AddBody(*model_fixed_data, body_b_fixed_id, Xtrans(Vector3d(0., 1., 0.)), joint_c, body_c);
 
     Q_fixed = VectorNd::Constant ((size_t) model_fixed->dof_count, 0.);
     QDot_fixed = VectorNd::Constant ((size_t) model_fixed->dof_count, 0.);
@@ -486,7 +501,10 @@ protected:
     return H;
   }
 
+  RigidBodyDynamics::ModelDatad *model_fixed_data;
   RigidBodyDynamics::Model *model_fixed;
+
+  RigidBodyDynamics::ModelDatad *model_movable_data;
   RigidBodyDynamics::Model *model_movable;
 
   unsigned int body_a_id, body_b_id, body_c_id, ref_body_id;
@@ -521,14 +539,15 @@ protected:
     using namespace RigidBodyDynamics::Math;
 
     ClearLogOutput();
-    model = new Model;
+    model_data = new ModelDatad;
+    model = new Model(*model_data);
 
-    Joint joint_rot_z ( SpatialVector (0., 0., 1., 0., 0., 0.));
+    Joint joint_rot_z ( SpatialVectord (0., 0., 1., 0., 0., 0.));
 
     Joint joint_rot_zyx (
-        SpatialVector (0., 0., 1., 0., 0., 0.),
-        SpatialVector (0., 1., 0., 0., 0., 0.),
-        SpatialVector (1., 0., 0., 0., 0., 0.)
+        SpatialVectord (0., 0., 1., 0., 0., 0.),
+        SpatialVectord (0., 1., 0., 0., 0., 0.),
+        SpatialVectord (1., 0., 0., 0., 0., 0.)
         );
 
     Body body_a(1., RigidBodyDynamics::Math::Vector3d (1., 0.4, 0.4), RigidBodyDynamics::Math::Vector3d (1., 1., 1.));
@@ -539,9 +558,9 @@ protected:
     fixture_transform_b = Xtrans (RigidBodyDynamics::Math::Vector3d(4., 5., 6.));
     fixture_transform_fixed = Xtrans (RigidBodyDynamics::Math::Vector3d(-1., -2., -3.));
 
-    body_a_id = model->AddBody (0, fixture_transform_a, joint_rot_z, body_a);
-    body_b_id = model->AppendBody (fixture_transform_b, joint_rot_zyx, body_b);
-    body_fixed_id = model->AppendBody (fixture_transform_fixed, Joint(JointTypeFixed), body_fixed);
+    body_a_id = model->AddBody (*model_data, 0, fixture_transform_a, joint_rot_z, body_a);
+    body_b_id = model->AppendBody (*model_data, fixture_transform_b, joint_rot_zyx, body_b);
+    body_fixed_id = model->AppendBody (*model_data, fixture_transform_fixed, Joint(JointTypeFixed), body_fixed);
 
     ClearLogOutput();
   }
@@ -549,13 +568,14 @@ protected:
     delete model;
   }
 
+  RigidBodyDynamics::ModelDatad *model_data;
   RigidBodyDynamics::Model *model;
 
   unsigned int body_a_id, body_b_id, body_fixed_id;
 
-  RigidBodyDynamics::Math::SpatialTransform fixture_transform_a;
-  RigidBodyDynamics::Math::SpatialTransform fixture_transform_b;
-  RigidBodyDynamics::Math::SpatialTransform fixture_transform_fixed;
+  RigidBodyDynamics::Math::SpatialTransformd fixture_transform_a;
+  RigidBodyDynamics::Math::SpatialTransformd fixture_transform_b;
+  RigidBodyDynamics::Math::SpatialTransformd fixture_transform_fixed;
 };
 
 class TwoArms12DoF : public ::testing::Test {
@@ -565,7 +585,8 @@ protected:
     using namespace RigidBodyDynamics::Math;
 
     ClearLogOutput();
-    model = new Model;
+    model_data = new ModelDatad;
+    model = new Model(*model_data);
 
     /* Basically a model like this, where X are the Center of Masses
      * and the CoM of the last (3rd) body comes out of the Y=X=0 plane.
@@ -583,14 +604,14 @@ protected:
     Body body_lower = Body (0.5, Vector3d(0., -0.15, 0.), Vector3d (0.3, 0.5, 0.2));
 
     Joint joint_zyx = Joint (
-        SpatialVector (0., 0., 1., 0., 0., 0.),
-        SpatialVector (0., 1., 0., 0., 0., 0.),
-        SpatialVector (1., 0., 0., 0., 0., 0.)
+        SpatialVectord (0., 0., 1., 0., 0., 0.),
+        SpatialVectord (0., 1., 0., 0., 0., 0.),
+        SpatialVectord (1., 0., 0., 0., 0., 0.)
         );
 
-    right_upper_arm = model->AppendBody (Xtrans (Vector3d (0., 0., -0.3)), joint_zyx, body_upper, "RightUpper");
+    right_upper_arm = model->AppendBody (*model_data, Xtrans (Vector3d (0., 0., -0.3)), joint_zyx, body_upper, "RightUpper");
     //		model->AppendBody (Xtrans (Vector3d (0., -0.4, 0.)), joint_zyx, body_lower, "RightLower");
-    left_upper_arm = model->AddBody (0, Xtrans (Vector3d (0., 0., 0.3)), joint_zyx, body_upper, "LeftUpper");
+    left_upper_arm = model->AddBody (*model_data, 0, Xtrans (Vector3d (0., 0., 0.3)), joint_zyx, body_upper, "LeftUpper");
     //		model->AppendBody (Xtrans (Vector3d (0., -0.4, 0.)), joint_zyx, body_lower, "LeftLower");
 
     q = VectorNd::Constant ((size_t) model->dof_count, 0.);
@@ -604,6 +625,7 @@ protected:
     delete model;
   }
 
+  RigidBodyDynamics::ModelDatad *model_data;
   RigidBodyDynamics::Model *model;
 
   RigidBodyDynamics::Math::VectorNd q;
@@ -622,7 +644,8 @@ protected:
     using namespace RigidBodyDynamics::Math;
 
     ClearLogOutput();
-    model = new Model;
+    model_data = new ModelDatad;
+    model = new Model(*model_data);
 
     model->gravity = Vector3d  (0., -9.81, 0.);
 
@@ -644,14 +667,14 @@ protected:
         Vector3d (0.5, 0., 0.),
         Vector3d (1., 1., 1.)
         );
-    base_id = model->AddBody (0, SpatialTransform(),
+    base_id = model->AddBody (*model_data, 0, SpatialTransformd(),
         Joint (
-          SpatialVector (0., 0., 0., 1., 0., 0.),
-          SpatialVector (0., 0., 0., 0., 1., 0.),
-          SpatialVector (0., 0., 0., 0., 0., 1.),
-          SpatialVector (0., 0., 1., 0., 0., 0.),
-          SpatialVector (0., 1., 0., 0., 0., 0.),
-          SpatialVector (1., 0., 0., 0., 0., 0.)
+          SpatialVectord (0., 0., 0., 1., 0., 0.),
+          SpatialVectord (0., 0., 0., 0., 1., 0.),
+          SpatialVectord (0., 0., 0., 0., 0., 1.),
+          SpatialVectord (0., 0., 1., 0., 0., 0.),
+          SpatialVectord (0., 1., 0., 0., 0., 0.),
+          SpatialVectord (1., 0., 0., 0., 0., 0.)
           ),
         base);
 
@@ -662,11 +685,11 @@ protected:
         Vector3d (1., 1., 1.)
         );
     joint_rotzyx = Joint (
-        SpatialVector (0., 0., 1., 0., 0., 0.),
-        SpatialVector (0., 1., 0., 0., 0., 0.),
-        SpatialVector (1., 0., 0., 0., 0., 0.)
+        SpatialVectord (0., 0., 1., 0., 0., 0.),
+        SpatialVectord (0., 1., 0., 0., 0., 0.),
+        SpatialVectord (1., 0., 0., 0., 0., 0.)
         );
-    child_id = model->AddBody (base_id, Xtrans (Vector3d (1., 0., 0.)), joint_rotzyx, child);
+    child_id = model->AddBody (*model_data, base_id, Xtrans (Vector3d (1., 0., 0.)), joint_rotzyx, child);
 
     // child body (3 DoF)
     child_2 = Body (
@@ -674,7 +697,7 @@ protected:
         Vector3d (0., 0.5, 0.),
         Vector3d (1., 1., 1.)
         );
-    child_2_id = model->AddBody (child_id, Xtrans (Vector3d (1., 0., 0.)), joint_rotzyx, child_2);
+    child_2_id = model->AddBody (*model_data, child_id, Xtrans (Vector3d (1., 0., 0.)), joint_rotzyx, child_2);
 
     Q = VectorNd::Constant (model->dof_count, 0.);
     QDot = VectorNd::Constant (model->dof_count, 0.);
@@ -691,6 +714,8 @@ protected:
   virtual void TearDown () {
     delete model;
   }
+
+  RigidBodyDynamics::ModelDatad *model_data;
   RigidBodyDynamics::Model *model;
 
   unsigned int base_id, child_id, child_2_id;

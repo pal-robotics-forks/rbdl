@@ -7,7 +7,8 @@
 #include <rbdl/Model.h>
 
 //Transform a spatial velocity vector to linear and angular vel
-inline void spatialVelocity2vector(const RigidBodyDynamics::Math::SpatialVector v0,
+
+inline void spatialVelocity2vector(const RigidBodyDynamics::Math::SpatialVectord v0,
                                    const RigidBodyDynamics::Math::Vector3d &pointOfForce,
                                    Eigen::Vector3d &linear_vel,
                                    Eigen::Vector3d &angular_vel){
@@ -16,8 +17,9 @@ inline void spatialVelocity2vector(const RigidBodyDynamics::Math::SpatialVector 
   angular_vel = v0.block<3,1>(0, 0);
 }
 
-inline  RigidBodyDynamics::Math::SpatialVector force2spatialVector(const Eigen::Vector3d &pointOfForce, const Eigen::Vector3d &force){
-  RigidBodyDynamics::Math::SpatialVector result;
+inline  RigidBodyDynamics::Math::SpatialVectord force2spatialVector(const Eigen::Vector3d &pointOfForce, const Eigen::Vector3d &force){
+  RigidBodyDynamics::Math::SpatialVectord result;
+
 
   Eigen::Vector3d n0;
   n0 = pointOfForce.cross(force);
@@ -33,21 +35,32 @@ inline  RigidBodyDynamics::Math::SpatialVector force2spatialVector(const Eigen::
   return result;
 }
 
-inline Eigen::Isometry3d getBodyToBaseTransform(RigidBodyDynamics::Model &model, const Eigen::VectorXd &Q, const std::string &name,
+inline Eigen::Isometry3d getBodyToBaseTransform(const RigidBodyDynamics::Model &model,
+                                                RigidBodyDynamics::ModelDatad &model_data,
+                                                const Eigen::VectorXd &Q, const std::string &name,
                                                 const Eigen::Vector3d &tip_position, bool update){
 
   assert(model.q_size == Q.rows());
   unsigned int id = model.GetBodyId(name.c_str());
 
-  Eigen::Vector3d position = RigidBodyDynamics::CalcBodyToBaseCoordinates(model, Q, id, tip_position, update);
-  Eigen::Matrix3d rotation = RigidBodyDynamics::CalcBodyWorldOrientation(model, Q, id, update).transpose();
+  Eigen::Vector3d position = RigidBodyDynamics::CalcBodyToBaseCoordinates(model, model_data, Q, id, tip_position, update);
+  Eigen::Matrix3d rotation = RigidBodyDynamics::CalcBodyWorldOrientation(model, model_data, Q, id, update).transpose();
 
   Eigen::Isometry3d temp;
   temp.setIdentity();
   temp = ( Eigen::AngleAxisd(rotation) );
   temp.translation() = position;
   return temp;
+}
 
+inline Eigen::Isometry3d getBodyToBaseTransform(RigidBodyDynamics::Model &model,
+                                                const Eigen::VectorXd &Q, const std::string &name, const Eigen::Vector3d &tip_position, bool update){
+  return getBodyToBaseTransform(model, *model.getModelData(), Q, name, tip_position, update);
+}
+
+inline Eigen::Isometry3d getBodyToBaseTransform(RigidBodyDynamics::Model &model, const std::string &name,  const Eigen::Vector3d &tip_position){
+
+  return getBodyToBaseTransform(model, Eigen::VectorXd::Zero(model.q_size), name, tip_position, false);
 }
 
 inline Eigen::Isometry3d getBodyToBaseTransform(RigidBodyDynamics::Model &model, const Eigen::VectorXd &Q, const std::string &name, bool update){
@@ -58,11 +71,6 @@ inline Eigen::Isometry3d getBodyToBaseTransform(RigidBodyDynamics::Model &model,
 inline Eigen::Isometry3d getBodyToBaseTransform(RigidBodyDynamics::Model &model, const std::string &name){
 
   return getBodyToBaseTransform(model, Eigen::VectorXd::Zero(model.q_size), name, Eigen::Vector3d::Zero(), false);
-}
-
-inline Eigen::Isometry3d getBodyToBaseTransform(RigidBodyDynamics::Model &model, const std::string &name,  const Eigen::Vector3d &tip_position){
-
-  return getBodyToBaseTransform(model, Eigen::VectorXd::Zero(model.q_size), name, tip_position, false);
 }
 
 inline Eigen::Vector3d getBodyLinearVelocity(RigidBodyDynamics::Model &model, const std::string &name, const Eigen::Vector3d &tip_position){
@@ -106,15 +114,17 @@ inline std::pair<Eigen::Vector3d, Eigen::Vector3d> getBodyAcceleration(RigidBody
 }
 
 // This method does not update the internal state of the model, it querys directly the internal data structure
-inline Eigen::Isometry3d getBodyTransform(RigidBodyDynamics::Model &model, const std::string &name){
+inline Eigen::Isometry3d getBodyTransform(const RigidBodyDynamics::Model &model,
+                                          RigidBodyDynamics::ModelDatad &model_data,
+                                          const std::string &name){
   unsigned int id = model.GetBodyId(name.c_str());
-  RigidBodyDynamics::Math::SpatialTransform tf;
+  RigidBodyDynamics::Math::SpatialTransformd tf;
   //Add forces (check if contact force is not in a fix link)
   if(id >= model.fixed_body_discriminator){
     tf = model.mFixedBodies[id - model.fixed_body_discriminator].mParentTransform;
   }
   else{
-    tf = model.X_lambda[id];
+    tf = model_data.X_lambda[id];
   }
 
   Eigen::Matrix3d Et = tf.E.transpose();
@@ -138,6 +148,53 @@ inline unsigned int getParentBodyId(RigidBodyDynamics::Model &model, const std::
   }
 }
 
+/*
+inline Eigen::Vector3d getBodyLinearVelocity(RigidBodyDynamics::Model &model, const std::string &name, const Eigen::Vector3d &tip_position){
+  unsigned int id = model.GetBodyId(name.c_str());
+  return RigidBodyDynamics::CalcPointVelocity(model, Eigen::VectorXd::Zero(model.q_size),
+                                              Eigen::VectorXd::Zero(model.qdot_size),
+                                              id, tip_position, false);
+}
+
+inline Eigen::Vector3d getBodyAngularVelocity(RigidBodyDynamics::Model &model, const std::string &name){
+  unsigned int id = model.GetBodyId(name.c_str());
+  return RigidBodyDynamics::CalcPointAngularVelocity(model, Eigen::VectorXd::Zero(model.q_size),
+                                                     Eigen::VectorXd::Zero(model.qdot_size),
+                                                     id, Eigen::Vector3d::Zero(), false);
+}
+
+inline std::pair<Eigen::Vector3d, Eigen::Vector3d> getBodyVelocity(RigidBodyDynamics::Model &model, const std::string &name, const Eigen::Vector3d &tip_position){
+  return std::make_pair(getBodyLinearVelocity(model, name, tip_position),
+                        getBodyAngularVelocity(model, name));
+}
+
+inline Eigen::Vector3d getBodyLinearAcceleration(RigidBodyDynamics::Model &model, const std::string &name, Eigen::Vector3d &tip_position){
+  unsigned int id = model.GetBodyId(name.c_str());
+  return RigidBodyDynamics::CalcPointAcceleration(model, *model.getModelData(), Eigen::VectorXd::Zero(model.q_size),
+                                                  Eigen::VectorXd::Zero(model.qdot_size),
+                                                  Eigen::VectorXd::Zero(model.q_size),
+                                                  id, tip_position, false);
+}
+
+inline Eigen::Vector3d getBodyAngularAcceleration(RigidBodyDynamics::Model &model, const std::string &name, Eigen::Vector3d &tip_position){
+  unsigned int id = model.GetBodyId(name.c_str());
+  return RigidBodyDynamics::CalcPointAngularAcceleration(model, *model.getModelData(), Eigen::VectorXd::Zero(model.q_size),
+                                                         Eigen::VectorXd::Zero(model.qdot_size),
+                                                         Eigen::VectorXd::Zero(model.q_size),
+                                                         id, tip_position, false);
+}
+
+inline std::pair<Eigen::Vector3d, Eigen::Vector3d> getBodyAcceleration(RigidBodyDynamics::Model &model, const std::string &name, Eigen::Vector3d &tip_position){
+  return std::make_pair(getBodyLinearAcceleration(model, name, tip_position),
+                        getBodyAngularAcceleration(model, name, tip_position));
+}
+
+*/
+inline Eigen::Isometry3d getBodyTransform(RigidBodyDynamics::Model &model,
+                                          const std::string &name){
+
+  return getBodyTransform(model, *model.getModelData(), name);
+}
 
 inline void createGeneralizedVector(const Eigen::Vector3d &floatingBasePosition, const Eigen::Quaterniond &floatingBaseOrientation,
                                     const Eigen::VectorXd &jointStates, Eigen::VectorXd &state){

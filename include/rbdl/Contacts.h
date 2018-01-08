@@ -10,6 +10,7 @@
 
 #include <rbdl/rbdl_math.h>
 #include <rbdl/rbdl_mathutils.h>
+#include <rbdl/Model.h>
 
 namespace RigidBodyDynamics {
 
@@ -147,7 +148,6 @@ namespace RigidBodyDynamics {
  */
 
 struct Model;
-
 /** \brief Structure that contains both constraint information and workspace memory.
  *
  * This structure is used to reduce the amount of memory allocations that
@@ -208,7 +208,7 @@ struct RBDL_DLLAPI ConstraintSet {
    * The values of ConstraintSet::acceleration may still be
    * modified after the set is bound to the model.
    */
-  bool Bind (const Model &model);
+  bool Bind (const Model &model, ModelDatad &model_data);
 
   /** \brief Returns the number of constraints. */
   size_t size() const {
@@ -279,22 +279,22 @@ struct RBDL_DLLAPI ConstraintSet {
   /// Workspace for the default accelerations.
   Math::VectorNd QDDot_0;
   /// Workspace for the test forces.
-  std::vector<Math::SpatialVector> f_t;
+  std::vector<Math::SpatialVectord> f_t;
   /// Workspace for the actual spatial forces.
-  std::vector<Math::SpatialVector> f_ext_constraints;
+  std::vector<Math::SpatialVectord> f_ext_constraints;
   /// Workspace for the default point accelerations.
   std::vector<Math::Vector3d> point_accel_0;
 
   /// Workspace for the bias force due to the test force
-  std::vector<Math::SpatialVector> d_pA;
+  std::vector<Math::SpatialVectord> d_pA;
   /// Workspace for the acceleration due to the test force
-  std::vector<Math::SpatialVector> d_a;
+  std::vector<Math::SpatialVectord> d_a;
   Math::VectorNd d_u;
 
   /// Workspace for the inertia when applying constraint forces
-  std::vector<Math::SpatialMatrix> d_IA;
+  std::vector<Math::SpatialMatrixd> d_IA;
   /// Workspace when applying constraint forces
-  std::vector<Math::SpatialVector> d_U;
+  std::vector<Math::SpatialVectord> d_U;
   /// Workspace when applying constraint forces
   Math::VectorNd d_d;
 
@@ -311,6 +311,7 @@ struct RBDL_DLLAPI ConstraintSet {
  */
 RBDL_DLLAPI void CalcContactJacobian(
     Model &model,
+    ModelDatad  &model_data,
     const Math::VectorNd &Q,
     const ConstraintSet &CS,
     Math::MatrixNd &G,
@@ -319,6 +320,7 @@ RBDL_DLLAPI void CalcContactJacobian(
 
 RBDL_DLLAPI void CalcContactSystemVariables (
     Model &model,
+    ModelDatad  &model_data,
     const Math::VectorNd &Q,
     const Math::VectorNd &QDot,
     const Math::VectorNd &Tau,
@@ -377,6 +379,7 @@ RBDL_DLLAPI void CalcContactSystemVariables (
  */
 RBDL_DLLAPI void ForwardDynamicsContactsDirect (
     Model &model,
+    ModelDatad  &model_data,
     const Math::VectorNd &Q,
     const Math::VectorNd &QDot,
     const Math::VectorNd &Tau,
@@ -386,6 +389,7 @@ RBDL_DLLAPI void ForwardDynamicsContactsDirect (
 
 RBDL_DLLAPI void ForwardDynamicsContactsRangeSpaceSparse (
     Model &model,
+    ModelDatad  &model_data,
     const Math::VectorNd &Q,
     const Math::VectorNd &QDot,
     const Math::VectorNd &Tau,
@@ -395,6 +399,7 @@ RBDL_DLLAPI void ForwardDynamicsContactsRangeSpaceSparse (
 
 RBDL_DLLAPI void ForwardDynamicsContactsNullSpace (
     Model &model,
+    ModelDatad  &model_data,
     const Math::VectorNd &Q,
     const Math::VectorNd &QDot,
     const Math::VectorNd &Tau,
@@ -466,6 +471,7 @@ RBDL_DLLAPI void ForwardDynamicsContactsNullSpace (
  */
 RBDL_DLLAPI void ForwardDynamicsContactsKokkevis (
     Model &model,
+    ModelDatad  &model_data,
     const Math::VectorNd &Q,
     const Math::VectorNd &QDot,
     const Math::VectorNd &Tau,
@@ -522,6 +528,7 @@ RBDL_DLLAPI void ForwardDynamicsContactsKokkevis (
  */
 RBDL_DLLAPI void ComputeContactImpulsesDirect (
     Model &model,
+    ModelDatad  &model_data,
     const Math::VectorNd &Q,
     const Math::VectorNd &QDotMinus,
     ConstraintSet &CS,
@@ -532,6 +539,7 @@ RBDL_DLLAPI void ComputeContactImpulsesDirect (
 */
 RBDL_DLLAPI void ComputeContactImpulsesRangeSpaceSparse (
     Model &model,
+    ModelDatad  &model_data,
     const Math::VectorNd &Q,
     const Math::VectorNd &QDotMinus,
     ConstraintSet &CS,
@@ -542,6 +550,7 @@ RBDL_DLLAPI void ComputeContactImpulsesRangeSpaceSparse (
 */
 RBDL_DLLAPI void ComputeContactImpulsesNullSpace (
     Model &model,
+    ModelDatad  &model_data,
     const Math::VectorNd &Q,
     const Math::VectorNd &QDotMinus,
     ConstraintSet &CS,
@@ -593,7 +602,7 @@ RBDL_DLLAPI void SolveContactSystemDirect (
  * \param linear_solver type of solver that should be used to solve the constraint force system
  */
 RBDL_DLLAPI void SolveContactSystemRangeSpaceSparse (
-    Model &model, 
+    Model &model,
     Math::MatrixNd &H, 
     const Math::MatrixNd &G, 
     const Math::VectorNd &c, 

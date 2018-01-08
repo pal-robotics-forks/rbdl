@@ -21,7 +21,8 @@ class FloatingBaseFixture : public ::testing::Test {
 protected:
   virtual void SetUp () {
     ClearLogOutput();
-    model = new Model;
+    model_data = new ModelDatad;
+    model = new Model(*model_data);
     model->gravity = Vector3d (0., -9.81, 0.);
 
     base = Body (1., Vector3d (1., 0., 0.), Vector3d (1., 1., 1.));
@@ -30,6 +31,8 @@ protected:
   virtual void TearDown () {
     delete model;
   }
+
+  ModelDatad *model_data;
   Model *model;
   Body base;
   unsigned int base_body_id;
@@ -38,14 +41,14 @@ protected:
 };
 
 TEST_F ( FloatingBaseFixture, TestCalcPointTransformation ) {
-  base_body_id = model->AddBody (0, SpatialTransform(),
+  base_body_id = model->AddBody (*model_data, 0, SpatialTransformd(),
       Joint (
-        SpatialVector (0., 0., 0., 1., 0., 0.),
-        SpatialVector (0., 0., 0., 0., 1., 0.),
-        SpatialVector (0., 0., 0., 0., 0., 1.),
-        SpatialVector (0., 0., 1., 0., 0., 0.),
-        SpatialVector (0., 1., 0., 0., 0., 0.),
-        SpatialVector (1., 0., 0., 0., 0., 0.)
+        SpatialVectord (0., 0., 0., 1., 0., 0.),
+        SpatialVectord (0., 0., 0., 0., 1., 0.),
+        SpatialVectord (0., 0., 0., 0., 0., 1.),
+        SpatialVectord (0., 0., 1., 0., 0., 0.),
+        SpatialVectord (0., 1., 0., 0., 0., 0.),
+        SpatialVectord (1., 0., 0., 0., 0., 0.)
         ),
       base);
 
@@ -55,32 +58,32 @@ TEST_F ( FloatingBaseFixture, TestCalcPointTransformation ) {
   tau = VectorNd::Constant(model->dof_count, 0.);
 
   q[1] = 1.;
-  ForwardDynamics (*model, q, qdot, tau, qddot);
+  ForwardDynamics (*model, *model_data, q, qdot, tau, qddot);
 
   Vector3d test_point;
 
-  test_point = CalcBaseToBodyCoordinates (*model, q, base_body_id, Vector3d (0., 0., 0.), false);
+  test_point = CalcBaseToBodyCoordinates (*model, *model_data, q, base_body_id, Vector3d (0., 0., 0.), false);
   EXPECT_TRUE(EIGEN_MATRIX_NEAR (Vector3d (0., -1., 0.), test_point,TEST_PREC));
 }
 
 TEST_F(FloatingBaseFixture, TestCalcDynamicFloatingBaseDoubleImplicit) {
   // floating base
-  base_body_id = model->AddBody (0, SpatialTransform(),
+  base_body_id = model->AddBody (*model_data, 0, SpatialTransformd(),
       Joint (
-        SpatialVector (0., 0., 0., 1., 0., 0.),
-        SpatialVector (0., 0., 0., 0., 1., 0.),
-        SpatialVector (0., 0., 0., 0., 0., 1.),
-        SpatialVector (0., 0., 1., 0., 0., 0.),
-        SpatialVector (0., 1., 0., 0., 0., 0.),
-        SpatialVector (1., 0., 0., 0., 0., 0.)
+        SpatialVectord (0., 0., 0., 1., 0., 0.),
+        SpatialVectord (0., 0., 0., 0., 1., 0.),
+        SpatialVectord (0., 0., 0., 0., 0., 1.),
+        SpatialVectord (0., 0., 1., 0., 0., 0.),
+        SpatialVectord (0., 1., 0., 0., 0., 0.),
+        SpatialVectord (1., 0., 0., 0., 0., 0.)
         ),
       base);
 
   // body_a
   Body body_a (1., Vector3d (1., 0., 0), Vector3d (1., 1., 1.));
-  Joint joint_a ( SpatialVector (0., 0., 1., 0., 0., 0.));
+  Joint joint_a ( SpatialVectord (0., 0., 1., 0., 0., 0.));
 
-  model->AddBody(base_body_id, Xtrans(Vector3d(2., 0., 0.)), joint_a, body_a);
+  model->AddBody(*model_data, base_body_id, Xtrans(Vector3d(2., 0., 0.)), joint_a, body_a);
 
   // Initialization of the input vectors
   VectorNd Q = VectorNd::Zero ((size_t) model->dof_count);
@@ -88,15 +91,15 @@ TEST_F(FloatingBaseFixture, TestCalcDynamicFloatingBaseDoubleImplicit) {
   VectorNd QDDot = VectorNd::Zero  ((size_t) model->dof_count);
   VectorNd Tau = VectorNd::Zero  ((size_t) model->dof_count);
 
-  ForwardDynamics(*model, Q, QDot, Tau, QDDot);
+  ForwardDynamics(*model, *model_data, Q, QDot, Tau, QDDot);
 
   unsigned int i;
   for (i = 0; i < QDDot.size(); i++) {
     LOG << "QDDot[" << i << "] = " << QDDot[i] << endl;
   }
 
-  for (i = 0; i < model->a.size(); i++) {
-    LOG << "a[" << i << "]     = " << model->a.at(i) << endl;
+  for (i = 0; i < model_data->a.size(); i++) {
+    LOG << "a[" << i << "]     = " << model_data->a.at(i) << endl;
   }
 
   //	std::cout << LogOutput.str() << std::endl;
@@ -111,14 +114,14 @@ TEST_F(FloatingBaseFixture, TestCalcDynamicFloatingBaseDoubleImplicit) {
 
   // We rotate the base... let's see what happens...
   Q[3] = 0.8;
-  ForwardDynamics(*model, Q, QDot, Tau, QDDot);
+  ForwardDynamics(*model, *model_data, Q, QDot, Tau, QDDot);
 
   for (i = 0; i < QDDot.size(); i++) {
     LOG << "QDDot[" << i << "] = " << QDDot[i] << endl;
   }
 
-  for (i = 0; i < model->a.size(); i++) {
-    LOG << "a[" << i << "]     = " << model->a.at(i) << endl;
+  for (i = 0; i < model_data->a.size(); i++) {
+    LOG << "a[" << i << "]     = " << model_data->a.at(i) << endl;
   }
 
   //	std::cout << LogOutput.str() << std::endl;
@@ -140,14 +143,14 @@ TEST_F(FloatingBaseFixture, TestCalcDynamicFloatingBaseDoubleImplicit) {
 
   Tau[6] = 1.;
 
-  ForwardDynamics(*model, Q, QDot, Tau, QDDot);
+  ForwardDynamics(*model, *model_data, Q, QDot, Tau, QDDot);
 
   for (i = 0; i < QDDot.size(); i++) {
     LOG << "QDDot[" << i << "] = " << QDDot[i] << endl;
   }
 
-  for (i = 0; i < model->a.size(); i++) {
-    LOG << "a[" << i << "]     = " << model->a.at(i) << endl;
+  for (i = 0; i < model_data->a.size(); i++) {
+    LOG << "a[" << i << "]     = " << model_data->a.at(i) << endl;
   }
 
   //	std::cout << LogOutput.str() << std::endl;
@@ -163,14 +166,14 @@ TEST_F(FloatingBaseFixture, TestCalcDynamicFloatingBaseDoubleImplicit) {
 
 TEST_F(FloatingBaseFixture, TestCalcPointVelocityFloatingBaseSimple) {
   // floating base
-  base_body_id = model->AddBody (0, SpatialTransform(),
+  base_body_id = model->AddBody (*model_data, 0, SpatialTransformd(),
       Joint (
-        SpatialVector (0., 0., 0., 1., 0., 0.),
-        SpatialVector (0., 0., 0., 0., 1., 0.),
-        SpatialVector (0., 0., 0., 0., 0., 1.),
-        SpatialVector (0., 0., 1., 0., 0., 0.),
-        SpatialVector (0., 1., 0., 0., 0., 0.),
-        SpatialVector (1., 0., 0., 0., 0., 0.)
+        SpatialVectord (0., 0., 0., 1., 0., 0.),
+        SpatialVectord (0., 0., 0., 0., 1., 0.),
+        SpatialVectord (0., 0., 0., 0., 0., 1.),
+        SpatialVectord (0., 0., 1., 0., 0., 0.),
+        SpatialVectord (0., 1., 0., 0., 0., 0.),
+        SpatialVectord (1., 0., 0., 0., 0., 0.)
         ),
       base);
 
@@ -186,7 +189,7 @@ TEST_F(FloatingBaseFixture, TestCalcPointVelocityFloatingBaseSimple) {
   Vector3d point_position(1., 0., 0.);
   Vector3d point_velocity;
 
-  point_velocity = CalcPointVelocity(*model, Q, QDot, ref_body_id, point_position);
+  point_velocity = CalcPointVelocity(*model, *model_data, Q, QDot, ref_body_id, point_position);
 
   EXPECT_NEAR(1., point_velocity[0], TEST_PREC);
   EXPECT_NEAR(0., point_velocity[1], TEST_PREC);
@@ -201,7 +204,7 @@ TEST_F(FloatingBaseFixture, TestCalcPointVelocityFloatingBaseSimple) {
   QDot[0] = 0.;
   QDot[3] = 1.;
 
-  point_velocity = CalcPointVelocity(*model, Q, QDot, ref_body_id, point_position);
+  point_velocity = CalcPointVelocity(*model, *model_data, Q, QDot, ref_body_id, point_position);
 
   EXPECT_NEAR(0., point_velocity[0], TEST_PREC);
   EXPECT_NEAR(1., point_velocity[1], TEST_PREC);
@@ -216,7 +219,7 @@ TEST_F(FloatingBaseFixture, TestCalcPointVelocityFloatingBaseSimple) {
   Q[3] = M_PI * 0.5;
   QDot[3] = 1.;
 
-  point_velocity = CalcPointVelocity(*model, Q, QDot, ref_body_id, point_position);
+  point_velocity = CalcPointVelocity(*model, *model_data, Q, QDot, ref_body_id, point_position);
 
   EXPECT_NEAR(-1., point_velocity[0], TEST_PREC);
   EXPECT_NEAR(0., point_velocity[1], TEST_PREC);
@@ -229,14 +232,14 @@ TEST_F(FloatingBaseFixture, TestCalcPointVelocityFloatingBaseSimple) {
 TEST_F(FloatingBaseFixture, TestCalcPointVelocityCustom) {
   // floating base
   base = Body (1., Vector3d (0., 1., 0.), Vector3d (1., 1., 1.));
-  base_body_id = model->AddBody (0, SpatialTransform(),
+  base_body_id = model->AddBody (*model_data, 0, SpatialTransformd(),
       Joint (
-        SpatialVector (0., 0., 0., 1., 0., 0.),
-        SpatialVector (0., 0., 0., 0., 1., 0.),
-        SpatialVector (0., 0., 0., 0., 0., 1.),
-        SpatialVector (0., 0., 1., 0., 0., 0.),
-        SpatialVector (0., 1., 0., 0., 0., 0.),
-        SpatialVector (1., 0., 0., 0., 0., 0.)
+        SpatialVectord (0., 0., 0., 1., 0., 0.),
+        SpatialVectord (0., 0., 0., 0., 1., 0.),
+        SpatialVectord (0., 0., 0., 0., 0., 1.),
+        SpatialVectord (0., 0., 1., 0., 0., 0.),
+        SpatialVectord (0., 1., 0., 0., 0., 0.),
+        SpatialVectord (1., 0., 0., 0., 0., 0.)
         ),
       base);
 
@@ -267,9 +270,9 @@ TEST_F(FloatingBaseFixture, TestCalcPointVelocityCustom) {
   Vector3d point_base_velocity;
   Vector3d point_base_velocity_reference;
 
-  ForwardDynamics(*model, q, qdot, tau, qddot);
+  ForwardDynamics(*model, *model_data, q, qdot, tau, qddot);
 
-  point_base_velocity = CalcPointVelocity (*model, q, qdot, ref_body_id, point_body_position);
+  point_base_velocity = CalcPointVelocity (*model, *model_data, q, qdot, ref_body_id, point_body_position);
 
   point_base_velocity_reference = Vector3d (
       -3.888503432977729e-01,
@@ -292,14 +295,14 @@ TEST_F(FloatingBaseFixture, TestCalcPointVelocityCustom) {
 TEST_F(FloatingBaseFixture, TestCalcPointAccelerationNoQDDot) {
   // floating base
   base = Body (1., Vector3d (0., 1., 0.), Vector3d (1., 1., 1.));
-  base_body_id = model->AddBody (0, SpatialTransform(),
+  base_body_id = model->AddBody (*model_data, 0, SpatialTransformd(),
       Joint (
-        SpatialVector (0., 0., 0., 1., 0., 0.),
-        SpatialVector (0., 0., 0., 0., 1., 0.),
-        SpatialVector (0., 0., 0., 0., 0., 1.),
-        SpatialVector (0., 0., 1., 0., 0., 0.),
-        SpatialVector (0., 1., 0., 0., 0., 0.),
-        SpatialVector (1., 0., 0., 0., 0., 0.)
+        SpatialVectord (0., 0., 0., 1., 0., 0.),
+        SpatialVectord (0., 0., 0., 0., 1., 0.),
+        SpatialVectord (0., 0., 0., 0., 0., 1.),
+        SpatialVectord (0., 0., 1., 0., 0., 0.),
+        SpatialVectord (0., 1., 0., 0., 0., 0.),
+        SpatialVectord (1., 0., 0., 0., 0., 0.)
         ),
       base);
 
@@ -331,19 +334,19 @@ TEST_F(FloatingBaseFixture, TestCalcPointAccelerationNoQDDot) {
   Vector3d point_world_acceleration;
 
   // call ForwardDynamics to update the model
-  ForwardDynamics(*model, q, qdot, tau, qddot);
+  ForwardDynamics(*model, *model_data, q, qdot, tau, qddot);
   qddot = VectorNd::Zero (qddot.size());
 
   qdot = qdot;
 
-  point_world_position = CalcBodyToBaseCoordinates (*model, q, ref_body_id, point_body_position, false);
-  point_world_velocity = CalcPointVelocity (*model, q, qdot, ref_body_id, point_body_position);
+  point_world_position = CalcBodyToBaseCoordinates (*model, *model_data, q, ref_body_id, point_body_position, false);
+  point_world_velocity = CalcPointVelocity (*model, *model_data, q, qdot, ref_body_id, point_body_position);
 
   // we set the generalized acceleration to zero
 
   ClearLogOutput();
 
-  point_world_acceleration = CalcPointAcceleration (*model, q, qdot, qddot, ref_body_id, point_body_position);
+  point_world_acceleration = CalcPointAcceleration (*model, *model_data, q, qdot, qddot, ref_body_id, point_body_position);
 
   Vector3d humans_point_position (
       -6.357089363622626e-01, -6.831041744630977e-01, 2.968974805916970e+00
@@ -385,14 +388,14 @@ TEST_F(FloatingBaseFixture, TestCalcPointAccelerationNoQDDot) {
 TEST_F(FloatingBaseFixture, TestCalcPointAccelerationOnlyQDDot) {
   // floating base
   base = Body (1., Vector3d (0., 1., 0.), Vector3d (1., 1., 1.));
-  base_body_id = model->AddBody (0, SpatialTransform(),
+  base_body_id = model->AddBody (*model_data, 0, SpatialTransformd(),
       Joint (
-        SpatialVector (0., 0., 0., 1., 0., 0.),
-        SpatialVector (0., 0., 0., 0., 1., 0.),
-        SpatialVector (0., 0., 0., 0., 0., 1.),
-        SpatialVector (0., 0., 1., 0., 0., 0.),
-        SpatialVector (0., 1., 0., 0., 0., 0.),
-        SpatialVector (1., 0., 0., 0., 0., 0.)
+        SpatialVectord (0., 0., 0., 1., 0., 0.),
+        SpatialVectord (0., 0., 0., 0., 1., 0.),
+        SpatialVectord (0., 0., 0., 0., 0., 1.),
+        SpatialVectord (0., 0., 1., 0., 0., 0.),
+        SpatialVectord (0., 1., 0., 0., 0., 0.),
+        SpatialVectord (1., 0., 0., 0., 0., 0.)
         ),
       base);
 
@@ -409,7 +412,7 @@ TEST_F(FloatingBaseFixture, TestCalcPointAccelerationOnlyQDDot) {
   Vector3d point_world_velocity;
   Vector3d point_world_acceleration;
 
-  ForwardDynamics(*model, q, qdot, tau, qddot);
+  ForwardDynamics(*model, *model_data, q, qdot, tau, qddot);
 
   qddot = VectorNd::Zero (qddot.size());
 
@@ -422,12 +425,12 @@ TEST_F(FloatingBaseFixture, TestCalcPointAccelerationOnlyQDDot) {
 
   //	cout << "ref_body_id = " << ref_body_id << endl;
   //	cout << "point_body_position = " << point_body_position << endl;
-  point_world_position = CalcBodyToBaseCoordinates (*model, q, ref_body_id, point_body_position, false);
-  point_world_velocity = CalcPointVelocity (*model, q, qdot, ref_body_id, point_body_position);
+  point_world_position = CalcBodyToBaseCoordinates (*model, *model_data, q, ref_body_id, point_body_position, false);
+  point_world_velocity = CalcPointVelocity (*model, *model_data, q, qdot, ref_body_id, point_body_position);
 
   ClearLogOutput();
 
-  point_world_acceleration = CalcPointAcceleration (*model, q, qdot, qddot, ref_body_id, point_body_position);
+  point_world_acceleration = CalcPointAcceleration (*model, *model_data, q, qdot, qddot, ref_body_id, point_body_position);
 
   Vector3d humans_point_position (
       -1.900000000000000e+00, -1.800000000000000e+00, 0.000000000000000e+00
@@ -468,14 +471,14 @@ TEST_F(FloatingBaseFixture, TestCalcPointAccelerationOnlyQDDot) {
 TEST_F(FloatingBaseFixture, TestCalcPointAccelerationFull) {
   // floating base
   base = Body (1., Vector3d (0., 1., 0.), Vector3d (1., 1., 1.));
-  base_body_id = model->AddBody (0, SpatialTransform(),
+  base_body_id = model->AddBody (*model_data, 0, SpatialTransformd(),
       Joint (
-        SpatialVector (0., 0., 0., 1., 0., 0.),
-        SpatialVector (0., 0., 0., 0., 1., 0.),
-        SpatialVector (0., 0., 0., 0., 0., 1.),
-        SpatialVector (0., 0., 1., 0., 0., 0.),
-        SpatialVector (0., 1., 0., 0., 0., 0.),
-        SpatialVector (1., 0., 0., 0., 0., 0.)
+        SpatialVectord (0., 0., 0., 1., 0., 0.),
+        SpatialVectord (0., 0., 0., 0., 1., 0.),
+        SpatialVectord (0., 0., 0., 0., 0., 1.),
+        SpatialVectord (0., 0., 1., 0., 0., 0.),
+        SpatialVectord (0., 1., 0., 0., 0., 0.),
+        SpatialVectord (1., 0., 0., 0., 0., 0.)
         ),
       base);
 
@@ -506,7 +509,7 @@ TEST_F(FloatingBaseFixture, TestCalcPointAccelerationFull) {
   qdot[4] = 1.5;
   qdot[5] = 1.7;
 
-  ForwardDynamics(*model, q, qdot, tau, qddot);
+  ForwardDynamics(*model, *model_data, q, qdot, tau, qddot);
 
   qddot[0] = 0.1;
   qddot[1] = 1.1;
@@ -517,12 +520,12 @@ TEST_F(FloatingBaseFixture, TestCalcPointAccelerationFull) {
 
   //	cout << "ref_body_id = " << ref_body_id << endl;
   //	cout << "point_body_position = " << point_body_position << endl;
-  point_world_position = CalcBodyToBaseCoordinates (*model, q, ref_body_id, point_body_position, false);
-  point_world_velocity = CalcPointVelocity (*model, q, qdot, ref_body_id, point_body_position);
+  point_world_position = CalcBodyToBaseCoordinates (*model, *model_data, q, ref_body_id, point_body_position, false);
+  point_world_velocity = CalcPointVelocity (*model, *model_data, q, qdot, ref_body_id, point_body_position);
 
   ClearLogOutput();
 
-  point_world_acceleration = CalcPointAcceleration (*model, q, qdot, qddot, ref_body_id, point_body_position);
+  point_world_acceleration = CalcPointAcceleration (*model, *model_data, q, qdot, qddot, ref_body_id, point_body_position);
 
   Vector3d humans_point_position (
       -6.357089363622626e-01, -6.831041744630977e-01, 2.968974805916970e+00

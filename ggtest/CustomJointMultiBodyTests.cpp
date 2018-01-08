@@ -71,20 +71,22 @@ struct CustomJointTypeRevoluteX : public CustomJoint {
     d_u = MatrixNd::Zero(mDoFCount,1);
   }
 
-  virtual void jcalc (Model &model,
+  virtual void jcalc (const Model &model,
+                      ModelData &model_data,
                       unsigned int joint_id,
                       const Math::VectorNd &q,
                       const Math::VectorNd &qdot)
   {
-    model.X_J[joint_id] = Xrotx(q[model.mJoints[joint_id].q_index]);
-    model.v_J[joint_id][0] = qdot[model.mJoints[joint_id].q_index];
+    model_data.X_J[joint_id] = Xrotx(q[model.mJoints[joint_id].q_index]);
+    model_data.v_J[joint_id][0] = qdot[model.mJoints[joint_id].q_index];
   }
 
-  virtual void jcalc_X_lambda_S ( Model &model,
+  virtual void jcalc_X_lambda_S ( const Model &model,
+                                  ModelData &model_data,
                                   unsigned int joint_id,
                                   const Math::VectorNd &q)
   {
-    model.X_lambda[joint_id] =
+    model_data.X_lambda[joint_id] =
         Xrotx (q[model.mJoints[joint_id].q_index])
         * model.X_T[joint_id];
 
@@ -104,6 +106,7 @@ struct CustomEulerZYXJoint : public CustomJoint {
   }
 
   virtual void jcalc (Model &model,
+                      ModelData &model_data,
                       unsigned int joint_id,
                       const Math::VectorNd &q,
                       const Math::VectorNd &qdot)
@@ -119,7 +122,7 @@ struct CustomEulerZYXJoint : public CustomJoint {
     double s2 = sin (q2);
     double c2 = cos (q2);
 
-    model.X_J[joint_id].E = Matrix3d(
+    model_data.X_J[joint_id].E = Matrix3d(
                        c0 * c1,                s0 * c1,     -s1,
         c0 * s1 * s2 - s0 * c2, s0 * s1 * s2 + c0 * c2, c1 * s2,
         c0 * s1 * c2 + s0 * s2, s0 * s1 * c2 - c0 * s2, c1 * c2
@@ -139,9 +142,9 @@ struct CustomEulerZYXJoint : public CustomJoint {
     double qdot1 = qdot[model.mJoints[joint_id].q_index + 1];
     double qdot2 = qdot[model.mJoints[joint_id].q_index + 2];
 
-    model.v_J[joint_id] = S * Vector3d (qdot0, qdot1, qdot2);
+    model_data.v_J[joint_id] = S * Vector3d (qdot0, qdot1, qdot2);
 
-    model.c_J[joint_id].set(
+    model_data.c_J[joint_id].set(
         -c1*qdot0*qdot1,
         -s1*s2*qdot0*qdot1 + c1*c2*qdot0*qdot2 - s2*qdot1*qdot2,
         -s1*c2*qdot0*qdot1 - c1*s2*qdot0*qdot2 - c2*qdot1*qdot2,
@@ -150,6 +153,7 @@ struct CustomEulerZYXJoint : public CustomJoint {
   }
 
   virtual void jcalc_X_lambda_S ( Model &model,
+                                  ModelData &model_data,
                                   unsigned int joint_id,
                                   const Math::VectorNd &q)
   {
@@ -167,7 +171,7 @@ struct CustomEulerZYXJoint : public CustomJoint {
       double c2 = cos (q2);
 
 
-      model.X_lambda[joint_id] = SpatialTransform (
+      model_data.X_lambda[joint_id] = SpatialTransformd (
           Matrix3d(
                            c0 * c1,                s0 * c1,     -s1,
             c0 * s1 * s2 - s0 * c2, s0 * s1 * s2 + c0 * c2, c1 * s2,
@@ -234,7 +238,11 @@ protected:
     Body body12 = Body (2., Vector3d (2.1, 2.2, 2.3), inertia1);
     Body body13 = Body (3., Vector3d (3.1, 3.2, 3.3), inertia1);
 
-    Model reference1, custom1;
+    ModelData reference1_data;
+    Model reference1(reference1_data);
+
+    ModelData custom1_data;
+    Model custom1(custom1_data);
 
     Vector3d r1 = Vector3d(0.78,-0.125,0.37);
 
@@ -259,39 +267,39 @@ protected:
 
 
     unsigned int reference_body_id10 =
-       reference1.AddBody (0,
-                SpatialTransform(),
+       reference1.AddBody (reference1_data, 0,
+                SpatialTransformd(),
                 Joint(JointTypeRevoluteX),
                 body11);
 
     unsigned int reference_body_id11 =
-       reference1.AddBody (reference_body_id10,
-                SpatialTransform(rm1,r1),
+       reference1.AddBody (reference1_data, reference_body_id10,
+                SpatialTransformd(rm1,r1),
                 Joint(JointTypeEulerZYX),
                 body12);
 
     unsigned int reference_body_id12 =
-       reference1.AddBody (reference_body_id11,
-                SpatialTransform(rm2,r2),
+       reference1.AddBody (reference1_data, reference_body_id11,
+                SpatialTransformd(rm2,r2),
                 Joint(JointTypeRevoluteX),
                 body13);
 
 
     unsigned int custom_body_id10 =
-       custom1.AddBody (  0,
-                SpatialTransform(),
+       custom1.AddBody (custom1_data,   0,
+                SpatialTransformd(),
                 Joint(JointTypeRevoluteX),
                 body11);
 
     unsigned int custom_body_id11 =
-       custom1.AddBody (  custom_body_id10,
-                SpatialTransform(rm1,r1),
+       custom1.AddBody (custom1_data,   custom_body_id10,
+                SpatialTransformd(rm1,r1),
                 Joint(JointTypeEulerZYX),
                 body12);
 
     unsigned int custom_body_id12 =
-       custom1.AddBodyCustomJoint (  custom_body_id11,
-                SpatialTransform(rm2,r2),
+       custom1.AddBodyCustomJoint (custom1_data,  custom_body_id11,
+                SpatialTransformd(rm2,r2),
                 &custom_rx_joint1,
                 body13);
 
@@ -328,42 +336,45 @@ protected:
     //Test Model 2: Rx - custom - multidof3
     //========================================================
 
+    ModelData reference2_data;
+    Model reference2(reference2_data);
 
-    Model reference2, custom2;
+    ModelData custom2_data;
+    ModelData custom2(custom2_data);
 
     unsigned int reference_body_id20 =
        reference2.AddBody (0,
-                SpatialTransform(),
+                SpatialTransformd(),
                 Joint(JointTypeRevoluteX),
                 body11);
 
     unsigned int reference_body_id21 =
        reference2.AddBody (reference_body_id20,
-                SpatialTransform(rm2,r2),
+                SpatialTransformd(rm2,r2),
                 Joint(JointTypeRevoluteX),
                 body12);
 
     unsigned int reference_body_id22 =
        reference2.AddBody (reference_body_id21,
-                SpatialTransform(rm1,r1),
+                SpatialTransformd(rm1,r1),
                 Joint(JointTypeEulerZYX),
                 body13);
 
     unsigned int custom_body_id20 =
        custom2.AddBody (  0,
-                SpatialTransform(),
+                SpatialTransformd(),
                 Joint(JointTypeRevoluteX),
                 body11);
 
     unsigned int custom_body_id21 =
        custom2.AddBodyCustomJoint (  custom_body_id20,
-                SpatialTransform(rm2,r2),
+                SpatialTransformd(rm2,r2),
                 &custom_rx_joint1,
                 body12);
 
     unsigned int custom_body_id22 =
        custom2.AddBody (  custom_body_id21,
-                SpatialTransform(rm1,r1),
+                SpatialTransformd(rm1,r1),
                 Joint(JointTypeEulerZYX),
                 body13);
 
@@ -405,37 +416,37 @@ protected:
 
     unsigned int reference_body_id30 =
        reference3.AddBody (0,
-                SpatialTransform(),
+                SpatialTransformd(),
                 Joint(JointTypeRevoluteX),
                 body11);
 
     unsigned int reference_body_id31 =
        reference3.AddBody (reference_body_id30,
-                SpatialTransform(rm1,r1),
+                SpatialTransformd(rm1,r1),
                 Joint(JointTypeEulerZYX),
                 body12);
 
     unsigned int reference_body_id32 =
        reference3.AddBody (reference_body_id31,
-                SpatialTransform(rm2,r2),
+                SpatialTransformd(rm2,r2),
                 Joint(JointTypeRevoluteX),
                 body13);
 
     unsigned int custom_body_id30 =
        custom3.AddBodyCustomJoint (  0,
-                SpatialTransform(),
+                SpatialTransformd(),
                 &custom_rx_joint1,
                 body11);
 
     unsigned int custom_body_id31 =
        custom3.AddBody (  custom_body_id30,
-                SpatialTransform(rm1,r1),
+                SpatialTransformd(rm1,r1),
                 Joint(JointTypeEulerZYX),
                 body12);
 
     unsigned int custom_body_id32 =
        custom3.AddBody (  custom_body_id31,
-                SpatialTransform(rm2,r2),
+                SpatialTransformd(rm2,r2),
                 Joint(JointTypeRevoluteX),
                 body13);
 
@@ -549,19 +560,19 @@ TEST_F ( CustomJointMultiBodyFixture, UpdateKinematics ) {
       TEST_PREC));
 
     EXPECT_TRUE(EIGEN_MATRIX_NEAR (
-      reference_model.at(idx).v[
+      reference_model.at(idx).model_data.v[
         reference_body_id.at(idx).at(NUMBER_OF_BODIES-1)
         ],
-      custom_model.at(idx).v[
+      custom_model.at(idx).model_data.v[
         custom_body_id.at(idx).at(NUMBER_OF_BODIES-1)
         ],
       TEST_PREC));
 
     EXPECT_TRUE(EIGEN_MATRIX_NEAR (
-      reference_model.at(idx).a[
+      reference_model.at(idx).model_data.a[
         reference_body_id.at(idx).at(NUMBER_OF_BODIES-1)
         ],
-      custom_model.at(idx).a[
+      custom_model.at(idx).model_data.a[
         custom_body_id.at(idx).at(NUMBER_OF_BODIES-1)
         ],
       TEST_PREC));
@@ -603,10 +614,10 @@ TEST_F (CustomJointMultiBodyFixture, UpdateKinematicsCustom) {
                             &qdot.at(idx), NULL);
 
     EXPECT_TRUE(EIGEN_MATRIX_NEAR (
-          reference_model.at(idx).v[
+          reference_model.at(idx).model_data.v[
             reference_body_id.at(idx).at(NUMBER_OF_BODIES-1)
             ],
-          custom_model.at(idx).v[
+          custom_model.at(idx).model_data.v[
             custom_body_id.at(idx).at(NUMBER_OF_BODIES-1)
             ],
           TEST_PREC));
@@ -624,10 +635,10 @@ TEST_F (CustomJointMultiBodyFixture, UpdateKinematicsCustom) {
                             &qddot.at(idx));
 
     EXPECT_TRUE(EIGEN_MATRIX_NEAR (
-      reference_model.at(idx).a[
+      reference_model.at(idx).model_data.a[
         reference_body_id.at(idx).at(NUMBER_OF_BODIES-1)
         ],
-      custom_model.at(idx).a[
+      custom_model.at(idx).model_data.a[
         custom_body_id.at(idx).at(NUMBER_OF_BODIES-1)
         ],
       TEST_PREC));

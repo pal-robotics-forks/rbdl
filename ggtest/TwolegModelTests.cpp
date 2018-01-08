@@ -33,11 +33,11 @@ Body hip_body,
      foot_left_body;
 
   Joint joint_txtyrz (
-      SpatialVector (0., 0., 0., 1., 0., 0.),
-      SpatialVector (0., 0., 0., 0., 1., 0.),
-      SpatialVector (0., 0., 1., 0., 0., 0.)
+      SpatialVectord (0., 0., 0., 1., 0., 0.),
+      SpatialVectord (0., 0., 0., 0., 1., 0.),
+      SpatialVectord (0., 0., 1., 0., 0., 0.)
       );
-  Joint joint_rot_z (SpatialVector (0., 0., 1., 0., 0., 0.));
+  Joint joint_rot_z (SpatialVectord (0., 0., 1., 0., 0., 0.));
 
   VectorNd Q;
   VectorNd QDot;
@@ -205,7 +205,7 @@ void init_model (Model* model) {
   foot_left_body = Body (segment_mass[SegmentMassFoot], com_position[COMFoot], rgyration[RGyrationFoot]);
 
   // add hip to the model (planar, 3 DOF)
-  hip_id = model->AddBody (0, Xtrans (Vector3d (0., 0., 0.)), joint_txtyrz, hip_body);
+  hip_id = model->AddBody (model_data, *model_data, 0, Xtrans (Vector3d (0., 0., 0.)), joint_txtyrz, hip_body);
 
   //
   // right leg
@@ -214,15 +214,15 @@ void init_model (Model* model) {
   unsigned int temp_id = 0;
 
   // add right upper leg
-  temp_id = model->AddBody (hip_id, Xtrans (Vector3d(0., 0., 0.)), joint_rot_z, upper_leg_right_body);
+  temp_id = model->AddBody (model_data, *model_data, hip_id, Xtrans (Vector3d(0., 0., 0.)), joint_rot_z, upper_leg_right_body);
   upper_leg_right_id = temp_id;
 
   // add the right lower leg (only one DOF)
-  temp_id = model->AddBody (temp_id, Xtrans (joint_location[JointLocationKnee]), joint_rot_z, lower_leg_right_body);
+  temp_id = model->AddBody (model_data, *model_data, temp_id, Xtrans (joint_location[JointLocationKnee]), joint_rot_z, lower_leg_right_body);
   lower_leg_right_id = temp_id;
 
   // add the right foot (1 DOF)
-  temp_id = model->AddBody (temp_id, Xtrans (joint_location[JointLocationAnkle]), joint_rot_z, foot_right_body);
+  temp_id = model->AddBody (model_data, *model_data, temp_id, Xtrans (joint_location[JointLocationAnkle]), joint_rot_z, foot_right_body);
   foot_right_id = temp_id;
 
   //
@@ -230,15 +230,15 @@ void init_model (Model* model) {
   //
 
   // add left upper leg
-  temp_id = model->AddBody (hip_id, Xtrans (Vector3d(0., 0., 0.)), joint_rot_z, upper_leg_left_body);
+  temp_id = model->AddBody (model_data, *model_data, hip_id, Xtrans (Vector3d(0., 0., 0.)), joint_rot_z, upper_leg_left_body);
   upper_leg_left_id = temp_id;
 
   // add the left lower leg (only one DOF)
-  temp_id = model->AddBody (temp_id, Xtrans (joint_location[JointLocationKnee]), joint_rot_z, lower_leg_left_body);
+  temp_id = model->AddBody (model_data, *model_data, temp_id, Xtrans (joint_location[JointLocationKnee]), joint_rot_z, lower_leg_left_body);
   lower_leg_left_id = temp_id;
 
   // add the left foot (1 DOF)
-  temp_id = model->AddBody (temp_id, Xtrans (joint_location[JointLocationAnkle]), joint_rot_z, foot_left_body);
+  temp_id = model->AddBody (model_data, *model_data, temp_id, Xtrans (joint_location[JointLocationAnkle]), joint_rot_z, foot_left_body);
   foot_left_id = temp_id;
 
   //	cerr << "--- model created (" << model->dof_count << " DOF) ---" << endl;

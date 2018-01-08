@@ -12,42 +12,68 @@
 
 namespace RigidBodyDynamics {
 
-  double CalcTotalMass(Model &model);
+double CalcTotalMass(const Model &model);
 
-  Math::Vector3d CalcCOM(Model &model,
-                         const Math::VectorNd &Q,
-                         bool update_kinematics = true);
+Math::Vector3d CalcCOM(const Model &model,
+                       ModelDatad &model_data,
+                       const Math::VectorNd &Q,
+                       bool update_kinematics = true);
 
+Math::Vector3d CalcCOM(Model &model,
+                       const Math::VectorNd &Q,
+                       bool update_kinematics = true);
 
-  Math::Vector3d CalcCOMVelocity(Model &model,
-                                 const Math::VectorNd &Q,
-                                 const Math::VectorNd &QDot,
-                                 bool update_kinematics = true);
+Math::Vector3d CalcCOMVelocity(const Model &model,
+                               ModelDatad &model_data,
+                               const Math::VectorNd &Q,
+                               const Math::VectorNd &QDot,
+                               bool update_kinematics = true);
 
-  Math::Vector3d CalcCOMAcceleartion(Model &model,
-                                     const Math::VectorNd &Q,
-                                     const Math::VectorNd &QDot,
-                                     const Math::VectorNd &QDDot,
-                                     bool update_kinematics = true);
+Math::Vector3d CalcCOMVelocity(Model &model,
+                               const Math::VectorNd &Q,
+                               const Math::VectorNd &QDot,
+                               bool update_kinematics = true);
 
-  Math::Vector3d CalcCOMAccelerationBias(Model &model,
-                                         const Math::VectorNd &Q,
-                                         const Math::VectorNd &QDot,
-                                         bool update_kinematics = true);
+Math::Vector3d CalcCOMAcceleartion(const Model &model,
+                                   ModelDatad &model_data,
+                                   const Math::VectorNd &Q,
+                                   const Math::VectorNd &QDot,
+                                   const Math::VectorNd &QDDot,
+                                   bool update_kinematics = true);
 
-  void CalcCOMJacobian (
-      Model &model,
-      const Math::VectorNd &Q,
-      Math::MatrixNd &COMJ,
-      bool update_kinematics = true);
+Math::Vector3d CalcCOMAcceleartion(Model &model,
+                                   const Math::VectorNd &Q,
+                                   const Math::VectorNd &QDot,
+                                   const Math::VectorNd &QDDot,
+                                   bool update_kinematics = true);
 
+Math::Vector3d CalcCOMAccelerationBias(const Model &model,
+                                       ModelDatad &model_data,
+                                       const Math::VectorNd &Q,
+                                       const Math::VectorNd &QDot,
+                                       bool update_kinematics = true);
 
-  void CalcCOMJacobian_inefficient (
-      Model &model,
-      const Math::VectorNd &Q,
-      Math::MatrixNd &COMJ,
-      bool update_kinematics = true
-      );
+Math::Vector3d CalcCOMAccelerationBias(Model &model,
+                                       const Math::VectorNd &Q,
+                                       const Math::VectorNd &QDot,
+                                       bool update_kinematics = true);
+
+void CalcCOMJacobian (const Model &model,
+                      ModelDatad &model_data,
+                      const Math::VectorNd &Q,
+                      Math::MatrixNd &COMJ,
+                      bool update_kinematics = true);
+
+void CalcCOMJacobian (Model &model,
+                      const Math::VectorNd &Q,
+                      Math::MatrixNd &COMJ,
+                      bool update_kinematics = true);
+
+void CalcCOMJacobian_inefficient (const Model &model, ModelDatad &model_data,
+                                  const Math::VectorNd &Q,
+                                  Math::MatrixNd &COMJ,
+                                  bool update_kinematics = true
+                                                           );
 
 
 //  void CCM_CCRBI_Jacobian_com(Model &model,
@@ -55,14 +81,14 @@ namespace RigidBodyDynamics {
 //                              Math::MatrixNd &AG,
 //                              bool update_kinematics = true);
 
-  /// @todo: Document
-  Math::SpatialVector CalcEnergy_inefficient (
-      Model &model,
-      const Math::VectorNd &Q,
-      const Math::VectorNd &QDot,
-      bool update_kinematics = true,
-      unsigned int method = 0
-      );
+/// @todo: Document
+Math::SpatialVectord CalcEnergy_inefficient (const Model &model,
+                                             ModelDatad &model_data,
+                                             const Math::VectorNd &Q,
+                                             const Math::VectorNd &QDot,
+                                             bool update_kinematics = true,
+                                             unsigned int method = 0
+                                                                   );
 
 }
 
