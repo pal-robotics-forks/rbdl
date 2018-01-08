@@ -82,6 +82,14 @@ bool URDFReadFromURDF(urdf::Model &urdf_model, Model *model,
                       std::vector<double> &damping, std::vector<double> &friction,
                       std::vector<double> &max_effort, bool verbose = false);
 
+
+bool URDFReadFromString(const char *model_xml_string, Model *model,
+                        FloatingBaseType floatingBaseType, std::vector<std::string> &joint_names,
+                        std::vector<double> &position_min, std::vector<double> &position_max,
+                        std::vector<double> &vel_min, std::vector<double> &vel_max,
+                        std::vector<double> &damping, std::vector<double> &friction,
+                        std::vector<double> &max_effort, bool verbose = false);
+
 bool URDFReadFromParamServer(Model *model, FloatingBaseType floatingBaseType,
                              std::vector<std::string> &joint_names,
                              std::vector<double> &position_min, std::vector<double> &position_max,
