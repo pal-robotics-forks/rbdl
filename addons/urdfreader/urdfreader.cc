@@ -356,12 +356,6 @@ int initialize_link(Model &rbdl_model, ModelDatad &model_data, LinkPtr urdf_link
         link_inertial_inertia(2, 1) = urdf_link->inertial->iyz;
         link_inertial_inertia(2, 2) = urdf_link->inertial->izz;
 
-        /* XXX
-                // Change the root name
-                rbdl_model.mBodyNameMap.erase("ROOT");
-                rbdl_model.mBodyNameMap[root_name] = 0;
-        */
-
         if (link_inertial_rpy != Vector3d(0., 0., 0.))
         {
           cerr << "Error while processing body '" << urdf_link->name
