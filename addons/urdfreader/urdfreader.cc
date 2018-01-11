@@ -489,6 +489,12 @@ bool URDFReadFromFile(const char *filename, Model *model, ModelDatad &model_data
   return URDFReadFromString(model_xml_string.c_str(), model, model_data, floatingBaseType, verbose);
 }
 
+bool URDFReadFromFile(const char *filename, Model *model,
+                      FloatingBaseType floatingBaseType, bool verbose)
+{
+  return URDFReadFromFile(filename, model, *model->getModelData(), floatingBaseType, verbose);
+}
+
 bool URDFReadFromString(const char *model_xml_string, Model *model, ModelDatad &model_data,
                         FloatingBaseType floatingBaseType, bool verbose)
 {
@@ -508,6 +514,13 @@ bool URDFReadFromString(const char *model_xml_string, Model *model, ModelDatad &
   model->gravity.set(0., 0., -9.81);
 
   return true;
+}
+
+bool URDFReadFromString(const char *model_xml_string, Model *model,
+                        FloatingBaseType floatingBaseType, bool verbose)
+{
+  return URDFReadFromString(model_xml_string, model, *model->getModelData(),
+                            floatingBaseType, verbose);
 }
 
 bool URDFReadFromParamServer(Model *model, ModelDatad &model_data,
@@ -868,12 +881,9 @@ bool URDFReadFromString(const char *model_xml_string, Model *model,
                         std::vector<double> &damping, std::vector<double> &friction,
                         std::vector<double> &max_effort, bool verbose)
 {
-    return URDFReadFromString(model_xml_string, model, *model->getModelData(),
-                                   floatingBaseType, joint_names,
-                                   position_min, position_max,
-                                   vel_min, vel_max,
-                                   damping, friction,
-                                   max_effort, verbose);
+  return URDFReadFromString(model_xml_string, model, *model->getModelData(),
+                            floatingBaseType, joint_names, position_min, position_max,
+                            vel_min, vel_max, damping, friction, max_effort, verbose);
 }
 
 bool URDFReadFromParamServer(Model *model, FloatingBaseType floatingBaseType,
@@ -899,6 +909,18 @@ bool URDFReadFromParamServer(Model *model, FloatingBaseType floatingBaseType,
   return URDFReadFromParamServer(model, *model->getModelData(), floatingBaseType,
                                  tipLinks, joint_names, position_min, position_max,
                                  vel_min, vel_max, damping, friction, max_effort, verbose);
+}
+
+bool URDFReadFromFile(const char *filename, Model *model, FloatingBaseType floatingBaseType,
+                      std::vector<std::string> &joint_names,
+                      std::vector<double> &position_min, std::vector<double> &position_max,
+                      std::vector<double> &vel_min, std::vector<double> &vel_max,
+                      std::vector<double> &damping, std::vector<double> &friction,
+                      std::vector<double> &max_effort, bool verbose)
+{
+  return URDFReadFromFile(filename, model, floatingBaseType, joint_names, position_min,
+                          position_max, vel_min, vel_max, damping, friction, max_effort,
+                          verbose);
 }
 }
 }
