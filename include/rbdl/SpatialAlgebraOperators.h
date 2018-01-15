@@ -387,20 +387,20 @@ inline SpatialTransform<T> Xrot (T angle_rad, const Vector3<T>  &axis) {
 
   return SpatialTransform<T> (
       Matrix3<T> (
-        axis[0] * axis[0] * (1.0f - c) + c,
-        axis[1] * axis[0] * (1.0f - c) + axis[2] * s,
-        axis[0] * axis[2] * (1.0f - c) - axis[1] * s,
+        axis[0] * axis[0] * (T(1.0) - c) + c,
+        axis[1] * axis[0] * (T(1.0) - c) + axis[2] * s,
+        axis[0] * axis[2] * (T(1.0) - c) - axis[1] * s,
 
-        axis[0] * axis[1] * (1.0f - c) - axis[2] * s,
-        axis[1] * axis[1] * (1.0f - c) + c,
-        axis[1] * axis[2] * (1.0f - c) + axis[0] * s,
+        axis[0] * axis[1] * (T(1.0) - c) - axis[2] * s,
+        axis[1] * axis[1] * (T(1.0) - c) + c,
+        axis[1] * axis[2] * (T(1.0) - c) + axis[0] * s,
 
-        axis[0] * axis[2] * (1.0f - c) + axis[1] * s,
-        axis[1] * axis[2] * (1.0f - c) - axis[0] * s,
-        axis[2] * axis[2] * (1.0f - c) + c
+        axis[0] * axis[2] * (T(1.0) - c) + axis[1] * s,
+        axis[1] * axis[2] * (T(1.0) - c) - axis[0] * s,
+        axis[2] * axis[2] * (T(1.0) - c) + c
 
         ),
-      Vector3<T>  (0., 0., 0.)
+      Vector3<T>  (T(0.), T(0.), T(0.))
       );
 }
 
@@ -411,11 +411,11 @@ inline SpatialTransform<T> Xrotx (const T &xrot) {
   c = cos (xrot);
   return SpatialTransform<T> (
       Matrix3<T> (
-        1., 0., 0.,
-        0., c, s,
-        0., -s, c
+        T(1.), T(0.), T(0.),
+        T(0.), c, s,
+        T(0.), -s, c
         ),
-      Vector3<T>  (0., 0., 0.)
+      Vector3<T>  (T(0.), T(0.), T(0.))
       );
 }
 
@@ -426,11 +426,11 @@ inline SpatialTransform<T> Xroty (const T &yrot) {
   c = cos (yrot);
   return SpatialTransform<T> (
       Matrix3<T> (
-        c, 0., -s,
-        0., 1., 0.,
-        s, 0., c
+        c, T(0.), -s,
+        T(0.), T(1.), T(0.),
+        s, T(0.), c
         ),
-      Vector3<T>  (0., 0., 0.)
+      Vector3<T>  (T(0.), T(0.), T(0.))
       );
 }
 
@@ -441,11 +441,11 @@ inline SpatialTransform<T> Xrotz (const T &zrot) {
   c = cos (zrot);
   return SpatialTransform<T> (
       Matrix3<T> (
-        c, s, 0.,
-        -s, c, 0.,
-        0., 0., 1.
+        c, s, T(0.),
+        -s, c, T(0.),
+        T(0.), T(0.), T(1.)
         ),
-      Vector3<T>  (0., 0., 0.)
+      Vector3<T>  (T(0.), T(0.), T(0.))
       );
 }
 

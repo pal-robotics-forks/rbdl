@@ -30,10 +30,10 @@ class Quaternion : public Vector4<T> {
     Quaternion (const Vector4<T> &vec4) :
       Vector4<T> (vec4)
   {}
-    Quaternion (double x, double y, double z, double w):
+    Quaternion (T x, T y, T z, T w):
       Vector4<T> (x, y, z, w)
   {}
-    Quaternion operator* (const double &s) const {
+    Quaternion operator* (const T &s) const {
       return Quaternion (
           (*this)[0] * s,
           (*this)[1] * s,
@@ -125,17 +125,17 @@ class Quaternion : public Vector4<T> {
       T z = (*this)[2];
       T w = (*this)[3];
       return Matrix3<T> (
-          1 - 2*y*y - 2*z*z,
-          2*x*y + 2*w*z,
-          2*x*z - 2*w*y,
+          T(1) - T(2)*y*y - T(2)*z*z,
+          T(2)*x*y + T(2)*w*z,
+          T(2)*x*z - T(2)*w*y,
 
-          2*x*y - 2*w*z,
-          1 - 2*x*x - 2*z*z,
-          2*y*z + 2*w*x,
+          T(2)*x*y - T(2)*w*z,
+          T(1) - T(2)*x*x - T(2)*z*z,
+          T(2)*y*z + T(2)*w*x,
 
-          2*x*z + 2*w*y,
-          2*y*z - 2*w*x,
-          1 - 2*x*x - 2*y*y
+          T(2)*x*z + T(2)*w*y,
+          T(2)*y*z - T(2)*w*x,
+          T(1) - T(2)*x*x - T(2)*y*y
 
           /*
              1 - 2*y*y - 2*z*z,

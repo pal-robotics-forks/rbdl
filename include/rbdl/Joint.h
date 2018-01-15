@@ -691,9 +691,9 @@ Math::SpatialTransform<T> jcalc_XJ(const Model &model, ModelData<T> &model_data,
     if (model.mJoints[joint_id].mJointType == JointTypeRevolute)
     {
       return Xrot<T>(q[model.mJoints[joint_id].q_index],
-                     Vector3<T>(model.mJoints[joint_id].mJointAxes[0][0],
-                                model.mJoints[joint_id].mJointAxes[0][1],
-                                model.mJoints[joint_id].mJointAxes[0][2]));
+                     Vector3<T>(T(model.mJoints[joint_id].mJointAxes[0][0]),
+                                T(model.mJoints[joint_id].mJointAxes[0][1]),
+                                T(model.mJoints[joint_id].mJointAxes[0][2])));
     }
     else if (model.mJoints[joint_id].mJointType == JointTypePrismatic)
     {
@@ -731,17 +731,17 @@ RBDL_DLLAPI void jcalc(const Model &model, ModelData<T> &model_data, unsigned in
 
   if (model.mJoints[joint_id].mJointType == JointTypeRevoluteX)
   {
-    model_data.X_J[joint_id] = Xrotx(q[model.mJoints[joint_id].q_index]);
+    model_data.X_J[joint_id] = Xrotx<T>(q[model.mJoints[joint_id].q_index]);
     model_data.v_J[joint_id][0] = qdot[model.mJoints[joint_id].q_index];
   }
   else if (model.mJoints[joint_id].mJointType == JointTypeRevoluteY)
   {
-    model_data.X_J[joint_id] = Xroty(q[model.mJoints[joint_id].q_index]);
+    model_data.X_J[joint_id] = Xroty<T>(q[model.mJoints[joint_id].q_index]);
     model_data.v_J[joint_id][1] = qdot[model.mJoints[joint_id].q_index];
   }
   else if (model.mJoints[joint_id].mJointType == JointTypeRevoluteZ)
   {
-    model_data.X_J[joint_id] = Xrotz(q[model.mJoints[joint_id].q_index]);
+    model_data.X_J[joint_id] = Xrotz<T>(q[model.mJoints[joint_id].q_index]);
     model_data.v_J[joint_id][2] = qdot[model.mJoints[joint_id].q_index];
   }
   else if (model.mJoints[joint_id].mDoFCount == 1)
@@ -754,17 +754,17 @@ RBDL_DLLAPI void jcalc(const Model &model, ModelData<T> &model_data, unsigned in
   else if (model.mJoints[joint_id].mJointType == JointTypeSpherical)
   {
     model_data.X_J[joint_id] = SpatialTransform<T>(
-        GetQuaternion(model, joint_id, q).toMatrix(), Vector3<T>(0., 0., 0.));
+        GetQuaternion(model, joint_id, q).toMatrix(), Vector3<T>(T(0.), T(0.), T(0.)));
 
-    model_data.multdof3_S[joint_id](0, 0) = 1.;
-    model_data.multdof3_S[joint_id](1, 1) = 1.;
-    model_data.multdof3_S[joint_id](2, 2) = 1.;
+    model_data.multdof3_S[joint_id](0, 0) = T(1.);
+    model_data.multdof3_S[joint_id](1, 1) = T(1.);
+    model_data.multdof3_S[joint_id](2, 2) = T(1.);
 
     Vector3<T> omega(qdot[model.mJoints[joint_id].q_index],
                      qdot[model.mJoints[joint_id].q_index + 1],
                      qdot[model.mJoints[joint_id].q_index + 2]);
 
-    model_data.v_J[joint_id] = SpatialVector<T>(omega[0], omega[1], omega[2], 0., 0., 0.);
+    model_data.v_J[joint_id] = SpatialVector<T>(omega[0], omega[1], omega[2], T(0.), T(0.), T(0.));
   }
   else if (model.mJoints[joint_id].mJointType == JointTypeEulerZYX)
   {
@@ -784,7 +784,7 @@ RBDL_DLLAPI void jcalc(const Model &model, ModelData<T> &model_data, unsigned in
                    c1 * s2, c0 * s1 * c2 + s0 * s2, s0 * s1 * c2 - c0 * s2, c1 * c2);
 
     model_data.multdof3_S[joint_id](0, 0) = -s1;
-    model_data.multdof3_S[joint_id](0, 2) = 1.;
+    model_data.multdof3_S[joint_id](0, 2) = T(1.);
 
     model_data.multdof3_S[joint_id](1, 0) = c1 * s2;
     model_data.multdof3_S[joint_id](1, 1) = c2;
@@ -801,7 +801,7 @@ RBDL_DLLAPI void jcalc(const Model &model, ModelData<T> &model_data, unsigned in
     model_data.c_J[joint_id].set(
         -c1 * qdot0 * qdot1,
         -s1 * s2 * qdot0 * qdot1 + c1 * c2 * qdot0 * qdot2 - s2 * qdot1 * qdot2,
-        -s1 * c2 * qdot0 * qdot1 - c1 * s2 * qdot0 * qdot2 - c2 * qdot1 * qdot2, 0., 0., 0.);
+        -s1 * c2 * qdot0 * qdot1 - c1 * s2 * qdot0 * qdot2 - c2 * qdot1 * qdot2, T(0.), T(0.), T(0.));
   }
   else if (model.mJoints[joint_id].mJointType == JointTypeEulerXYZ)
   {
@@ -827,7 +827,7 @@ RBDL_DLLAPI void jcalc(const Model &model, ModelData<T> &model_data, unsigned in
     model_data.multdof3_S[joint_id](1, 1) = c2;
 
     model_data.multdof3_S[joint_id](2, 0) = s1;
-    model_data.multdof3_S[joint_id](2, 2) = 1.;
+    model_data.multdof3_S[joint_id](2, 2) = T(1.);
 
     T qdot0 = qdot[model.mJoints[joint_id].q_index];
     T qdot1 = qdot[model.mJoints[joint_id].q_index + 1];
@@ -838,7 +838,7 @@ RBDL_DLLAPI void jcalc(const Model &model, ModelData<T> &model_data, unsigned in
     model_data.c_J[joint_id].set(
         -s2 * c1 * qdot2 * qdot0 - c2 * s1 * qdot1 * qdot0 + c2 * qdot2 * qdot1,
         -c2 * c1 * qdot2 * qdot0 + s2 * s1 * qdot1 * qdot0 - s2 * qdot2 * qdot1,
-        c1 * qdot1 * qdot0, 0., 0., 0.);
+        c1 * qdot1 * qdot0, T(0.), T(0.), T(0.));
   }
   else if (model.mJoints[joint_id].mJointType == JointTypeEulerYXZ)
   {
@@ -864,7 +864,7 @@ RBDL_DLLAPI void jcalc(const Model &model, ModelData<T> &model_data, unsigned in
     model_data.multdof3_S[joint_id](1, 1) = -s2;
 
     model_data.multdof3_S[joint_id](2, 0) = -s1;
-    model_data.multdof3_S[joint_id](2, 2) = 1.;
+    model_data.multdof3_S[joint_id](2, 2) = T(1.);
 
     T qdot0 = qdot[model.mJoints[joint_id].q_index];
     T qdot1 = qdot[model.mJoints[joint_id].q_index + 1];
@@ -872,10 +872,10 @@ RBDL_DLLAPI void jcalc(const Model &model, ModelData<T> &model_data, unsigned in
 
     model_data.v_J[joint_id] = model_data.multdof3_S[joint_id] * Vector3<T>(qdot0, qdot1, qdot2);
 
-    model_data.c_J[joint_id].set(
+    model_data.c_J[joint_id]. template set(
         c2 * c1 * qdot2 * qdot0 - s2 * s1 * qdot1 * qdot0 - s2 * qdot2 * qdot1,
         -s2 * c1 * qdot2 * qdot0 - c2 * s1 * qdot1 * qdot0 - c2 * qdot2 * qdot1,
-        -c1 * qdot1 * qdot0, 0., 0., 0.);
+        -c1 * qdot1 * qdot0, T(0.), T(0.), T(0.));
   }
   else if (model.mJoints[joint_id].mJointType == JointTypeTranslationXYZ)
   {
@@ -886,9 +886,9 @@ RBDL_DLLAPI void jcalc(const Model &model, ModelData<T> &model_data, unsigned in
     model_data.X_J[joint_id].E = Matrix3<T>::Identity();
     model_data.X_J[joint_id].r = Vector3<T>(q0, q1, q2);
 
-    model_data.multdof3_S[joint_id](3, 0) = 1.;
-    model_data.multdof3_S[joint_id](4, 1) = 1.;
-    model_data.multdof3_S[joint_id](5, 2) = 1.;
+    model_data.multdof3_S[joint_id](3, 0) = T(1.);
+    model_data.multdof3_S[joint_id](4, 1) = T(1.);
+    model_data.multdof3_S[joint_id](5, 2) = T(1.);
 
     T qdot0 = qdot[model.mJoints[joint_id].q_index];
     T qdot1 = qdot[model.mJoints[joint_id].q_index + 1];
@@ -896,7 +896,7 @@ RBDL_DLLAPI void jcalc(const Model &model, ModelData<T> &model_data, unsigned in
 
     model_data.v_J[joint_id] = model_data.multdof3_S[joint_id] * Vector3<T>(qdot0, qdot1, qdot2);
 
-    model_data.c_J[joint_id].set(0., 0., 0., 0., 0., 0.);
+    model_data.c_J[joint_id]. template set(T(0.), T(0.), T(0.), T(0.), T(0.), T(0.));
     //  } else if (model.mJoints[joint_id].mJointType == JointTypeCustom) {
     //    const Joint &joint = model.mJoints[joint_id];
     //    CustomJoint *custom_joint =
@@ -1006,7 +1006,7 @@ void jcalc_X_lambda_S(const Model &model, ModelData<T> &model_data, unsigned int
         SpatialTransform<T>(Matrix3<T>(c2 * c1, s2 * c0 + c2 * s1 * s0, s2 * s0 - c2 * s1 * c0,
                                        -s2 * c1, c2 * c0 - s2 * s1 * s0,
                                        c2 * s0 + s2 * s1 * c0, s1, -c1 * s0, c1 * c0),
-                            Vector3<T>(0., 0., 0.)) *
+                            Vector3<T>(T(0.), T(0.), T(0.))) *
         model.X_T[joint_id];
 
     model_data.multdof3_S[joint_id].setZero();
@@ -1087,7 +1087,7 @@ void jcalc_X_lambda_S(const Model &model, ModelData<T> &model_data, unsigned int
  * See \ref joint_singularities for details.
  */
 template <typename T>
-Math::Quaternion<T> GetQuaternion(const RigidBodyDynamics::Model &model, unsigned int i, const Math::VectorN<T> &Q)
+Math::Quaternion<T> GetQuaternion(const RigidBodyDynamics::Model &model, const unsigned int i, const Math::VectorN<T> &Q)
 {
   //assert(mJoints[i].mJointType == JointTypeSpherical);
   const unsigned int q_index = model.mJoints[i].q_index;
