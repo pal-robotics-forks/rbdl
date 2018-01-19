@@ -2,6 +2,46 @@
 Changelog for package rbdl
 ^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+* more templetization
+* added rbdl parser function
+* Merge branch 'erbium-devel' of gitlab:control/rbdl into erbium-devel
+* fix template quaternion
+* added extra parser
+* changed rbdl root name for fixed floating base
+* more bug fixes
+* added proper root naming in fixed base rbdl
+* fixed merge
+* fixed critical bug in set body quaternion, the code was commented
+* formating
+* more templetization
+* more templetization
+* added specializations
+* formating
+* fixed utils
+* more migration
+* more migration
+* fixed getter enum compile warking treated as error
+* added better enum
+* Merge branch 'dubnium-devel' into erbium-devel
+* added get point angular acceleration and helper functions
+* progres
+* Merge branch 'dubnium-devel' into erbium-devel
+* added helper util
+* Added NO_TYPE floatingBaseType for grasping simulator
+* unified utils
+* More templetization
+* Separated model data into a different header file
+* Continue refactoring
+* Broken commit, progress in having model as const
+* Fixed bug
+* Added model_data structure
+* Templatized basic math operations
+* Added coment
+* Added utils
+* Contributors: Adrià Roig, Hilario Tome, Hilario Tomé
+
 0.1.1 (2016-10-14)
 ------------------
 * Added conversion of mimic joints to fixed joints
