@@ -2,8 +2,8 @@
 Changelog for package rbdl
 ^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Forthcoming
------------
+0.2.0 (2018-01-19)
+------------------
 * more templetization
 * added rbdl parser function
 * Merge branch 'erbium-devel' of gitlab:control/rbdl into erbium-devel
