@@ -18,7 +18,11 @@ bool initializeURDFModelFromParamServer(urdf::Model &urdf_model);
 
 bool URDFReadFromFile(const char *filename, Model *model, ModelDatad &model_data,
                       FloatingBaseType floatingBaseType, bool verbose = false);
+bool URDFReadFromFile(const char *filename, Model *model,
+                      FloatingBaseType floatingBaseType, bool verbose = false);
 bool URDFReadFromString(const char *model_xml_string, Model *model, ModelDatad &model_data,
+                        FloatingBaseType floatingBaseType, bool verbose = false);
+bool URDFReadFromString(const char *model_xml_string, Model *model,
                         FloatingBaseType floatingBaseType, bool verbose = false);
 bool URDFReadFromURDF(urdf::Model &urdf_model, Model *model, ModelDatad &model_data,
                       FloatingBaseType floatingBaseType, bool verbose = false);
@@ -126,6 +130,13 @@ bool URDFReadFromParamServer(Model *model, FloatingBaseType floatingBaseType,
                              std::vector<double> &vel_min, std::vector<double> &vel_max,
                              std::vector<double> &damping, std::vector<double> &friction,
                              std::vector<double> &max_effort, bool verbose = false);
+
+bool URDFReadFromFile(const char *filename, Model *model, FloatingBaseType floatingBaseType,
+                      std::vector<std::string> &joint_names,
+                      std::vector<double> &position_min, std::vector<double> &position_max,
+                      std::vector<double> &vel_min, std::vector<double> &vel_max,
+                      std::vector<double> &damping, std::vector<double> &friction,
+                      std::vector<double> &max_effort, bool verbose = false);
 
 bool parseExtraInformation(urdf::Model &urdf_model, Model *rbdl_model,
                            std::vector<std::string> &joint_names, std::vector<double> &position_min,

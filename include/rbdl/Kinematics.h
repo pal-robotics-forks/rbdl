@@ -373,7 +373,7 @@ RBDL_DLLAPI Math::Matrix3<T> CalcBodyWorldOrientation(const Model &model, ModelD
   if (body_id >= model.fixed_body_discriminator)
   {
     unsigned int fbody_id = body_id - model.fixed_body_discriminator;
-    return (model.mFixedBodies[fbody_id].mParentTransform *
+    return (model.mFixedBodies[fbody_id].mParentTransform.cast<T>() *
             model_data.X_base[model.mFixedBodies[fbody_id].mMovableParent])
         .E;
   }

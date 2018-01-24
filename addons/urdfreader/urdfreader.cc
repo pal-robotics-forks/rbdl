@@ -706,6 +706,15 @@ bool URDFReadFromString(const char *model_xml_string, Model *model,
 }
 
 
+// compatibility
+bool URDFReadFromString(const char *model_xml_string, Model *model,
+                        FloatingBaseType floatingBaseType, bool verbose)
+{
+  return URDFReadFromString(model_xml_string, model, *model->getModelData(),
+                            floatingBaseType, verbose);
+}
+
+
 
 // ============================================================
 // from the parameter server
@@ -896,6 +905,28 @@ bool URDFReadFromFile(const char *filename, Model *model, ModelDatad &model_data
                               damping, friction, max_effort, verbose);
   }
   return (result);
+}
+
+
+// compatibility
+bool URDFReadFromFile(const char *filename, Model *model,
+                      FloatingBaseType floatingBaseType, bool verbose)
+{
+  return URDFReadFromFile(filename, model, *model->getModelData(), floatingBaseType, verbose);
+}
+
+
+// compatibility
+bool URDFReadFromFile(const char *filename, Model *model, FloatingBaseType floatingBaseType,
+                      std::vector<std::string> &joint_names,
+                      std::vector<double> &position_min, std::vector<double> &position_max,
+                      std::vector<double> &vel_min, std::vector<double> &vel_max,
+                      std::vector<double> &damping, std::vector<double> &friction,
+                      std::vector<double> &max_effort, bool verbose)
+{
+  return URDFReadFromFile(filename, model, floatingBaseType, joint_names, position_min,
+                          position_max, vel_min, vel_max, damping, friction, max_effort,
+                          verbose);
 }
 
 
