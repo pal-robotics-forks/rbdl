@@ -299,31 +299,6 @@ bool construct_model_cuttips(Model &rbdl_model, ModelDatad &model_data, LinkPtr 
 }
 
 
-bool construct_model_omitlinks(Model &rbdl_model, ModelDatad &model_data, LinkPtr urdf_link,
-                               int parent_id, FloatingBaseType floatingBaseType,
-                               const std::vector<std::string> &omit_links)
-{
-  /* The current link is a desired tip */
-  for (unsigned int i = 0; i < omit_links.size(); ++i)
-  {
-    if (omit_links[i] == urdf_link->name)
-    {
-      return true;
-    }
-  }
-
-  int new_id = initialize_link(rbdl_model, model_data, urdf_link, parent_id, floatingBaseType);
-
-  for (unsigned int i = 0; i < urdf_link->child_links.size(); ++i)
-  {
-    construct_model_omitlinks(rbdl_model, model_data, urdf_link->child_links[i], new_id,
-                              floatingBaseType, omit_links);
-  }
-
-  return true;
-}
-
-
 // ============================================================
 // from URDF
 // ============================================================
@@ -351,23 +326,6 @@ bool URDFReadFromURDF(urdf::Model &urdf_model, Model *model, ModelDatad &model_d
 {
   boost::shared_ptr<urdf::Link> root(boost::const_pointer_cast<urdf::Link>(urdf_model.getRoot()));
   if (false == construct_model_cuttips(*model, model_data, root, 0, floatingBaseType, tip_links))
-  {
-    cerr << "Error constructing model from urdf file." << endl;
-    return false;
-  }
-
-  model->gravity.set(0., 0., -9.81);
-  return true;
-}
-
-
-// omission of links
-bool URDFReadFromURDFOmitLinks(urdf::Model &urdf_model, Model *model,
-                               ModelDatad &model_data, FloatingBaseType floatingBaseType,
-                               const std::vector<std::string> &omit_links, bool verbose)
-{
-  boost::shared_ptr<urdf::Link> root(boost::const_pointer_cast<urdf::Link>(urdf_model.getRoot()));
-  if (false == construct_model_omitlinks(*model, model_data, root, 0, floatingBaseType, omit_links))
   {
     cerr << "Error constructing model from urdf file." << endl;
     return false;
@@ -406,26 +364,6 @@ bool URDFReadFromURDF(urdf::Model &urdf_model, Model *model, ModelDatad &model_d
 {
   bool urdfOK =
       URDFReadFromURDF(urdf_model, model, model_data, cut_tips, floatingBaseType, verbose);
-  bool extraOK = parseExtraInformation(urdf_model, model, joint_names, position_min,
-                                       position_max, vel_min, vel_max, damping, friction,
-                                       max_effort, floatingBaseType);
-
-  return urdfOK && extraOK;
-}
-
-
-// link omission + extra info
-bool URDFReadFromURDFOmitLinks(urdf::Model &urdf_model, Model *model,
-                               ModelDatad &model_data, FloatingBaseType floatingBaseType,
-                               std::vector<std::string> &joint_names,
-                               std::vector<double> &position_min,
-                               std::vector<double> &position_max, std::vector<double> &vel_min,
-                               std::vector<double> &vel_max, std::vector<double> &damping,
-                               std::vector<double> &friction, std::vector<double> &max_effort,
-                               const std::vector<std::string> &omit_links, bool verbose)
-{
-  bool urdfOK = URDFReadFromURDFOmitLinks(urdf_model, model, model_data, floatingBaseType,
-                                          omit_links, verbose);
   bool extraOK = parseExtraInformation(urdf_model, model, joint_names, position_min,
                                        position_max, vel_min, vel_max, damping, friction,
                                        max_effort, floatingBaseType);

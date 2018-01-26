@@ -61,15 +61,6 @@ bool URDFReadFromURDF(urdf::Model &urdf_model, Model *model, ModelDatad &model_d
                       std::vector<double> &damping, std::vector<double> &friction,
                       std::vector<double> &max_effort, bool verbose = false);
 
-bool URDFReadFromURDFOmitLinks(urdf::Model &urdf_model, Model *model,
-                               ModelDatad &model_data, FloatingBaseType floatingBaseType,
-                               std::vector<std::string> &joint_names,
-                               std::vector<double> &position_min,
-                               std::vector<double> &position_max, std::vector<double> &vel_min,
-                               std::vector<double> &vel_max, std::vector<double> &damping,
-                               std::vector<double> &friction, std::vector<double> &max_effort,
-                               const std::vector<std::string> &omit_links, bool verbose = false);
-
 bool URDFReadFromParamServer(Model *model, ModelDatad &model_data,
                              FloatingBaseType floatingBaseType,
                              std::vector<std::string> &joint_names,
