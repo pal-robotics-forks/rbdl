@@ -58,7 +58,7 @@ typedef map<string, JointPtr> URDFJointMap;
 
 
 int initialize_root(Model &rbdl_model, ModelDatad &model_data, ConstLinkPtr urdf_link,
-                    const FloatingBaseType floatingBaseType)
+                    const FloatingBaseType floating_base_type)
 {
   int new_id = 0;
 
@@ -68,7 +68,7 @@ int initialize_root(Model &rbdl_model, ModelDatad &model_data, ConstLinkPtr urdf
   // floating
   // base (Like kdl). (The root is the only link allowed to be floating base
 
-  if (floatingBaseType != +FloatingBaseType::FixedBase)
+  if (floating_base_type != +FloatingBaseType::FixedBase)
   {
     double link_inertial_mass = 0;
     Vector3d link_inertial_position;
@@ -111,7 +111,7 @@ int initialize_root(Model &rbdl_model, ModelDatad &model_data, ConstLinkPtr urdf
 
     Body base = Body(link_inertial_mass, link_inertial_position, link_inertial_inertia);
     // make floating base
-    if (floatingBaseType == +FloatingBaseType::XY_Yaw)
+    if (floating_base_type == +FloatingBaseType::XY_Yaw)
     {
       ROS_DEBUG_STREAM("CREATING PLANAR FLOATING BASE");
       Joint floating_base_joint(SpatialVectord(0., 0., 0., 1., 0., 0.),
@@ -121,7 +121,7 @@ int initialize_root(Model &rbdl_model, ModelDatad &model_data, ConstLinkPtr urdf
       new_id = rbdl_model.AddBody(model_data, 0, Xtrans(Vector3d(0., 0., 0.)),
                                   floating_base_joint, base, urdf_link->name);
     }
-    else if (floatingBaseType == +FloatingBaseType::XYZ_RollPitchYaw)
+    else if (floating_base_type == +FloatingBaseType::XYZ_RollPitchYaw)
     {
       ROS_DEBUG_STREAM("Creating 6D FLOATING BASE");
       Joint floating_base_joint(
@@ -132,7 +132,7 @@ int initialize_root(Model &rbdl_model, ModelDatad &model_data, ConstLinkPtr urdf
       new_id = rbdl_model.AddBody(model_data, 0, Xtrans(Vector3d(0., 0., 0.)),
                                   floating_base_joint, base, urdf_link->name);
     }
-    else if (floatingBaseType == +FloatingBaseType::XYZ_Quaternion)
+    else if (floating_base_type == +FloatingBaseType::XYZ_Quaternion)
     {
       ROS_DEBUG_STREAM("Creating 6D QUATERNION FLOATING BASE");
       Joint root_joint = JointTypeFloatingBase;
@@ -297,13 +297,12 @@ bool construct_model_cuttips(Model &rbdl_model, ModelDatad &model_data, ConstLin
 // from URDF
 // ============================================================
 
-// basic version
-bool URDFReadFromURDF(urdf::Model &urdf_model, Model *model, ModelDatad &model_data,
-                      FloatingBaseType floatingBaseType, bool verbose)
+// basic version with explicit root
+bool URDFReadFromURDF(Model *model, ModelDatad &model_data,
+                      const boost::shared_ptr<const urdf::Link> root,
+                      const FloatingBaseType floating_base_type, const bool verbose)
 {
-  boost::shared_ptr<urdf::Link> root(boost::const_pointer_cast<urdf::Link>(urdf_model.getRoot()));
-
-  int new_id = initialize_root(*model, model_data, root, floatingBaseType);
+  int new_id = initialize_root(*model, model_data, root, floating_base_type);
 
   if (false == construct_model(*model, model_data, root, new_id))
   {
@@ -316,14 +315,22 @@ bool URDFReadFromURDF(urdf::Model &urdf_model, Model *model, ModelDatad &model_d
 }
 
 
+// basic version (default root)
+bool URDFReadFromURDF(urdf::Model &urdf_model, Model *model, ModelDatad &model_data,
+                      const FloatingBaseType floating_base_type, const bool verbose)
+{
+  return (URDFReadFromURDF(model, model_data, urdf_model.getRoot(), floating_base_type, verbose));
+}
+
+
 // cut tips
 bool URDFReadFromURDF(urdf::Model &urdf_model, Model *model, ModelDatad &model_data,
                       const std::vector<std::string> &tip_links,
-                      FloatingBaseType floatingBaseType, bool verbose)
+                      const FloatingBaseType floating_base_type, const bool verbose)
 {
   boost::shared_ptr<const urdf::Link> root(urdf_model.getRoot());
 
-  int new_id = initialize_root(*model, model_data, root, floatingBaseType);
+  int new_id = initialize_root(*model, model_data, root, floating_base_type);
 
   if (false == construct_model_cuttips(*model, model_data, root, new_id, tip_links))
   {
@@ -336,18 +343,38 @@ bool URDFReadFromURDF(urdf::Model &urdf_model, Model *model, ModelDatad &model_d
 }
 
 
-// basic version with extra info
+// basic version with extra info and explicit root
 bool URDFReadFromURDF(urdf::Model &urdf_model, Model *model, ModelDatad &model_data,
-                      FloatingBaseType floatingBaseType, std::vector<std::string> &joint_names,
+                      const boost::shared_ptr<const urdf::Link> root,
+                      const FloatingBaseType floating_base_type,
+                      std::vector<std::string> &joint_names,
                       std::vector<double> &position_min, std::vector<double> &position_max,
                       std::vector<double> &vel_min, std::vector<double> &vel_max,
                       std::vector<double> &damping, std::vector<double> &friction,
-                      std::vector<double> &max_effort, bool verbose)
+                      std::vector<double> &max_effort, const bool verbose)
 {
-  bool urdfOK = URDFReadFromURDF(urdf_model, model, model_data, floatingBaseType, verbose);
+  bool urdfOK = URDFReadFromURDF(model, model_data, root, floating_base_type, verbose);
   bool extraOK = parseExtraInformation(urdf_model, model, joint_names, position_min,
                                        position_max, vel_min, vel_max, damping, friction,
-                                       max_effort, floatingBaseType);
+                                       max_effort, floating_base_type);
+
+  return urdfOK && extraOK;
+}
+
+
+// basic version with extra info and default root
+bool URDFReadFromURDF(urdf::Model &urdf_model, Model *model, ModelDatad &model_data,
+                      const FloatingBaseType floating_base_type,
+                      std::vector<std::string> &joint_names,
+                      std::vector<double> &position_min, std::vector<double> &position_max,
+                      std::vector<double> &vel_min, std::vector<double> &vel_max,
+                      std::vector<double> &damping, std::vector<double> &friction,
+                      std::vector<double> &max_effort, const bool verbose)
+{
+  bool urdfOK = URDFReadFromURDF(urdf_model, model, model_data, floating_base_type, verbose);
+  bool extraOK = parseExtraInformation(urdf_model, model, joint_names, position_min,
+                                       position_max, vel_min, vel_max, damping, friction,
+                                       max_effort, floating_base_type);
 
   return urdfOK && extraOK;
 }
@@ -355,18 +382,19 @@ bool URDFReadFromURDF(urdf::Model &urdf_model, Model *model, ModelDatad &model_d
 
 // cut tips + extra info
 bool URDFReadFromURDF(urdf::Model &urdf_model, Model *model, ModelDatad &model_data,
-                      FloatingBaseType floatingBaseType, const std::vector<std::string> &cut_tips,
+                      const FloatingBaseType floating_base_type,
+                      const std::vector<std::string> &cut_tips,
                       std::vector<std::string> &joint_names,
                       std::vector<double> &position_min, std::vector<double> &position_max,
                       std::vector<double> &vel_min, std::vector<double> &vel_max,
                       std::vector<double> &damping, std::vector<double> &friction,
-                      std::vector<double> &max_effort, bool verbose)
+                      std::vector<double> &max_effort, const bool verbose)
 {
   bool urdfOK =
-      URDFReadFromURDF(urdf_model, model, model_data, cut_tips, floatingBaseType, verbose);
+      URDFReadFromURDF(urdf_model, model, model_data, cut_tips, floating_base_type, verbose);
   bool extraOK = parseExtraInformation(urdf_model, model, joint_names, position_min,
                                        position_max, vel_min, vel_max, damping, friction,
-                                       max_effort, floatingBaseType);
+                                       max_effort, floating_base_type);
 
   return urdfOK && extraOK;
 }
@@ -374,17 +402,18 @@ bool URDFReadFromURDF(urdf::Model &urdf_model, Model *model, ModelDatad &model_d
 
 // compatibility
 bool URDFReadFromURDF(urdf::Model &urdf_model, Model *model,
-                      FloatingBaseType floatingBaseType, std::vector<std::string> &joint_names,
+                      const FloatingBaseType floating_base_type,
+                      std::vector<std::string> &joint_names,
                       std::vector<double> &position_min, std::vector<double> &position_max,
                       std::vector<double> &vel_min, std::vector<double> &vel_max,
                       std::vector<double> &damping, std::vector<double> &friction,
-                      std::vector<double> &max_effort, bool verbose)
+                      std::vector<double> &max_effort, const bool verbose)
 {
-  bool urdfOK =
-      URDFReadFromURDF(urdf_model, model, *model->getModelData(), floatingBaseType, verbose);
+  bool urdfOK = URDFReadFromURDF(urdf_model, model, *model->getModelData(),
+                                 floating_base_type, verbose);
   bool extraOK = parseExtraInformation(urdf_model, model, joint_names, position_min,
                                        position_max, vel_min, vel_max, damping, friction,
-                                       max_effort, floatingBaseType);
+                                       max_effort, floating_base_type);
 
   return urdfOK && extraOK;
 }
@@ -407,33 +436,34 @@ bool initializeURDFModelFromString(urdf::Model &urdf_model, const char *model_xm
 
 
 bool URDFReadFromString(const char *model_xml_string, Model *model, ModelDatad &model_data,
-                        FloatingBaseType floatingBaseType, bool verbose)
+                        const FloatingBaseType floating_base_type, const bool verbose)
 {
   urdf::Model urdf_model;
   bool result = initializeURDFModelFromString(urdf_model, model_xml_string);
 
   if (result)
   {
-    result = URDFReadFromURDF(urdf_model, model, model_data, floatingBaseType, verbose);
+    result = URDFReadFromURDF(urdf_model, model, model_data, floating_base_type, verbose);
   }
 
   return result;
 }
 
 
-bool URDFReadFromString(const char *model_xml_string, Model *model, ModelDatad &model_data,
-                        FloatingBaseType floatingBaseType, std::vector<std::string> &joint_names,
+bool URDFReadFromString(const char *model_xml_string, Model *model,
+                        ModelDatad &model_data, const FloatingBaseType floating_base_type,
+                        std::vector<std::string> &joint_names,
                         std::vector<double> &position_min, std::vector<double> &position_max,
                         std::vector<double> &vel_min, std::vector<double> &vel_max,
                         std::vector<double> &damping, std::vector<double> &friction,
-                        std::vector<double> &max_effort, bool verbose)
+                        std::vector<double> &max_effort, const bool verbose)
 {
   urdf::Model urdf_model;
   bool result = initializeURDFModelFromString(urdf_model, model_xml_string);
 
   if (result)
   {
-    result = URDFReadFromURDF(urdf_model, model, model_data, floatingBaseType,
+    result = URDFReadFromURDF(urdf_model, model, model_data, floating_base_type,
                               joint_names, position_min, position_max, vel_min, vel_max,
                               damping, friction, max_effort, verbose);
   }
@@ -443,24 +473,25 @@ bool URDFReadFromString(const char *model_xml_string, Model *model, ModelDatad &
 
 // compatibility
 bool URDFReadFromString(const char *model_xml_string, Model *model,
-                        FloatingBaseType floatingBaseType, std::vector<std::string> &joint_names,
+                        const FloatingBaseType floating_base_type,
+                        std::vector<std::string> &joint_names,
                         std::vector<double> &position_min, std::vector<double> &position_max,
                         std::vector<double> &vel_min, std::vector<double> &vel_max,
                         std::vector<double> &damping, std::vector<double> &friction,
-                        std::vector<double> &max_effort, bool verbose)
+                        std::vector<double> &max_effort, const bool verbose)
 {
   return (URDFReadFromString(model_xml_string, model, *model->getModelData(),
-                             floatingBaseType, joint_names, position_min, position_max,
+                             floating_base_type, joint_names, position_min, position_max,
                              vel_min, vel_max, damping, friction, max_effort, verbose));
 }
 
 
 // compatibility
 bool URDFReadFromString(const char *model_xml_string, Model *model,
-                        FloatingBaseType floatingBaseType, bool verbose)
+                        const FloatingBaseType floating_base_type, const bool verbose)
 {
   return URDFReadFromString(model_xml_string, model, *model->getModelData(),
-                            floatingBaseType, verbose);
+                            floating_base_type, verbose);
 }
 
 
@@ -481,31 +512,31 @@ bool initializeURDFModelFromParamServer(urdf::Model &urdf_model)
 
 
 bool URDFReadFromParamServer(Model *model, ModelDatad &model_data,
-                             FloatingBaseType floatingBaseType, bool verbose)
+                             const FloatingBaseType floating_base_type, const bool verbose)
 {
   urdf::Model urdf_model;
   bool result = initializeURDFModelFromParamServer(urdf_model);
   if (result)
   {
-    result = URDFReadFromURDF(urdf_model, model, model_data, floatingBaseType, verbose);
+    result = URDFReadFromURDF(urdf_model, model, model_data, floating_base_type, verbose);
   }
   return (result);
 }
 
 
 bool URDFReadFromParamServer(Model *model, ModelDatad &model_data,
-                             FloatingBaseType floatingBaseType,
+                             const FloatingBaseType floating_base_type,
                              std::vector<std::string> &joint_names,
                              std::vector<double> &position_min, std::vector<double> &position_max,
                              std::vector<double> &vel_min, std::vector<double> &vel_max,
                              std::vector<double> &damping, std::vector<double> &friction,
-                             std::vector<double> &max_effort, bool verbose)
+                             std::vector<double> &max_effort, const bool verbose)
 {
   urdf::Model urdf_model;
   bool result = initializeURDFModelFromParamServer(urdf_model);
   if (result)
   {
-    result = URDFReadFromURDF(urdf_model, model, model_data, floatingBaseType,
+    result = URDFReadFromURDF(urdf_model, model, model_data, floating_base_type,
                               joint_names, position_min, position_max, vel_min, vel_max,
                               damping, friction, max_effort, verbose);
   }
@@ -516,13 +547,13 @@ bool URDFReadFromParamServer(Model *model, ModelDatad &model_data,
 // cut tips
 bool URDFReadFromParamServer(Model *model, ModelDatad &model_data,
                              const std::vector<std::string> &tipLinks,
-                             FloatingBaseType floatingBaseType, bool verbose)
+                             const FloatingBaseType floating_base_type, const bool verbose)
 {
   urdf::Model urdf_model;
   bool result = initializeURDFModelFromParamServer(urdf_model);
   if (result)
   {
-    result = URDFReadFromURDF(urdf_model, model, model_data, tipLinks, floatingBaseType, verbose);
+    result = URDFReadFromURDF(urdf_model, model, model_data, tipLinks, floating_base_type, verbose);
   }
 
   return result;
@@ -530,19 +561,19 @@ bool URDFReadFromParamServer(Model *model, ModelDatad &model_data,
 
 
 bool URDFReadFromParamServer(Model *model, ModelDatad &model_data,
-                             FloatingBaseType floatingBaseType,
+                             const FloatingBaseType floating_base_type,
                              const std::vector<std::string> &tipLinks,
                              std::vector<std::string> &joint_names,
                              std::vector<double> &position_min, std::vector<double> &position_max,
                              std::vector<double> &vel_min, std::vector<double> &vel_max,
                              std::vector<double> &damping, std::vector<double> &friction,
-                             std::vector<double> &max_effort, bool verbose)
+                             std::vector<double> &max_effort, const bool verbose)
 {
   urdf::Model urdf_model;
   bool result = initializeURDFModelFromParamServer(urdf_model);
   if (result)
   {
-    result = URDFReadFromURDF(urdf_model, model, model_data, floatingBaseType, tipLinks,
+    result = URDFReadFromURDF(urdf_model, model, model_data, floating_base_type, tipLinks,
                               joint_names, position_min, position_max, vel_min, vel_max,
                               damping, friction, max_effort, verbose);
   }
@@ -552,43 +583,44 @@ bool URDFReadFromParamServer(Model *model, ModelDatad &model_data,
 
 
 // compatibility
-bool URDFReadFromParamServer(Model *model, FloatingBaseType floatingBaseType, bool verbose)
+bool URDFReadFromParamServer(Model *model, const FloatingBaseType floating_base_type,
+                             const bool verbose)
 {
-  return URDFReadFromParamServer(model, *model->getModelData(), floatingBaseType, verbose);
+  return URDFReadFromParamServer(model, *model->getModelData(), floating_base_type, verbose);
 }
 
 // compatibility
 bool URDFReadFromParamServer(Model *model, const std::vector<std::string> &tipLinks,
-                             FloatingBaseType floatingBaseType, bool verbose)
+                             const FloatingBaseType floating_base_type, const bool verbose)
 {
   return URDFReadFromParamServer(model, *model->getModelData(), tipLinks,
-                                 floatingBaseType, verbose);
+                                 floating_base_type, verbose);
 }
 
 // compatibility
-bool URDFReadFromParamServer(Model *model, FloatingBaseType floatingBaseType,
+bool URDFReadFromParamServer(Model *model, const FloatingBaseType floating_base_type,
                              std::vector<std::string> &joint_names,
                              std::vector<double> &position_min, std::vector<double> &position_max,
                              std::vector<double> &vel_min, std::vector<double> &vel_max,
                              std::vector<double> &damping, std::vector<double> &friction,
-                             std::vector<double> &max_effort, bool verbose)
+                             std::vector<double> &max_effort, const bool verbose)
 {
-  return URDFReadFromParamServer(model, *model->getModelData(), floatingBaseType,
+  return URDFReadFromParamServer(model, *model->getModelData(), floating_base_type,
                                  joint_names, position_min, position_max, vel_min,
                                  vel_max, damping, friction, max_effort, verbose);
 }
 
 // compatibility
-bool URDFReadFromParamServer(Model *model, FloatingBaseType floatingBaseType,
+bool URDFReadFromParamServer(Model *model, const FloatingBaseType floating_base_type,
                              const std::vector<std::string> &tipLinks,
                              std::vector<std::string> &joint_names,
                              std::vector<double> &position_min, std::vector<double> &position_max,
                              std::vector<double> &vel_min, std::vector<double> &vel_max,
                              std::vector<double> &damping, std::vector<double> &friction,
-                             std::vector<double> &max_effort, bool verbose)
+                             std::vector<double> &max_effort, const bool verbose)
 {
-  return (URDFReadFromParamServer(model, *model->getModelData(), floatingBaseType, tipLinks,
-                                  joint_names, position_min, position_max, vel_min,
+  return (URDFReadFromParamServer(model, *model->getModelData(), floating_base_type,
+                                  tipLinks, joint_names, position_min, position_max, vel_min,
                                   vel_max, damping, friction, max_effort, verbose));
 }
 
@@ -621,7 +653,7 @@ bool initializeURDFModelFromFile(urdf::Model &urdf_model, const char *filename)
 
 
 bool URDFReadFromFile(const char *filename, Model *model, ModelDatad &model_data,
-                      FloatingBaseType floatingBaseType, bool verbose)
+                      const FloatingBaseType floating_base_type, const bool verbose)
 {
   urdf::Model urdf_model;
 
@@ -629,7 +661,7 @@ bool URDFReadFromFile(const char *filename, Model *model, ModelDatad &model_data
 
   if (result)
   {
-    result = URDFReadFromURDF(urdf_model, model, model_data, floatingBaseType, verbose);
+    result = URDFReadFromURDF(urdf_model, model, model_data, floating_base_type, verbose);
   }
 
   return (result);
@@ -637,11 +669,12 @@ bool URDFReadFromFile(const char *filename, Model *model, ModelDatad &model_data
 
 
 bool URDFReadFromFile(const char *filename, Model *model, ModelDatad &model_data,
-                      FloatingBaseType floatingBaseType, std::vector<std::string> &joint_names,
+                      const FloatingBaseType floating_base_type,
+                      std::vector<std::string> &joint_names,
                       std::vector<double> &position_min, std::vector<double> &position_max,
                       std::vector<double> &vel_min, std::vector<double> &vel_max,
                       std::vector<double> &damping, std::vector<double> &friction,
-                      std::vector<double> &max_effort, bool verbose)
+                      std::vector<double> &max_effort, const bool verbose)
 {
   urdf::Model urdf_model;
 
@@ -649,7 +682,7 @@ bool URDFReadFromFile(const char *filename, Model *model, ModelDatad &model_data
 
   if (result)
   {
-    result = URDFReadFromURDF(urdf_model, model, model_data, floatingBaseType,
+    result = URDFReadFromURDF(urdf_model, model, model_data, floating_base_type,
                               joint_names, position_min, position_max, vel_min, vel_max,
                               damping, friction, max_effort, verbose);
   }
@@ -659,21 +692,21 @@ bool URDFReadFromFile(const char *filename, Model *model, ModelDatad &model_data
 
 // compatibility
 bool URDFReadFromFile(const char *filename, Model *model,
-                      FloatingBaseType floatingBaseType, bool verbose)
+                      const FloatingBaseType floating_base_type, const bool verbose)
 {
-  return URDFReadFromFile(filename, model, *model->getModelData(), floatingBaseType, verbose);
+  return URDFReadFromFile(filename, model, *model->getModelData(), floating_base_type, verbose);
 }
 
 
 // compatibility
-bool URDFReadFromFile(const char *filename, Model *model, FloatingBaseType floatingBaseType,
+bool URDFReadFromFile(const char *filename, Model *model, const FloatingBaseType floating_base_type,
                       std::vector<std::string> &joint_names,
                       std::vector<double> &position_min, std::vector<double> &position_max,
                       std::vector<double> &vel_min, std::vector<double> &vel_max,
                       std::vector<double> &damping, std::vector<double> &friction,
-                      std::vector<double> &max_effort, bool verbose)
+                      std::vector<double> &max_effort, const bool verbose)
 {
-  return URDFReadFromFile(filename, model, floatingBaseType, joint_names, position_min,
+  return URDFReadFromFile(filename, model, floating_base_type, joint_names, position_min,
                           position_max, vel_min, vel_max, damping, friction, max_effort,
                           verbose);
 }
@@ -682,26 +715,26 @@ bool URDFReadFromFile(const char *filename, Model *model, FloatingBaseType float
 ///////////////////////////
 
 bool parseExtraInformation(urdf::Model &urdf_model, Model *rbdl_model,
-                           std::vector<std::string> &joint_names,
-                           std::vector<double> &position_min, std::vector<double> &position_max,
-                           std::vector<double> &vel_min, std::vector<double> &vel_max,
-                           std::vector<double> &damping, std::vector<double> &friction,
-                           std::vector<double> &max_effort, FloatingBaseType floatingBaseType)
+                           std::vector<std::string> &joint_names, std::vector<double> &position_min,
+                           std::vector<double> &position_max, std::vector<double> &vel_min,
+                           std::vector<double> &vel_max, std::vector<double> &damping,
+                           std::vector<double> &friction, std::vector<double> &max_effort,
+                           const FloatingBaseType floating_base_type)
 {
   int nDof;
-  if (floatingBaseType == +FloatingBaseType::XYZ_RollPitchYaw)
+  if (floating_base_type == +FloatingBaseType::XYZ_RollPitchYaw)
   {
     nDof = rbdl_model->qdot_size - 6;
   }
-  else if (floatingBaseType == +FloatingBaseType::XYZ_Quaternion)
+  else if (floating_base_type == +FloatingBaseType::XYZ_Quaternion)
   {
     nDof = rbdl_model->qdot_size - 6;
   }
-  else if (floatingBaseType == +FloatingBaseType::XY_Yaw)
+  else if (floating_base_type == +FloatingBaseType::XY_Yaw)
   {
     nDof = rbdl_model->qdot_size - 3;
   }
-  else if (floatingBaseType == +FloatingBaseType::FixedBase)
+  else if (floating_base_type == +FloatingBaseType::FixedBase)
   {
     nDof = rbdl_model->qdot_size;
   }
@@ -720,100 +753,104 @@ bool parseExtraInformation(urdf::Model &urdf_model, Model *rbdl_model,
   max_effort.resize(nDof);
 
 
-  std::string rootName = urdf_model.getRoot()->name;
-
   for (auto it = rbdl_model->mBodyNameMap.begin(); it != rbdl_model->mBodyNameMap.end(); ++it)
   {
-    if (it->first != "ROOT" && it->first != rootName)
+    // skip root
+    if ("ROOT" == it->first)
     {
-      boost::shared_ptr<urdf::Link> urdf_link;
-      // As the joints, the bodyes with movable joints start ad +1
-      // Since the movable bodies have a small numbering and the fixed bodyes have
-      // a high numbering will get n joint names in the lower numbers
+      continue;
+    }
 
-      std::string body_name = it->first;
-      urdf_model.getLink(body_name, urdf_link);
+    std::string body_name = it->first;
 
-      if ((urdf_link->parent_joint->type != urdf::Joint::FIXED) &&
-          !urdf_link->parent_joint->mimic)
+    boost::shared_ptr<urdf::Link> urdf_link;
+    urdf_model.getLink(body_name, urdf_link);
+
+
+    // As the joints, the bodyes with movable joints start ad +1
+    // Since the movable bodies have a small numbering and the fixed bodyes have
+    // a high numbering will get n joint names in the lower numbers
+
+    if ((NULL != urdf_link->parent_joint)  // false for the real kinematic root link only
+        && (urdf_link->parent_joint->type != urdf::Joint::FIXED) &&
+        !urdf_link->parent_joint->mimic)
+    {
+      unsigned id;
+      if (floating_base_type == +FloatingBaseType::XYZ_RollPitchYaw)
       {
-        unsigned id;
-        if (floatingBaseType == +FloatingBaseType::XYZ_RollPitchYaw)
-        {
-          id = rbdl_model->GetBodyId(body_name.c_str()) - 7;
-        }
-        else if (floatingBaseType == +FloatingBaseType::XYZ_Quaternion)
-        {
-          id = rbdl_model->GetBodyId(body_name.c_str()) - 3;
-        }
-        else if (floatingBaseType == +FloatingBaseType::XY_Yaw)
-        {
-          id = rbdl_model->GetBodyId(body_name.c_str()) - 4;
-        }
-        else if (floatingBaseType == +FloatingBaseType::FixedBase)
-        {
-          id = rbdl_model->GetBodyId(body_name.c_str()) - 1;
-        }
-        else
-        {
-          throw std::runtime_error("Floating base type not supported");
-          return false;
-        }
+        id = rbdl_model->GetBodyId(body_name.c_str()) - 7;
+      }
+      else if (floating_base_type == +FloatingBaseType::XYZ_Quaternion)
+      {
+        id = rbdl_model->GetBodyId(body_name.c_str()) - 3;
+      }
+      else if (floating_base_type == +FloatingBaseType::XY_Yaw)
+      {
+        id = rbdl_model->GetBodyId(body_name.c_str()) - 4;
+      }
+      else if (floating_base_type == +FloatingBaseType::FixedBase)
+      {
+        id = rbdl_model->GetBodyId(body_name.c_str()) - 1;
+      }
+      else
+      {
+        throw std::runtime_error("Floating base type not supported");
+        return false;
+      }
 
-        ROS_DEBUG_STREAM("rbdl body name: " << body_name);
+      ROS_DEBUG_STREAM("rbdl body name: " << body_name);
 
-        joint_names[id] = (urdf_link->parent_joint->name);
-        ROS_DEBUG_STREAM(" names " << urdf_link->parent_joint->name);
-        // Store the joint limits position
-        if (urdf_link->parent_joint->type != urdf::Joint::CONTINUOUS)
-        {
-          position_min[id] = (urdf_link->parent_joint->limits->lower);
-          position_max[id] = (urdf_link->parent_joint->limits->upper);
-        }
-        else
-        {
-          position_min[id] = (-3.14);
-          position_max[id] = (3.14);
-        }
-        // Store the joint limits velocity
-        if (urdf_link->parent_joint->type != urdf::Joint::CONTINUOUS)
-        {
-          vel_min[id] = (-urdf_link->parent_joint->limits->velocity);
-          vel_max[id] = (urdf_link->parent_joint->limits->velocity);
-        }
-        else
-        {
-          /// Random high value
-          vel_min[id] = (-100.0);
-          vel_max[id] = (100.0);
-        }
-        // Store joint damping
-        if (urdf_link->parent_joint->dynamics)
-        {
-          damping[id] = (urdf_link->parent_joint->dynamics->damping);
-        }
-        else
-        {
-          damping[id] = (0.0);
-        }
-        // Store joint friction
-        if (urdf_link->parent_joint->dynamics)
-        {
-          friction[id] = (urdf_link->parent_joint->dynamics->friction);
-        }
-        else
-        {
-          friction[id] = (0.0);
-        }
-        // Store joint max_effor
-        if (urdf_link->parent_joint->limits)
-        {
-          max_effort[id] = (urdf_link->parent_joint->limits->effort);
-        }
-        else
-        {
-          max_effort[id] = (0.0);
-        }
+      joint_names[id] = (urdf_link->parent_joint->name);
+      ROS_DEBUG_STREAM(" names " << urdf_link->parent_joint->name);
+      // Store the joint limits position
+      if (urdf_link->parent_joint->type != urdf::Joint::CONTINUOUS)
+      {
+        position_min[id] = (urdf_link->parent_joint->limits->lower);
+        position_max[id] = (urdf_link->parent_joint->limits->upper);
+      }
+      else
+      {
+        position_min[id] = (-3.14);
+        position_max[id] = (3.14);
+      }
+      // Store the joint limits velocity
+      if (urdf_link->parent_joint->type != urdf::Joint::CONTINUOUS)
+      {
+        vel_min[id] = (-urdf_link->parent_joint->limits->velocity);
+        vel_max[id] = (urdf_link->parent_joint->limits->velocity);
+      }
+      else
+      {
+        /// Random high value
+        vel_min[id] = (-100.0);
+        vel_max[id] = (100.0);
+      }
+      // Store joint damping
+      if (urdf_link->parent_joint->dynamics)
+      {
+        damping[id] = (urdf_link->parent_joint->dynamics->damping);
+      }
+      else
+      {
+        damping[id] = (0.0);
+      }
+      // Store joint friction
+      if (urdf_link->parent_joint->dynamics)
+      {
+        friction[id] = (urdf_link->parent_joint->dynamics->friction);
+      }
+      else
+      {
+        friction[id] = (0.0);
+      }
+      // Store joint max_effor
+      if (urdf_link->parent_joint->limits)
+      {
+        max_effort[id] = (urdf_link->parent_joint->limits->effort);
+      }
+      else
+      {
+        max_effort[id] = (0.0);
       }
     }
   }
