@@ -150,8 +150,12 @@ int initialize_root(Model &rbdl_model, ModelDatad &model_data, LinkPtr urdf_link
   else
   {
     // Add alias for the root node
-    // rbdl_model.mBodyNameMap.erase("ROOT");
+    // AS it is necessary to delede the "ROOT" key since the same
+    // map is used for reverse lookup, duh
+    rbdl_model.mBodyNameMap.erase("ROOT");
     rbdl_model.mBodyNameMap[urdf_link->name] = 0;
+    // AS it would be useful to keep root inertial parameters as
+    // well, but who knows what kind of side effects this may have.
   }
 
   return (new_id);
