@@ -337,7 +337,7 @@ public:
    *          int>::max() if the id was not found.
    */
 
-  unsigned int GetBodyId (const char *body_name) const;
+  unsigned int GetBodyId(const char *body_name) const;
 
   unsigned int GetBodyId(const char *body_name, const ModelDatad &model_data) const;
 
@@ -477,6 +477,15 @@ public:
   unsigned int dof_count;
 
   ModelDatad *getModelData()
+  {
+    if (!model_data_)
+    {
+      throw std::runtime_error("this model has no model data allocated");
+    }
+    return model_data_.get();
+  }
+
+  const ModelDatad *getModelData() const
   {
     if (!model_data_)
     {
