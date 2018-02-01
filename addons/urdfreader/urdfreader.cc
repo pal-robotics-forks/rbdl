@@ -187,17 +187,18 @@ int initialize_link(Model &rbdl_model, ModelDatad &model_data, ConstLinkPtr urdf
   }
 
   // compute the joint transformation
-  Vector3d joint_rpy;
+  Quaterniond joint_rotation(urdf_joint->parent_to_joint_origin_transform.rotation.x,
+                             urdf_joint->parent_to_joint_origin_transform.rotation.y,
+                             urdf_joint->parent_to_joint_origin_transform.rotation.z,
+                             urdf_joint->parent_to_joint_origin_transform.rotation.w);
   Vector3d joint_translation;
-  urdf_joint->parent_to_joint_origin_transform.rotation.getRPY(joint_rpy[0], joint_rpy[1],
-                                                               joint_rpy[2]);
+
   joint_translation.set(urdf_joint->parent_to_joint_origin_transform.position.x,
                         urdf_joint->parent_to_joint_origin_transform.position.y,
                         urdf_joint->parent_to_joint_origin_transform.position.z);
 
   SpatialTransformd rbdl_joint_frame =
-      Xrot(joint_rpy[0], Vector3d(1., 0., 0.)) * Xrot(joint_rpy[1], Vector3d(0., 1., 0.)) *
-      Xrot(joint_rpy[2], Vector3d(0., 0., 1.)) * Xtrans(Vector3d(joint_translation));
+      SpatialTransformd(joint_rotation.toMatrix(), joint_translation);
 
   // assemble the body
   Vector3d link_inertial_position;
@@ -213,6 +214,7 @@ int initialize_link(Model &rbdl_model, ModelDatad &model_data, ConstLinkPtr urdf
     link_inertial_position.set(urdf_link->inertial->origin.position.x,
                                urdf_link->inertial->origin.position.y,
                                urdf_link->inertial->origin.position.z);
+
     urdf_link->inertial->origin.rotation.getRPY(link_inertial_rpy[0], link_inertial_rpy[1],
                                                 link_inertial_rpy[2]);
 
