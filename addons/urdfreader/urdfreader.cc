@@ -714,6 +714,7 @@ bool URDFReadFromFile(const char *filename, Model *model, const FloatingBaseType
 }
 
 
+
 ///////////////////////////
 
 bool parseExtraInformation(urdf::Model &urdf_model, Model *rbdl_model,
