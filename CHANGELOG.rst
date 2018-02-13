@@ -2,8 +2,8 @@
 Changelog for package rbdl
 ^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Forthcoming
------------
+0.2.1 (2018-02-13)
+------------------
 * fixed compilation isnan
 * Contributors: Hilario Tome
 
