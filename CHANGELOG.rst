@@ -2,6 +2,11 @@
 Changelog for package rbdl
 ^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+0.2.1 (2018-02-13)
+------------------
+* fixed compilation isnan
+* Contributors: Hilario Tome
+
 0.2.0 (2018-01-19)
 ------------------
 * more templetization
