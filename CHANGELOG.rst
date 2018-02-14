@@ -2,8 +2,8 @@
 Changelog for package rbdl
 ^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Forthcoming
------------
+0.2.2 (2018-02-14)
+------------------
 * Merge branch 'as-urdfreader-linkskip' into 'erbium-devel'
   urdfreader: added functions to read URDF without given links
   See merge request control/rbdl!1
