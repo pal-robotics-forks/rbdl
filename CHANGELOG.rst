@@ -2,6 +2,40 @@
 Changelog for package rbdl
 ^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+* Merge branch 'as-urdfreader-linkskip' into 'erbium-devel'
+  urdfreader: added functions to read URDF without given links
+  See merge request control/rbdl!1
+* Merge branch 'erbium-devel' into as-urdfreader-linkskip
+* Dummy commit to trigger recursive testing
+* Use quaternions instead of RPY angles to set joint transformations.
+  Previous version seem to be introducing noise due to conversions back
+  and forth (quaternion -> RPY -> rotation matrix).
+* Model: added const getModelData().
+* URDF reader: allow explicit specification of the kinamatic root link.
+* URDF reader: minor changes in the logic
+* Minor bugfix in URDF reader.
+* Omit links in URDFModel: deleted corresponding functions from URDF reader
+* urdfreader: code deduplication & cleanup
+* Merge branch 'erbium-devel' into as-urdfreader-linkskip
+  Conflicts:
+  addons/urdfreader/urdfreader.cc
+* urdfreader: drop unnecessary piece of code.
+* Merge branch 'erbium-devel' into as-urdfreader-linkskip
+  Conflicts:
+  addons/urdfreader/urdfreader.cc
+* Merge 'erbium-devel', cleanups, deduplications.
+  Conflicts:
+  addons/urdfreader/urdfreader.cc
+  include/rbdl/addons/urdfreader/urdfreader.h
+* Merge branch 'erbium-devel' into as-urdfreader-linkskip
+  Conflicts:
+  addons/urdfreader/urdfreader.cc
+* urdfreader: added functions to read URDF without given links
+  + some refactoring and partial formatting.
+* Contributors: Hilario Tome, alexandersherikov
+
 0.2.1 (2018-02-13)
 ------------------
 * fixed compilation isnan
