@@ -13,174 +13,160 @@
 #include <iostream>
 #include <rbdl/rbdl_math.h>
 
-namespace RigidBodyDynamics {
-
-namespace Math {
-
-/** \brief Quaternion that are used for \ref joint_singularities "singularity free" joints.
+namespace RigidBodyDynamics
+{
+namespace Math
+{
+/** \brief Quaternion that are used for \ref joint_singularities "singularity free"
+ * joints.
  *
  * order: x,y,z,w
  */
 template <typename T>
-class Quaternion : public Vector4<T> {
-  public:
-    Quaternion () :
-      Vector4<T> (0., 0., 0., 1.)
-  {}
-    Quaternion (const Vector4<T> &vec4) :
-      Vector4<T> (vec4)
-  {}
-    Quaternion (T x, T y, T z, T w):
-      Vector4<T> (x, y, z, w)
-  {}
-    Quaternion operator* (const T &s) const {
-      return Quaternion (
-          (*this)[0] * s,
-          (*this)[1] * s,
-          (*this)[2] * s,
-          (*this)[3] * s
-          );
-    }
-    /** This function is equivalent to multiplicate their corresponding rotation matrices */
-    Quaternion operator* (const Quaternion &q) const {
-      return Quaternion (
-          q[3] * (*this)[0] + q[0] * (*this)[3] + q[1] * (*this)[2] - q[2] * (*this)[1],
-          q[3] * (*this)[1] + q[1] * (*this)[3] + q[2] * (*this)[0] - q[0] * (*this)[2],
-          q[3] * (*this)[2] + q[2] * (*this)[3] + q[0] * (*this)[1] - q[1] * (*this)[0],
-          q[3] * (*this)[3] - q[0] * (*this)[0] - q[1] * (*this)[1] - q[2] * (*this)[2]
-          );
-    }
-    Quaternion& operator*=(const Quaternion &q) {
-      this-> template set (
-          q[3] * (*this)[0] + q[0] * (*this)[3] + q[1] * (*this)[2] - q[2] * (*this)[1],
-          q[3] * (*this)[1] + q[1] * (*this)[3] + q[2] * (*this)[0] - q[0] * (*this)[2],
-          q[3] * (*this)[2] + q[2] * (*this)[3] + q[0] * (*this)[1] - q[1] * (*this)[0],
-          q[3] * (*this)[3] - q[0] * (*this)[0] - q[1] * (*this)[1] - q[2] * (*this)[2]
-          );
+class Quaternion : public Vector4<T>
+{
+public:
+  Quaternion() : Vector4<T>(0., 0., 0., 1.)
+  {
+  }
+  Quaternion(const Vector4<T> &vec4) : Vector4<T>(vec4)
+  {
+  }
+  Quaternion(T x, T y, T z, T w) : Vector4<T>(x, y, z, w)
+  {
+  }
+  Quaternion operator*(const T &s) const
+  {
+    return Quaternion((*this)[0] * s, (*this)[1] * s, (*this)[2] * s, (*this)[3] * s);
+  }
+  /** This function is equivalent to multiplicate their corresponding rotation matrices */
+  Quaternion operator*(const Quaternion &q) const
+  {
+    return Quaternion(
+        q[3] * (*this)[0] + q[0] * (*this)[3] + q[1] * (*this)[2] - q[2] * (*this)[1],
+        q[3] * (*this)[1] + q[1] * (*this)[3] + q[2] * (*this)[0] - q[0] * (*this)[2],
+        q[3] * (*this)[2] + q[2] * (*this)[3] + q[0] * (*this)[1] - q[1] * (*this)[0],
+        q[3] * (*this)[3] - q[0] * (*this)[0] - q[1] * (*this)[1] - q[2] * (*this)[2]);
+  }
+  Quaternion &operator*=(const Quaternion &q)
+  {
+    this->template set(
+        q[3] * (*this)[0] + q[0] * (*this)[3] + q[1] * (*this)[2] - q[2] * (*this)[1],
+        q[3] * (*this)[1] + q[1] * (*this)[3] + q[2] * (*this)[0] - q[0] * (*this)[2],
+        q[3] * (*this)[2] + q[2] * (*this)[3] + q[0] * (*this)[1] - q[1] * (*this)[0],
+        q[3] * (*this)[3] - q[0] * (*this)[0] - q[1] * (*this)[1] - q[2] * (*this)[2]);
+    return *this;
+  }
+
+  static Quaternion fromGLRotate(double angle, double x, double y, double z)
+  {
+    double st = std::sin(angle * M_PI / 360.);
+    return Quaternion(st * x, st * y, st * z, std::cos(angle * M_PI / 360.));
+  }
+
+  Quaternion slerp(double alpha, const Quaternion &quat) const
+  {
+    // check whether one of the two has 0 length
+    T s = std::sqrt(this->template squaredNorm() * quat.squaredNorm());
+
+    // division by 0.f is unhealthy!
+    assert(s != 0.);
+
+    double angle = acos(dot(quat) / s);
+    if (angle == 0. || std::isnan(angle))
+    {
       return *this;
     }
+    assert(!std::isnan(angle));
 
-    static Quaternion fromGLRotate (double angle, double x, double y, double z) {
-      double st = std::sin (angle * M_PI / 360.);
-      return Quaternion (
-          st * x,
-          st * y,
-          st * z,
-          std::cos (angle * M_PI / 360.)
-          );
+    double d = 1. / std::sin(angle);
+    double p0 = std::sin((1. - alpha) * angle);
+    double p1 = std::sin(alpha * angle);
+
+    if (dot(quat) < 0.)
+    {
+      return Quaternion(((*this) * p0 - quat * p1) * d);
     }
+    return Quaternion(((*this) * p0 + quat * p1) * d);
+  }
 
-    Quaternion slerp (double alpha, const Quaternion &quat) const {
-      // check whether one of the two has 0 length
-      T s = std::sqrt (this-> template squaredNorm() * quat.squaredNorm());
+  static Quaternion fromAxisAngle(const Vector3<T> &axis, double angle_rad)
+  {
+    double d = axis.norm();
+    double s2 = std::sin(angle_rad * 0.5) / d;
+    return Quaternion(axis[0] * s2, axis[1] * s2, axis[2] * s2, std::cos(angle_rad * 0.5));
+  }
 
-      // division by 0.f is unhealthy!
-      assert (s != 0.);
+  static Quaternion fromMatrix(const Matrix3<T> &mat)
+  {
+    double w = std::sqrt(1. + mat(0, 0) + mat(1, 1) + mat(2, 2)) * 0.5;
+    return Quaternion((mat(1, 2) - mat(2, 1)) / (w * 4.), (mat(2, 0) - mat(0, 2)) / (w * 4.),
+                      (mat(0, 1) - mat(1, 0)) / (w * 4.), w);
+  }
 
-      double angle = acos (dot(quat) / s);
-      if (angle == 0. || std::isnan(angle)) {
-        return *this;
-      }
-      assert(!std::isnan(angle));
+  static Quaternion fromZYXAngles(const Vector3<T> &zyx_angles)
+  {
+    return Quaternion::fromAxisAngle(Vector3<T>(1., 0., 0.), zyx_angles[2]) *
+           Quaternion::fromAxisAngle(Vector3<T>(0., 1., 0.), zyx_angles[1]) *
+           Quaternion::fromAxisAngle(Vector3<T>(0., 0., 1.), zyx_angles[0]);
+  }
 
-      double d = 1. / std::sin (angle);
-      double p0 = std::sin ((1. - alpha) * angle);
-      double p1 = std::sin (alpha * angle);
+  Matrix3<T> toMatrix() const
+  {
+    T x = (*this)[0];
+    T y = (*this)[1];
+    T z = (*this)[2];
+    T w = (*this)[3];
+    return Matrix3<T>(T(1) - T(2) * y * y - T(2) * z * z, T(2) * x * y + T(2) * w * z,
+                      T(2) * x * z - T(2) * w * y,
 
-      if (dot (quat) < 0.) {
-        return Quaternion( ((*this) * p0 - quat * p1) * d);
-      }
-      return Quaternion( ((*this) * p0 + quat * p1) * d);
-    }
+                      T(2) * x * y - T(2) * w * z, T(1) - T(2) * x * x - T(2) * z * z,
+                      T(2) * y * z + T(2) * w * x,
 
-    static Quaternion fromAxisAngle (const Vector3<T> &axis, double angle_rad) {
-      double d = axis.norm();
-      double s2 = std::sin (angle_rad * 0.5) / d;
-      return Quaternion (
-          axis[0] * s2,
-          axis[1] * s2,
-          axis[2] * s2,
-          std::cos(angle_rad * 0.5)
-          );
-    }
+                      T(2) * x * z + T(2) * w * y, T(2) * y * z - T(2) * w * x,
+                      T(1) - T(2) * x * x - T(2) * y * y
 
-    static Quaternion fromMatrix (const Matrix3<T> &mat) {
-      double w = std::sqrt (1. + mat(0,0) + mat(1,1) + mat(2,2)) * 0.5;
-      return Quaternion (
-          (mat(1,2) - mat(2,1)) / (w * 4.),
-          (mat(2,0) - mat(0,2)) / (w * 4.),
-          (mat(0,1) - mat(1,0)) / (w * 4.),
-          w);
-    }
+                      /*
+                         1 - 2*y*y - 2*z*z,
+                         2*x*y - 2*w*z,
+                         2*x*z + 2*w*y,
 
-    static Quaternion fromZYXAngles (const Vector3<T> &zyx_angles) {
-      return Quaternion::fromAxisAngle (Vector3<T> (1., 0., 0.), zyx_angles[2])
-        * Quaternion::fromAxisAngle (Vector3<T> (0., 1., 0.), zyx_angles[1])
-        * Quaternion::fromAxisAngle (Vector3<T> (0., 0., 1.), zyx_angles[0]);
-    }
+                         2*x*y + 2*w*z,
+                         1 - 2*x*x - 2*z*z,
+                         2*y*z - 2*w*x,
 
-    Matrix3<T> toMatrix() const {
-      T x = (*this)[0];
-      T y = (*this)[1];
-      T z = (*this)[2];
-      T w = (*this)[3];
-      return Matrix3<T> (
-          T(1) - T(2)*y*y - T(2)*z*z,
-          T(2)*x*y + T(2)*w*z,
-          T(2)*x*z - T(2)*w*y,
+                         2*x*z - 2*w*y,
+                         2*y*z + 2*w*x,
+                         1 - 2*x*x - 2*y*y
+                         */
+                      );
+  }
 
-          T(2)*x*y - T(2)*w*z,
-          T(1) - T(2)*x*x - T(2)*z*z,
-          T(2)*y*z + T(2)*w*x,
+  Quaternion conjugate() const
+  {
+    return Quaternion(-(*this)[0], -(*this)[1], -(*this)[2], (*this)[3]);
+  }
 
-          T(2)*x*z + T(2)*w*y,
-          T(2)*y*z - T(2)*w*x,
-          T(1) - T(2)*x*x - T(2)*y*y
+  Quaternion timeStep(const Vector3<T> &omega, double dt)
+  {
+    double omega_norm = omega.norm();
+    return (*this) * Quaternion::fromAxisAngle(omega / omega_norm, dt * omega_norm);
+  }
 
-          /*
-             1 - 2*y*y - 2*z*z,
-             2*x*y - 2*w*z,
-             2*x*z + 2*w*y,
+  Vector3<T> rotate(const Vector3<T> &vec) const
+  {
+    Vector3<T> vn(vec);
+    Quaternion vec_quat(vn[0], vn[1], vn[2], 0.f), res_quat;
 
-             2*x*y + 2*w*z,
-             1 - 2*x*x - 2*z*z,
-             2*y*z - 2*w*x,
+    res_quat = vec_quat * (*this);
+    res_quat = conjugate() * res_quat;
 
-             2*x*z - 2*w*y,
-             2*y*z + 2*w*x,
-             1 - 2*x*x - 2*y*y
-             */
-        );
-    }
-
-    Quaternion conjugate() const {
-      return Quaternion (
-          -(*this)[0],
-          -(*this)[1],
-          -(*this)[2],
-          (*this)[3]);
-    }
-
-    Quaternion timeStep (const Vector3<T> &omega, double dt) {
-      double omega_norm = omega.norm();
-      return (*this) * Quaternion::fromAxisAngle (omega / omega_norm, dt * omega_norm);
-    }
-
-    Vector3<T> rotate (const Vector3<T> &vec) const {
-      Vector3<T> vn (vec);
-      Quaternion vec_quat (vn[0], vn[1], vn[2], 0.f), res_quat;
-
-      res_quat = vec_quat * (*this);
-      res_quat = conjugate() * res_quat;
-
-      return Vector3<T> (res_quat[0], res_quat[1], res_quat[2]);
-    }
+    return Vector3<T>(res_quat[0], res_quat[1], res_quat[2]);
+  }
 };
 
 using Quaterniond = Quaternion<double>;
-
 }
-
 }
 
 /* RBDL_QUATERNION_H */
