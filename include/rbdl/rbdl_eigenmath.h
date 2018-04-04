@@ -18,6 +18,51 @@
 #define RBDL_TEMPLATE_DLLAPI RBDL_DLLAPI
 #endif
 
+#include <eigen3/Eigen/Geometry>
+
+template <typename T>
+class RBDL_TEMPLATE_DLLAPI Isometry3_t : public Eigen::Transform<T, 3, Eigen::Isometry>
+{
+public:
+  typedef Eigen::Transform<T, 3, Eigen::Isometry> Base;
+
+    /// Do we need EigenBase constructors????
+  template <typename OtherDerived>
+  Isometry3_t(const Eigen::Transform<OtherDerived, 3, Eigen::Isometry>& other)
+      : Eigen::Transform<T, 3, Eigen::Isometry>(other)
+  {}
+
+  template <typename OtherDerived>
+  Isometry3_t& operator=(const Eigen::Transform<OtherDerived, 3, Eigen::Isometry>& other)
+  {
+    this->Base::operator=(other);
+    return *this;
+  }
+
+  EIGEN_STRONG_INLINE Isometry3_t()
+  {
+  }
+
+  EIGEN_STRONG_INLINE Isometry3_t(const T& m00, const T& m01, const T& m02,
+                                  const T& m10, const T& m11, const T& m12,
+                                  const T& m20, const T& m21, const T& m22,
+                                  const T& t1, const T& t2, const T&t3)
+  {
+    Base::check_template_params();
+    Eigen::Matrix<T, 3, 3> m;
+    m << m00, m01, m02,
+            m10, m11, m12,
+            m20, m21, m22;
+    (*this).m_matrix() = ( m );
+    this->translation() << t1, t2, t3;
+  }
+  EIGEN_STRONG_INLINE Isometry3_t(const Eigen::Matrix<T, 3, 3> &r, const Eigen::Matrix<T, 3, 1> &t)
+  {
+      (*this).m_matrix = ( r );
+      this->translation() = t;
+  }
+};
+
 template <typename T>
 class RBDL_TEMPLATE_DLLAPI Vector3_t : public Eigen::Matrix<T, 3, 1>
 {

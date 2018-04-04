@@ -86,6 +86,10 @@ template <class T>
 using MatrixN = MatrixN_t<T>;
 using MatrixNd = MatrixN<double>;
 
+template <class T>
+using Isometry3 = Isometry3_t<T>;
+using Isometry3d = Isometry3<double>;
+
 } /* Math */
 
 } /* RigidBodyDynamics */

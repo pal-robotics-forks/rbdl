@@ -247,6 +247,53 @@ void UpdateKinematicsCustom(const Model &model, ModelData<T> &model_data,
 void UpdateKinematicsCustom(Model &model, const Math::VectorNd *Q,
                             const Math::VectorNd *QDot, const Math::VectorNd *QDDot);
 
+/** \brief Returns the orientation of a given body as 3x3 matrix
+ *
+ * \param model the rigid body model
+ * \param Q the curent genereralized positions
+ * \param body_id id of the body for which the point coordinates are expressed
+ * \param update_kinematics whether UpdateKinematics() should be called or not
+ * (default: true).
+ *
+ * \returns An orthonormal 3x3 matrix that rotates vectors from base coordinates
+ * to body coordinates.
+ */
+
+template <typename T>
+RBDL_DLLAPI Math::Matrix3<T> CalcBodyWorldOrientation(const Model &model, ModelData<T> &model_data,
+                                                      const Math::VectorN<T> &Q,
+                                                      const unsigned int body_id,
+                                                      bool update_kinematics = true)
+{
+    return CalcBodyWorldOrientation<T>(model, model_data, Q, body_id, Eigen::Matrix<T, 3, 3>::Identity(), update_kinematics);
+}
+
+template <typename T>
+RBDL_DLLAPI Math::Matrix3<T> CalcBodyWorldOrientation(const Model &model, ModelData<T> &model_data,
+                                                      const Math::VectorN<T> &Q,
+                                                      const unsigned int body_id,
+                                                      const Eigen::Matrix<T, 3, 3> &rot,
+                                                      bool update_kinematics = true)
+{
+  // update the Kinematics if necessary
+  if (update_kinematics)
+  {
+    UpdateKinematicsCustom<T>(model, model_data, &Q, NULL, NULL);
+  }
+
+  if (body_id >= model.fixed_body_discriminator)
+  {
+    unsigned int fbody_id = body_id - model.fixed_body_discriminator;
+    return rot.transpose() * (model.mFixedBodies[fbody_id].mParentTransform.cast<T>() *
+            model_data.X_base[model.mFixedBodies[fbody_id].mMovableParent]).E;
+  }
+  return rot.transpose() * model_data.X_base[body_id].E;
+}
+
+Math::Matrix3d CalcBodyWorldOrientation(Model &model, const Math::VectorNd &Q,
+                                        const unsigned int body_id,
+                                        bool update_kinematics = true);
+
 /** \brief Returns the base coordinates of a point given in body coordinates.
  *
  * \param model the rigid body model
@@ -259,43 +306,54 @@ void UpdateKinematicsCustom(Model &model, const Math::VectorNd *Q,
  * \returns a 3-D vector with coordinates of the point in base coordinates
  */
 template <typename T>
-Vector3<T> CalcBodyToBaseCoordinates(const Model &model, ModelData<T> &model_data,
+Isometry3<T> CalcBodyToBaseCoordinates(const Model &model, ModelData<T> &model_data,
                                      const VectorN<T> &Q, unsigned int body_id,
-                                     const Vector3d &point_body_coordinates,
+                                     const Isometry3_t<T> &pose_body_coordinates,
                                      bool update_kinematics = true)
 {
-  // update the Kinematics if necessary
-  if (update_kinematics)
-  {
-    UpdateKinematicsCustom<T>(model, model_data, &Q, NULL, NULL);
-  }
-
-  if (body_id >= model.fixed_body_discriminator)
-  {
-    unsigned int fbody_id = body_id - model.fixed_body_discriminator;
-    unsigned int parent_id = model.mFixedBodies[fbody_id].mMovableParent;
-
-    Matrix3<T> fixed_rotation =
-        model.mFixedBodies[fbody_id].mParentTransform.E.transpose().cast<T>();
-    Vector3<T> fixed_position = model.mFixedBodies[fbody_id].mParentTransform.r.cast<T>();
-
-    Matrix3<T> parent_body_rotation = model_data.X_base[parent_id].E.transpose();
-    Vector3<T> parent_body_position = model_data.X_base[parent_id].r;
-
-    return (parent_body_position +
-            (parent_body_rotation *
-             (fixed_position + fixed_rotation * (point_body_coordinates.cast<T>()))));
-  }
-
-  Matrix3<T> body_rotation = model_data.X_base[body_id].E.transpose();
-  Vector3<T> body_position = model_data.X_base[body_id].r;
-
-  return body_position + body_rotation * point_body_coordinates.cast<T>();
+  Vector3<T> t = CalcBodyToBaseCoordinates<T>(model, model_data, Q, body_id, pose_body_coordinates.rotation(), update_kinematics);
+  Matrix3<T> r = CalcBodyWorldOrientation<T>(model, model_data, Q, body_id, pose_body_coordinates.translation(), update_kinematics);
+  return Isometry3<T>(r, t);
 }
 
 Vector3d CalcBodyToBaseCoordinates(Model &model, const VectorNd &Q, unsigned int body_id,
                                    const Vector3d &point_body_coordinates,
                                    bool update_kinematics = true);
+
+template <typename T>
+Vector3<T> CalcBodyToBaseCoordinates(const Model &model, ModelData<T> &model_data,
+                                     const VectorN<T> &Q, unsigned int body_id,
+                                     const Vector3_t<T> &point_body_coordinates,
+                                     bool update_kinematics = true)
+{
+    // update the Kinematics if necessary
+    if (update_kinematics)
+    {
+      UpdateKinematicsCustom<T>(model, model_data, &Q, NULL, NULL);
+    }
+
+    if (body_id >= model.fixed_body_discriminator)
+    {
+      unsigned int fbody_id = body_id - model.fixed_body_discriminator;
+      unsigned int parent_id = model.mFixedBodies[fbody_id].mMovableParent;
+
+      Matrix3<T> fixed_rotation =
+          model.mFixedBodies[fbody_id].mParentTransform.E.transpose().cast<T>();
+      Vector3<T> fixed_position = model.mFixedBodies[fbody_id].mParentTransform.r.cast<T>();
+
+      Matrix3<T> parent_body_rotation = model_data.X_base[parent_id].E.transpose();
+      Vector3<T> parent_body_position = model_data.X_base[parent_id].r;
+
+      return (parent_body_position +
+              (parent_body_rotation *
+               (fixed_position + fixed_rotation * point_body_coordinates)));
+    }
+
+    Matrix3<T> body_rotation = model_data.X_base[body_id].E.transpose();
+    Vector3<T> body_position = model_data.X_base[body_id].r;
+
+    return body_position + body_rotation * point_body_coordinates;
+}
 
 /** \brief Returns the body coordinates of a point given in base coordinates.
  *
@@ -346,43 +404,6 @@ Math::Vector3d CalcBaseToBodyCoordinates(Model &model, const Math::VectorNd &Q,
                                          const Math::Vector3d &base_point_position,
                                          bool update_kinematics = true);
 
-/** \brief Returns the orientation of a given body as 3x3 matrix
- *
- * \param model the rigid body model
- * \param Q the curent genereralized positions
- * \param body_id id of the body for which the point coordinates are expressed
- * \param update_kinematics whether UpdateKinematics() should be called or not
- * (default: true).
- *
- * \returns An orthonormal 3x3 matrix that rotates vectors from base coordinates
- * to body coordinates.
- */
-
-template <typename T>
-RBDL_DLLAPI Math::Matrix3<T> CalcBodyWorldOrientation(const Model &model, ModelData<T> &model_data,
-                                                      const Math::VectorN<T> &Q,
-                                                      const unsigned int body_id,
-                                                      bool update_kinematics = true)
-{
-  // update the Kinematics if necessary
-  if (update_kinematics)
-  {
-    UpdateKinematicsCustom<T>(model, model_data, &Q, NULL, NULL);
-  }
-
-  if (body_id >= model.fixed_body_discriminator)
-  {
-    unsigned int fbody_id = body_id - model.fixed_body_discriminator;
-    return (model.mFixedBodies[fbody_id].mParentTransform.cast<T>() *
-            model_data.X_base[model.mFixedBodies[fbody_id].mMovableParent])
-        .E;
-  }
-  return model_data.X_base[body_id].E;
-}
-
-Math::Matrix3d CalcBodyWorldOrientation(Model &model, const Math::VectorNd &Q,
-                                        const unsigned int body_id,
-                                        bool update_kinematics = true);
 
 /** \brief Computes the point jacobian for a point on a body
  *
@@ -445,6 +466,7 @@ void CalcOrientationJacobian(Model &model, const Math::VectorNd &Q, unsigned int
  * have been set to zero, e.g. by calling G.setZero().
  *
  */
+
 RBDL_DLLAPI void CalcPointJacobian6D(const Model &model, ModelDatad &model_data,
                                      const Math::VectorNd &Q, unsigned int body_id,
                                      const Math::Vector3d &point_position,
@@ -452,6 +474,15 @@ RBDL_DLLAPI void CalcPointJacobian6D(const Model &model, ModelDatad &model_data,
 
 RBDL_DLLAPI void CalcPointJacobian6D(Model &model, const Math::VectorNd &Q,
                                      unsigned int body_id, const Math::Vector3d &point_position,
+                                     Math::MatrixNd &G, bool update_kinematics = true);
+
+RBDL_DLLAPI void CalcPointJacobian6D(const Model &model, ModelDatad &model_data,
+                                     const Math::VectorNd &Q, unsigned int body_id,
+                                     const Math::Isometry3d &pose,
+                                     Math::MatrixNd &G, bool update_kinematics = true);
+
+RBDL_DLLAPI void CalcPointJacobian6D(Model &model, const Math::VectorNd &Q,
+                                     unsigned int body_id, const Math::Isometry3d &pose,
                                      Math::MatrixNd &G, bool update_kinematics = true);
 
 RBDL_DLLAPI void CalcPointJacobian6DBodyFrame(const Model &model, ModelDatad &model_data,
@@ -502,6 +533,7 @@ RBDL_DLLAPI void CalcBodySpatialJacobian(const Model &model, ModelDatad &model_d
  *
  * \returns The cartesian velocity of the point in global frame (output)
  */
+
 RBDL_DLLAPI Math::Vector3d CalcPointVelocity(const Model &model, ModelDatad &model_data,
                                              const Math::VectorNd &Q,
                                              const Math::VectorNd &QDot, unsigned int body_id,
@@ -512,6 +544,17 @@ RBDL_DLLAPI Math::Vector3d CalcPointVelocity(const Model &model, ModelDatad &mod
 RBDL_DLLAPI Math::Vector3d CalcPointVelocity(Model &model, const Math::VectorNd &Q,
                                              const Math::VectorNd &QDot, unsigned int body_id,
                                              const Math::Vector3d &point_position,
+                                             bool update_kinematics = true);
+
+RBDL_DLLAPI Math::Vector3d CalcPointVelocity(const Model &model, ModelDatad &model_data,
+                                             const Math::VectorNd &Q,
+                                             const Math::VectorNd &QDot, unsigned int body_id,
+                                             const Math::Isometry3d &pose,
+                                             bool update_kinematics = true);
+
+RBDL_DLLAPI Math::Vector3d CalcPointVelocity(Model &model, const Math::VectorNd &Q,
+                                             const Math::VectorNd &QDot, unsigned int body_id,
+                                             const Math::Isometry3d &pose,
                                              bool update_kinematics = true);
 
 RBDL_DLLAPI Math::Vector3d CalcPointAngularVelocity(const Model &model, ModelDatad &model_data,
@@ -527,8 +570,20 @@ RBDL_DLLAPI Math::Vector3d CalcPointAngularVelocity(Model &model, const Math::Ve
                                                     const Math::Vector3d &point_position,
                                                     bool update_kinematics = true);
 
-/** \brief Computes angular and linear velocity of a point that is fixed on a
- * body
+RBDL_DLLAPI Math::Vector3d CalcPointAngularVelocity(const Model &model, ModelDatad &model_data,
+                                                    const Math::VectorNd &Q,
+                                                    const Math::VectorNd &QDot,
+                                                    unsigned int body_id,
+                                                    const Math::Isometry3d &pose,
+                                                    bool update_kinematics = true);
+
+RBDL_DLLAPI Math::Vector3d CalcPointAngularVelocity(Model &model, const Math::VectorNd &Q,
+                                                    const Math::VectorNd &QDot,
+                                                    unsigned int body_id,
+                                                    const Math::Isometry3d &pose,
+                                                    bool update_kinematics = true);
+
+/** \brief Computes angular and linear velocity of a point that is fixed on a body
  *
  * \param model   rigid body model
  * \param Q       state vector of the internal joints
@@ -657,9 +712,20 @@ Math::SpatialVectord CalcPointAcceleration6DBias(Model &model, const Math::Vecto
                                                  const Math::VectorNd &QDot, unsigned int body_id,
                                                  const Math::Vector3d &point_position,
                                                  bool update_kinematics = true);
+RBDL_DLLAPI
+Math::SpatialVectord CalcPointAcceleration6DBias(const Model &model, ModelDatad &model_data,
+                                                 const Math::VectorNd &Q,
+                                                 const Math::VectorNd &QDot, unsigned int body_id,
+                                                 const Math::Isometry3d &pose,
+                                                 bool update_kinematics = true);
 
-/** \brief Computes the inverse kinematics iteratively using a damped
- * Levenberg-Marquardt method (also known as Damped Least Squares method)
+Math::SpatialVectord CalcPointAcceleration6DBias(Model &model, const Math::VectorNd &Q,
+                                                 const Math::VectorNd &QDot, unsigned int body_id,
+                                                 const Math::Isometry3d &pose,
+                                                 bool update_kinematics = true);
+
+
+/** \brief Computes the inverse kinematics iteratively using a damped Levenberg-Marquardt method (also known as Damped Least Squares method)
  *
  * \param model rigid body model
  * \param Qinit initial guess for the state
