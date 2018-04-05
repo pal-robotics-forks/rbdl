@@ -38,19 +38,18 @@ Vector3d CalcBodyToBaseCoordinates(Model &model, const VectorNd &Q, unsigned int
                                            point_body_coordinates, update_kinematics);
 }
 
-
-Vector3d CalcBodyToBaseCoordinates(Model &model, ModelDatad &model_data, const VectorNd &Q,
-                                   unsigned int body_id, const Vector3d &point_body_coordinates,
-                                   bool update_kinematics)
-{
-  return CalcBodyToBaseCoordinates<double>(model, model_data, Q, body_id,
-                                             point_body_coordinates, update_kinematics);
-}
-
 Math::Matrix3d CalcBodyWorldOrientation(Model &model, const Math::VectorNd &Q,
                                         const unsigned int body_id, bool update_kinematics)
 {
-  return CalcBodyWorldOrientation<double>(model, *model.getModelData(), Q, body_id,
+  return CalcBodyWorldOrientation<double>(model, *model.getModelData(), Q, body_id, Eigen::Matrix3d::Identity(),
+                                          update_kinematics);
+}
+
+Math::Matrix3d CalcBodyWorldOrientation(Model &model, const Math::VectorNd &Q,
+                                        const unsigned int body_id, const Math::Matrix3d &rot,
+                                        bool update_kinematics)
+{
+  return CalcBodyWorldOrientation<double>(model, *model.getModelData(), Q, body_id, rot,
                                           update_kinematics);
 }
 

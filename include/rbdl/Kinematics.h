@@ -294,6 +294,11 @@ Math::Matrix3d CalcBodyWorldOrientation(Model &model, const Math::VectorNd &Q,
                                         const unsigned int body_id,
                                         bool update_kinematics = true);
 
+Math::Matrix3d CalcBodyWorldOrientation(Model &model, const Math::VectorNd &Q,
+                                        const unsigned int body_id, const Math::Matrix3d &rot,
+                                        bool update_kinematics = true);
+
+
 /** \brief Returns the base coordinates of a point given in body coordinates.
  *
  * \param model the rigid body model
@@ -305,17 +310,6 @@ Math::Matrix3d CalcBodyWorldOrientation(Model &model, const Math::VectorNd &Q,
  *
  * \returns a 3-D vector with coordinates of the point in base coordinates
  */
-template <typename T>
-Isometry3<T> CalcBodyToBaseCoordinates(const Model &model, ModelData<T> &model_data,
-                                     const VectorN<T> &Q, unsigned int body_id,
-                                     const Isometry3_t<T> &pose_body_coordinates,
-                                     bool update_kinematics = true)
-{
-  Vector3<T> t = CalcBodyToBaseCoordinates<T>(model, model_data, Q, body_id, pose_body_coordinates.rotation(), update_kinematics);
-  Matrix3<T> r = CalcBodyWorldOrientation<T>(model, model_data, Q, body_id, pose_body_coordinates.translation(), update_kinematics);
-  return Isometry3<T>(r, t);
-}
-
 Vector3d CalcBodyToBaseCoordinates(Model &model, const VectorNd &Q, unsigned int body_id,
                                    const Vector3d &point_body_coordinates,
                                    bool update_kinematics = true);

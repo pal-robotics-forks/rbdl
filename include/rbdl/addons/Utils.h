@@ -44,10 +44,8 @@ inline Eigen::Isometry3d getBodyToBaseTransform(const RigidBodyDynamics::Model &
   assert(model.q_size == Q.rows());
   unsigned int id = model.GetBodyId(name.c_str());
 
-  Eigen::Vector3d position = RigidBodyDynamics::CalcBodyToBaseCoordinates(
-      model, model_data, Q, id, tip_position, update);
-  Eigen::Matrix3d rotation =
-      RigidBodyDynamics::CalcBodyWorldOrientation(model, model_data, Q, id, update).transpose();
+  Eigen::Vector3d position = RigidBodyDynamics::CalcBodyToBaseCoordinates<double>(model, model_data, Q, id, tip_position, update);
+  Eigen::Matrix3d rotation = RigidBodyDynamics::CalcBodyWorldOrientation<double>(model, model_data, Q, id, update).transpose();
 
   Eigen::Isometry3d temp;
   temp.setIdentity();
@@ -71,25 +69,6 @@ inline Eigen::Isometry3d getBodyToBaseTransform(RigidBodyDynamics::Model &model,
                                 tip_position, false);
 }
 
-inline Eigen::Isometry3d getBodyToBaseTransform(RigidBodyDynamics::Model &model, const Eigen::VectorXd &Q, const std::string &name,
-                                                const Eigen::Isometry3d &tip_offset_pose, bool update){
-
-    assert(model.q_size == Q.rows());
-    unsigned int id = model.GetBodyId(name.c_str());
-
-    Eigen::Vector3d position = RigidBodyDynamics::CalcBodyToBaseCoordinates(model, Q, id, tip_offset_pose.translation(), update);
-    Eigen::Matrix3d rotation = RigidBodyDynamics::CalcBodyWorldOrientation(model, Q, id, update).transpose();
-
-    rotation = rotation * tip_offset_pose.rotation();
-
-    Eigen::Isometry3d temp;
-    temp.setIdentity();
-    temp = ( Eigen::AngleAxisd(rotation) );
-    temp.translation() = position;
-    return temp;
-
-}
-
 inline Eigen::Isometry3d getBodyToBaseTransform(RigidBodyDynamics::Model &model, const Eigen::VectorXd &Q, const std::string &name, bool update){
 
   return getBodyToBaseTransform(model, Q, name, Eigen::Vector3d::Zero(), update);
@@ -111,11 +90,6 @@ inline Eigen::Isometry3d getBodyWithRespectoBodyPose(RigidBodyDynamics::Model &m
   Eigen::Isometry3d respect_tf = getBodyToBaseTransform(model, respect_to);
   Eigen::Isometry3d body_respect_to_tf = respect_tf.inverse()*body_tf;
   return body_respect_to_tf;
-}
-
-inline Eigen::Isometry3d getBodyToBaseTransform(RigidBodyDynamics::Model &model, const std::string &name,  const Eigen::Vector3d &tip_position){
-
-  return getBodyToBaseTransform(model, Eigen::VectorXd::Zero(model.q_size), name, tip_position, false);
 }
 
 inline Eigen::Isometry3d getBodyToBaseTransform(RigidBodyDynamics::Model &model, const std::string &name,  const Eigen::Isometry3d &tip_offset_pose){
