@@ -2,8 +2,8 @@
 Changelog for package rbdl
 ^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Forthcoming
------------
+0.2.3 (2018-04-06)
+------------------
 * Merge branch 'link_reference_to' into 'erbium-devel'
   added get transform with respect to other link
   See merge request control/rbdl!4
