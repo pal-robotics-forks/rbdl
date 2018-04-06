@@ -2,6 +2,14 @@
 Changelog for package rbdl
 ^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+* Merge branch 'link_reference_to' into 'erbium-devel'
+  added get transform with respect to other link
+  See merge request control/rbdl!4
+* added get transform with respect to other link
+* Contributors: Hilario Tome
+
 0.2.2 (2018-02-14)
 ------------------
 * Merge branch 'as-urdfreader-linkskip' into 'erbium-devel'
