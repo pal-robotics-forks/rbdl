@@ -508,6 +508,7 @@ RBDL_DLLAPI Math::Vector3d CalcPointVelocity(const Model &model, ModelDatad &mod
                                              const Math::Vector3d &point_position,
                                              bool update_kinematics = true);
 
+/// @todo point_position is not used, it has to be deleted from params
 RBDL_DLLAPI Math::Vector3d CalcPointVelocity(Model &model, const Math::VectorNd &Q,
                                              const Math::VectorNd &QDot, unsigned int body_id,
                                              const Math::Vector3d &point_position,
