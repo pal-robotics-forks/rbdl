@@ -6,7 +6,7 @@
 #include <rbdl/Kinematics.h>
 #include <rbdl/Model.h>
 
-// Transform a spatial velocity vector to linear and angular vel
+//Transform a spatial velocity vector to linear and angular vel
 
 inline void spatialVelocity2vector(const RigidBodyDynamics::Math::SpatialVectord v0,
                                    const RigidBodyDynamics::Math::Vector3d &pointOfForce,
@@ -61,12 +61,28 @@ inline Eigen::Isometry3d getBodyToBaseTransform(RigidBodyDynamics::Model &model,
   return getBodyToBaseTransform(model, *model.getModelData(), Q, name, tip_position, update);
 }
 
-inline Eigen::Isometry3d getBodyToBaseTransform(RigidBodyDynamics::Model &model,
-                                                const std::string &name,
-                                                const Eigen::Vector3d &tip_position)
-{
-  return getBodyToBaseTransform(model, Eigen::VectorXd::Zero(model.q_size), name,
-                                tip_position, false);
+inline Eigen::Isometry3d getBodyToBaseTransform(RigidBodyDynamics::Model &model, const std::string &name,  const Eigen::Vector3d &tip_position){
+
+  return getBodyToBaseTransform(model, Eigen::VectorXd::Zero(model.q_size), name, tip_position, false);
+}
+
+inline Eigen::Isometry3d getBodyToBaseTransform(RigidBodyDynamics::Model &model, const Eigen::VectorXd &Q, const std::string &name,
+                                                const Eigen::Isometry3d &tip_offset_pose, bool update){
+
+    assert(model.q_size == Q.rows());
+    unsigned int id = model.GetBodyId(name.c_str());
+
+    Eigen::Vector3d position = RigidBodyDynamics::CalcBodyToBaseCoordinates(model, Q, id, tip_offset_pose.translation(), update);
+    Eigen::Matrix3d rotation = RigidBodyDynamics::CalcBodyWorldOrientation(model, Q, id, update).transpose();
+
+    rotation = rotation * tip_offset_pose.rotation();
+
+    Eigen::Isometry3d temp;
+    temp.setIdentity();
+    temp = ( Eigen::AngleAxisd(rotation) );
+    temp.translation() = position;
+    return temp;
+
 }
 
 inline Eigen::Isometry3d getBodyToBaseTransform(RigidBodyDynamics::Model &model, const Eigen::VectorXd &Q, const std::string &name, bool update){
