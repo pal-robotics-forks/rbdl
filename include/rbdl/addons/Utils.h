@@ -6,7 +6,7 @@
 #include <rbdl/Kinematics.h>
 #include <rbdl/Model.h>
 
-//Transform a spatial velocity vector to linear and angular vel
+// Transform a spatial velocity vector to linear and angular vel
 
 inline void spatialVelocity2vector(const RigidBodyDynamics::Math::SpatialVectord v0,
                                    const RigidBodyDynamics::Math::Vector3d &pointOfForce,
@@ -44,8 +44,11 @@ inline Eigen::Isometry3d getBodyToBaseTransform(const RigidBodyDynamics::Model &
   assert(model.q_size == Q.rows());
   unsigned int id = model.GetBodyId(name.c_str());
 
-  Eigen::Vector3d position = RigidBodyDynamics::CalcBodyToBaseCoordinates<double>(model, model_data, Q, id, tip_position, update);
-  Eigen::Matrix3d rotation = RigidBodyDynamics::CalcBodyWorldOrientation<double>(model, model_data, Q, id, update).transpose();
+  Eigen::Vector3d position = RigidBodyDynamics::CalcBodyToBaseCoordinates<double>(
+      model, model_data, Q, id, tip_position, update);
+  Eigen::Matrix3d rotation =
+      RigidBodyDynamics::CalcBodyWorldOrientation<double>(model, model_data, Q, id, update)
+          .transpose();
 
   Eigen::Isometry3d temp;
   temp.setIdentity();
@@ -61,32 +64,40 @@ inline Eigen::Isometry3d getBodyToBaseTransform(RigidBodyDynamics::Model &model,
   return getBodyToBaseTransform(model, *model.getModelData(), Q, name, tip_position, update);
 }
 
-inline Eigen::Isometry3d getBodyToBaseTransform(RigidBodyDynamics::Model &model, const std::string &name,  const Eigen::Vector3d &tip_position){
-
-  return getBodyToBaseTransform(model, Eigen::VectorXd::Zero(model.q_size), name, tip_position, false);
+inline Eigen::Isometry3d getBodyToBaseTransform(RigidBodyDynamics::Model &model,
+                                                const std::string &name,
+                                                const Eigen::Vector3d &tip_position)
+{
+  return getBodyToBaseTransform(model, Eigen::VectorXd::Zero(model.q_size), name,
+                                tip_position, false);
 }
 
-inline Eigen::Isometry3d getBodyToBaseTransform(RigidBodyDynamics::Model &model, const Eigen::VectorXd &Q, const std::string &name,
-                                                const Eigen::Isometry3d &tip_offset_pose, bool update){
+inline Eigen::Isometry3d getBodyToBaseTransform(RigidBodyDynamics::Model &model,
+                                                const Eigen::VectorXd &Q, const std::string &name,
+                                                const Eigen::Isometry3d &tip_offset_pose,
+                                                bool update)
+{
+  assert(model.q_size == Q.rows());
+  unsigned int id = model.GetBodyId(name.c_str());
 
-    assert(model.q_size == Q.rows());
-    unsigned int id = model.GetBodyId(name.c_str());
+  Eigen::Vector3d position = RigidBodyDynamics::CalcBodyToBaseCoordinates(
+      model, Q, id, tip_offset_pose.translation(), update);
+  Eigen::Matrix3d rotation =
+      RigidBodyDynamics::CalcBodyWorldOrientation(model, Q, id, update).transpose();
 
-    Eigen::Vector3d position = RigidBodyDynamics::CalcBodyToBaseCoordinates(model, Q, id, tip_offset_pose.translation(), update);
-    Eigen::Matrix3d rotation = RigidBodyDynamics::CalcBodyWorldOrientation(model, Q, id, update).transpose();
+  rotation = rotation * tip_offset_pose.rotation();
 
-    rotation = rotation * tip_offset_pose.rotation();
-
-    Eigen::Isometry3d temp;
-    temp.setIdentity();
-    temp = ( Eigen::AngleAxisd(rotation) );
-    temp.translation() = position;
-    return temp;
-
+  Eigen::Isometry3d temp;
+  temp.setIdentity();
+  temp = (Eigen::AngleAxisd(rotation));
+  temp.translation() = position;
+  return temp;
 }
 
-inline Eigen::Isometry3d getBodyToBaseTransform(RigidBodyDynamics::Model &model, const Eigen::VectorXd &Q, const std::string &name, bool update){
-
+inline Eigen::Isometry3d getBodyToBaseTransform(RigidBodyDynamics::Model &model,
+                                                const Eigen::VectorXd &Q,
+                                                const std::string &name, bool update)
+{
   return getBodyToBaseTransform(model, Q, name, Eigen::Vector3d::Zero(), update);
 }
 
@@ -102,18 +113,24 @@ inline Eigen::Isometry3d getBodyWithRespectoBodyPose(RigidBodyDynamics::Model &m
                                                      const std::string &name,
                                                      const std::string &respect_to)
 {
-  Eigen::Isometry3d body_tf =  getBodyToBaseTransform(model, name);
+  Eigen::Isometry3d body_tf = getBodyToBaseTransform(model, name);
   Eigen::Isometry3d respect_tf = getBodyToBaseTransform(model, respect_to);
-  Eigen::Isometry3d body_respect_to_tf = respect_tf.inverse()*body_tf;
+  Eigen::Isometry3d body_respect_to_tf = respect_tf.inverse() * body_tf;
   return body_respect_to_tf;
 }
 
-inline Eigen::Isometry3d getBodyToBaseTransform(RigidBodyDynamics::Model &model, const std::string &name,  const Eigen::Isometry3d &tip_offset_pose){
-
-  return getBodyToBaseTransform(model, Eigen::VectorXd::Zero(model.q_size), name, tip_offset_pose, false);
+inline Eigen::Isometry3d getBodyToBaseTransform(RigidBodyDynamics::Model &model,
+                                                const std::string &name,
+                                                const Eigen::Isometry3d &tip_offset_pose)
+{
+  return getBodyToBaseTransform(model, Eigen::VectorXd::Zero(model.q_size), name,
+                                tip_offset_pose, false);
 }
 
-inline Eigen::Vector3d getBodyLinearVelocity(RigidBodyDynamics::Model &model, const std::string &name, const Eigen::Vector3d &tip_position){
+inline Eigen::Vector3d getBodyLinearVelocity(RigidBodyDynamics::Model &model,
+                                             const std::string &name,
+                                             const Eigen::Vector3d &tip_position)
+{
   unsigned int id = model.GetBodyId(name.c_str());
   return RigidBodyDynamics::CalcPointVelocity(model, Eigen::VectorXd::Zero(model.q_size),
                                               Eigen::VectorXd::Zero(model.qdot_size), id,
@@ -310,23 +327,33 @@ inline void createGeneralizedAccelerationVector(const Eigen::Vector3d &floatingB
   state.segment(6, jointStatesAcceleration.rows()) = jointStatesAcceleration;
 }
 
-inline Eigen::Vector3d getBodyLinearAcceleration(RigidBodyDynamics::Model &model, const std::string &name, Eigen::Isometry3d &tip_pose){
+inline Eigen::Vector3d getBodyLinearAcceleration(RigidBodyDynamics::Model &model,
+                                                 const std::string &name,
+                                                 Eigen::Isometry3d &tip_pose)
+{
   Eigen::Vector3d tip_position(tip_pose.translation());
   return getBodyLinearAcceleration(model, name, tip_position);
 }
 
-inline Eigen::Vector3d getBodyAngularAcceleration(RigidBodyDynamics::Model &model, const std::string &name, Eigen::Isometry3d &tip_pose){
+inline Eigen::Vector3d getBodyAngularAcceleration(RigidBodyDynamics::Model &model,
+                                                  const std::string &name,
+                                                  Eigen::Isometry3d &tip_pose)
+{
   Eigen::Vector3d tip_position(tip_pose.translation());
   return getBodyAngularAcceleration(model, name, tip_position);
 }
 
-inline std::pair<Eigen::Vector3d, Eigen::Vector3d> getBodyAcceleration(RigidBodyDynamics::Model &model, const std::string &name, Eigen::Isometry3d &tip_pose){
+inline std::pair<Eigen::Vector3d, Eigen::Vector3d> getBodyAcceleration(
+    RigidBodyDynamics::Model &model, const std::string &name, Eigen::Isometry3d &tip_pose)
+{
   return std::make_pair(getBodyLinearAcceleration(model, name, tip_pose),
                         getBodyAngularAcceleration(model, name, tip_pose));
 }
 
 
-inline std::pair<Eigen::Vector3d, Eigen::Vector3d> getBodyVelocity(RigidBodyDynamics::Model &model, const std::string &name, const Eigen::Isometry3d &tip_pose){
+inline std::pair<Eigen::Vector3d, Eigen::Vector3d> getBodyVelocity(
+    RigidBodyDynamics::Model &model, const std::string &name, const Eigen::Isometry3d &tip_pose)
+{
   return getBodyVelocity(model, name, Eigen::Vector3d(tip_pose.translation()));
 }
 

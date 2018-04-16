@@ -19,14 +19,14 @@
 #include "rbdl/SimpleMath/SimpleMathCommaInitializer.h"
 #include <vector>
 
-typedef SimpleMath::Fixed::Matrix<double, 3,1> Vector3_t;
-typedef SimpleMath::Fixed::Matrix<double, 3,3> Matrix3_t;
-typedef SimpleMath::Fixed::Matrix<double, 4,1> Vector4_t;
+typedef SimpleMath::Fixed::Matrix<double, 3, 1> Vector3_t;
+typedef SimpleMath::Fixed::Matrix<double, 3, 3> Matrix3_t;
+typedef SimpleMath::Fixed::Matrix<double, 4, 1> Vector4_t;
 
-typedef SimpleMath::Fixed::Matrix<double, 6,1> SpatialVector_t;
-typedef SimpleMath::Fixed::Matrix<double, 6,6> SpatialMatrix_t;
+typedef SimpleMath::Fixed::Matrix<double, 6, 1> SpatialVector_t;
+typedef SimpleMath::Fixed::Matrix<double, 6, 6> SpatialMatrix_t;
 
-typedef SimpleMath::Fixed::Matrix<double, 6,3> Matrix63_t;
+typedef SimpleMath::Fixed::Matrix<double, 6, 3> Matrix63_t;
 
 typedef SimpleMath::Dynamic::Matrix<double> MatrixN_t;
 typedef SimpleMath::Dynamic::Matrix<double> VectorN_t;
@@ -49,11 +49,11 @@ using MatrixN_t = Eigen::Matrix<T, Eigen::Dynamic, Eigen::Dynamic>;
 
 #endif
 
-namespace RigidBodyDynamics {
-
+namespace RigidBodyDynamics
+{
 /** \brief Math types such as vectors and matrices and utility functions. */
-namespace Math {
-
+namespace Math
+{
 template <class T>
 using Vector3 = Vector3_t<T>;
 using Vector3d = Vector3<double>;
@@ -100,20 +100,22 @@ using Isometry3d = Isometry3<double>;
 // If we use Eigen3 we have to create specializations of the STL
 // std::vector such that the alignment is done properly.
 #ifndef RBDL_USE_SIMPLE_MATH
-  EIGEN_DEFINE_STL_VECTOR_SPECIALIZATION(RigidBodyDynamics::Math::SpatialVectord)
-  EIGEN_DEFINE_STL_VECTOR_SPECIALIZATION(RigidBodyDynamics::Math::SpatialMatrixd)
-  EIGEN_DEFINE_STL_VECTOR_SPECIALIZATION(RigidBodyDynamics::Math::Matrix63d)
+EIGEN_DEFINE_STL_VECTOR_SPECIALIZATION(RigidBodyDynamics::Math::SpatialVectord)
+EIGEN_DEFINE_STL_VECTOR_SPECIALIZATION(RigidBodyDynamics::Math::SpatialMatrixd)
+EIGEN_DEFINE_STL_VECTOR_SPECIALIZATION(RigidBodyDynamics::Math::Matrix63d)
 
-  namespace RigidBodyDynamics {
-    namespace Math {
-      using SpatialTransformd = SpatialTransform<double>;
-      using SpatialRigidBodyInertiad = SpatialRigidBodyInertia<double>;
-    }
-  }
+namespace RigidBodyDynamics
+{
+namespace Math
+{
+using SpatialTransformd = SpatialTransform<double>;
+using SpatialRigidBodyInertiad = SpatialRigidBodyInertia<double>;
+}
+}
 
-  EIGEN_DEFINE_STL_VECTOR_SPECIALIZATION(RigidBodyDynamics::Math::SpatialTransformd)
-  EIGEN_DEFINE_STL_VECTOR_SPECIALIZATION(RigidBodyDynamics::Math::SpatialRigidBodyInertiad)
+EIGEN_DEFINE_STL_VECTOR_SPECIALIZATION(RigidBodyDynamics::Math::SpatialTransformd)
+EIGEN_DEFINE_STL_VECTOR_SPECIALIZATION(RigidBodyDynamics::Math::SpatialRigidBodyInertiad)
 #endif
 
-  /* RBDL_MATH_H_H */
+/* RBDL_MATH_H_H */
 #endif
