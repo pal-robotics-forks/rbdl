@@ -2,6 +2,17 @@
 Changelog for package rbdl
 ^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+* Merge branch 'pose_offset_test' into 'erbium-devel'
+  Add pose offset API
+  See merge request control/rbdl!3
+* Clang format
+* Fix rebase issues
+* Fix compilling issues
+* Add pose offset API
+* Contributors: Adria Roig, Hilario Tome
+
 0.2.3 (2018-04-06)
 ------------------
 * Merge branch 'link_reference_to' into 'erbium-devel'
