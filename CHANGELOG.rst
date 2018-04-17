@@ -2,8 +2,8 @@
 Changelog for package rbdl
 ^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Forthcoming
------------
+0.2.4 (2018-04-17)
+------------------
 * Merge branch 'pose_offset_test' into 'erbium-devel'
   Add pose offset API
   See merge request control/rbdl!3
