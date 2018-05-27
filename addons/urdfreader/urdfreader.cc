@@ -813,8 +813,8 @@ bool parseExtraInformation(urdf::Model &urdf_model, Model *rbdl_model,
       }
       else
       {
-        position_min[id] = (-3.14);
-        position_max[id] = (3.14);
+        position_min[id] = -INF;
+        position_max[id] = INF;
       }
       // Store the joint limits velocity
       if (urdf_link->parent_joint->type != urdf::Joint::CONTINUOUS)
@@ -825,8 +825,8 @@ bool parseExtraInformation(urdf::Model &urdf_model, Model *rbdl_model,
       else
       {
         /// Random high value
-        vel_min[id] = (-100.0);
-        vel_max[id] = (100.0);
+        vel_min[id] = -INF;
+        vel_max[id] = INF;
       }
       // Store joint damping
       if (urdf_link->parent_joint->dynamics)
