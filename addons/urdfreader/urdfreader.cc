@@ -817,14 +817,13 @@ bool parseExtraInformation(urdf::Model &urdf_model, Model *rbdl_model,
         position_max[id] = INF;
       }
       // Store the joint limits velocity
-      if (urdf_link->parent_joint->type != urdf::Joint::CONTINUOUS)
+      if (NULL != urdf_link->parent_joint->limits)
       {
         vel_min[id] = (-urdf_link->parent_joint->limits->velocity);
         vel_max[id] = (urdf_link->parent_joint->limits->velocity);
       }
       else
       {
-        /// Random high value
         vel_min[id] = -INF;
         vel_max[id] = INF;
       }
