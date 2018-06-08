@@ -2,6 +2,15 @@
 Changelog for package rbdl
 ^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+* Merge branch 'continuous_joint' into 'erbium-devel'
+  changed how continous joint limit is parsed
+  See merge request control/rbdl!5
+* Fix: velocity bounds for continuous joints
+* changed how continous joint limit is parsed
+* Contributors: Hilario Tome, alexandersherikov
+
 0.2.4 (2018-04-17)
 ------------------
 * Merge branch 'pose_offset_test' into 'erbium-devel'
