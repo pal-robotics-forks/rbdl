@@ -2,8 +2,8 @@
 Changelog for package rbdl
 ^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Forthcoming
------------
+0.2.5 (2018-06-08)
+------------------
 * Merge branch 'continuous_joint' into 'erbium-devel'
   changed how continous joint limit is parsed
   See merge request control/rbdl!5
