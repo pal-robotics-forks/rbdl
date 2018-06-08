@@ -11,6 +11,9 @@ struct Model;
 
 namespace Addons
 {
+
+const double INF = 1e10;
+
 /// @todo urdf should be const
 bool initializeURDFModelFromFile(urdf::Model &urdf_model, const char *filename);
 bool initializeURDFModelFromString(urdf::Model &urdf_model, const char *model_xml_string);
