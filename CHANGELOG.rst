@@ -2,8 +2,8 @@
 Changelog for package rbdl
 ^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Forthcoming
------------
+0.2.6 (2018-07-06)
+------------------
 * Merge branch 'as_test_fix' into 'erbium-devel'
   Fix uninitialized values in urdfreader.
   See merge request control/rbdl!7
