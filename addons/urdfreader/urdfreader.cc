@@ -203,8 +203,12 @@ int initialize_link(Model &rbdl_model, ModelDatad &model_data, ConstLinkPtr urdf
   // assemble the body
   Vector3d link_inertial_position;
   Vector3d link_inertial_rpy;
-  Matrix3d link_inertial_inertia = Matrix3d::Zero();
+  Matrix3d link_inertial_inertia;
   double link_inertial_mass = 0;
+
+  link_inertial_position.setZero();
+  link_inertial_rpy.setZero();
+  link_inertial_inertia.setZero();
 
   // but only if we actually have inertial data
   if (urdf_link->inertial)
