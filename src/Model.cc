@@ -578,7 +578,8 @@ unsigned int Model::GetBodyId(const char *body_name) const
 }
 unsigned int Model::GetBodyId(const char *body_name, const ModelDatad &model_data) const
 {
-  if (mBodyNameMap.count(body_name) == 0)
+  auto it = mBodyNameMap.find(body_name);
+  if (it == mBodyNameMap.end())
   {
     std::stringstream ss;
     ss << "GET BODY ID: ID does not exist: " << body_name << std::endl;
@@ -587,5 +588,5 @@ unsigned int Model::GetBodyId(const char *body_name, const ModelDatad &model_dat
     assert(mBodyNameMap.count(body_name) == 0);
     return std::numeric_limits<unsigned int>::max();
   }
-  return mBodyNameMap.find(body_name)->second;
+  return it->second;
 }
