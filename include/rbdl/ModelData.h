@@ -17,7 +17,7 @@ struct FixedBodyData{
   FixedBodyData<C> cast() const{
 
     FixedBodyData<C> casted;
-    casted.mBaseTransform = mBaseTransform.cast<C>();
+    casted.mBaseTransform = mBaseTransform.template cast<C>();
 
     return casted;
   }
