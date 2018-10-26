@@ -180,7 +180,7 @@ struct RBDL_DLLAPI SpatialRigidBodyInertia
   {
     SpatialRigidBodyInertia<C> casted;
     casted.m = C(m);
-    casted.h = h.cast<C>();
+    casted.h = h.template cast<C>();
     casted.Ixx = C(Ixx);
     casted.Iyx = C(Iyx);
     casted.Iyy = C(Iyy);
