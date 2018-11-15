@@ -2,8 +2,8 @@
 Changelog for package rbdl
 ^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Forthcoming
------------
+0.2.7 (2018-11-15)
+------------------
 * Merge branch 'clang-fixes' into 'erbium-devel'
   Fix wrong usage of dependent template
   See merge request control/rbdl!9
