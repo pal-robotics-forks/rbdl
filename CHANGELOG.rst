@@ -2,8 +2,8 @@
 Changelog for package rbdl
 ^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Forthcoming
------------
+0.2.8 (2019-03-18)
+------------------
 * Merge branch 'com_template' into 'erbium-devel'
   Com template
   See merge request control/rbdl!11
