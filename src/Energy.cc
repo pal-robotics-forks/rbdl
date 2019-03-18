@@ -32,32 +32,6 @@ void CalcAcumulatedMass(const Model &model,
 }
 
 
-Math::Vector3d CalcCOM(const Model &model,
-                       ModelDatad &model_data,
-                       const Math::VectorNd &Q,
-                       bool update_kinematics){
-  // update the Kinematics if necessary
-  if (update_kinematics) {
-    UpdateKinematicsCustom<double>(model, model_data, &Q, NULL, NULL);
-  }
-  Eigen::Vector3d com;
-  com.setZero();
-  double total_mass = 0;
-
-  for(unsigned int i=1; i<model.mBodies.size(); ++i){
-    int body_id = i;//rbdl_model_.GetBodyId(link_names_[i].c_str());
-    Eigen::Vector3d link_com;
-    link_com = CalcBodyToBaseCoordinates(model, model_data, Q,
-                                         body_id, model.mBodies[body_id].mCenterOfMass, false);
-
-    com += model.mBodies[body_id].mMass*link_com;
-    total_mass +=  model.mBodies[body_id].mMass;
-  }
-  return  com/total_mass;
-
-}
-
-
 Math::Vector3d CalcCOM(Model &model,
                        const Math::VectorNd &Q,
                        bool update_kinematics){
