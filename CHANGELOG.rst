@@ -2,6 +2,19 @@
 Changelog for package rbdl
 ^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+* Merge branch 'com_template' into 'erbium-devel'
+  Com template
+  See merge request control/rbdl!11
+* fixed critical bug in forward dynamics with multidof joint
+* templetized some functions
+* Merge branch 'faster-getbodyid' into 'erbium-devel'
+  Twice as fast getbodyid
+  See merge request control/rbdl!8
+* Twice as fast getbodyid
+* Contributors: Hilario Tome, Victor Lopez
+
 0.2.7 (2018-11-15)
 ------------------
 * Merge branch 'clang-fixes' into 'erbium-devel'
