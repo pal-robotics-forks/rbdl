@@ -874,7 +874,7 @@ RBDL_DLLAPI void jcalc(const Model &model, ModelData<T> &model_data, unsigned in
 
     model_data.v_J[joint_id] = model_data.multdof3_S[joint_id] * Vector3<T>(qdot0, qdot1, qdot2);
 
-    model_data.c_J[joint_id].template set(
+    model_data.c_J[joint_id].set(
         c2 * c1 * qdot2 * qdot0 - s2 * s1 * qdot1 * qdot0 - s2 * qdot2 * qdot1,
         -s2 * c1 * qdot2 * qdot0 - c2 * s1 * qdot1 * qdot0 - c2 * qdot2 * qdot1,
         -c1 * qdot1 * qdot0, T(0.), T(0.), T(0.));
@@ -898,7 +898,7 @@ RBDL_DLLAPI void jcalc(const Model &model, ModelData<T> &model_data, unsigned in
 
     model_data.v_J[joint_id] = model_data.multdof3_S[joint_id] * Vector3<T>(qdot0, qdot1, qdot2);
 
-    model_data.c_J[joint_id].template set(T(0.), T(0.), T(0.), T(0.), T(0.), T(0.));
+    model_data.c_J[joint_id].set(T(0.), T(0.), T(0.), T(0.), T(0.), T(0.));
     //  } else if (model.mJoints[joint_id].mJointType == JointTypeCustom) {
     //    const Joint &joint = model.mJoints[joint_id];
     //    CustomJoint *custom_joint =

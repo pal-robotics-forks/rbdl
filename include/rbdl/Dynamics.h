@@ -393,7 +393,7 @@ RBDL_DLLAPI void ForwardDynamics(const Model &model, ModelData<T> &model_data,
       Vector3<T> qdd_temp =
           model_data.multdof3_Dinv[i] *
           (model_data.multdof3_u[i] -
-           (model_data.multdof3_U[i].template transpose() * model_data.a[i]));
+           (model_data.multdof3_U[i].transpose() * model_data.a[i]));
       QDDot[q_index] = qdd_temp[0];
       QDDot[q_index + 1] = qdd_temp[1];
       QDDot[q_index + 2] = qdd_temp[2];
