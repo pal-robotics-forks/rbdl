@@ -2,6 +2,14 @@
 Changelog for package rbdl
 ^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+* Merge branch 'clang-fixes' into 'erbium-devel'
+  Wrong usage of template keyword
+  See merge request control/rbdl!12
+* Wrong usage of template keyword
+* Contributors: Victor Lopez
+
 0.2.8 (2019-03-18)
 ------------------
 * Merge branch 'com_template' into 'erbium-devel'
