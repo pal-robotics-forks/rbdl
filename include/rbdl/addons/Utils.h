@@ -21,7 +21,6 @@ inline RigidBodyDynamics::Math::SpatialVectord force2spatialVector(const Eigen::
 {
   RigidBodyDynamics::Math::SpatialVectord result;
 
-
   Eigen::Vector3d n0;
   n0 = pointOfForce.cross(force);
 

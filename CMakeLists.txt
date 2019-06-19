@@ -16,6 +16,10 @@ catkin_package(
 
 INCLUDE_DIRECTORIES (
         include
+)
+
+INCLUDE_DIRECTORIES (
+        SYSTEM
         ${catkin_INCLUDE_DIRS}
         ${Eigen_INCLUDE_DIRS}
 )
