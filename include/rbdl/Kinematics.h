@@ -478,9 +478,8 @@ RBDL_DLLAPI void CalcPointJacobian6DRelative(const Model &model, ModelDatad &mod
                                              const Math::Vector3d &point_position,
                                              Math::MatrixNd &G, bool update_kinematics = true);
 
-RBDL_DLLAPI void CalcPointJacobian6DRelative(Model &model,
-                                             const Math::VectorNd &Q, unsigned int body_id,
-                                             unsigned int respect_body_id,
+RBDL_DLLAPI void CalcPointJacobian6DRelative(Model &model, const Math::VectorNd &Q,
+                                             unsigned int body_id, unsigned int respect_body_id,
                                              const Math::Vector3d &point_position,
                                              Math::MatrixNd &G, bool update_kinematics = true);
 
@@ -595,6 +594,16 @@ RBDL_DLLAPI Math::Vector3d CalcPointAngularVelocity(Model &model, const Math::Ve
                                                     unsigned int body_id,
                                                     const Math::Vector3d &point_position,
                                                     bool update_kinematics = true);
+
+RBDL_DLLAPI Math::Vector3d CalcPointAngularVelocityRelative(
+    const Model &model, ModelDatad &model_data, const Math::VectorNd &Q,
+    const Math::VectorNd &QDot, unsigned int body_id, unsigned int respect_body_id,
+    const Math::Vector3d &point_position, bool update_kinematics = true);
+
+RBDL_DLLAPI Math::Vector3d CalcPointAngularVelocityRelative(
+    Model &model, const Math::VectorNd &Q, const Math::VectorNd &QDot,
+    unsigned int body_id, unsigned int respect_body_id,
+    const Math::Vector3d &point_position, bool update_kinematics = true);
 
 RBDL_DLLAPI Math::Vector3d CalcPointAngularVelocity(const Model &model, ModelDatad &model_data,
                                                     const Math::VectorNd &Q,
