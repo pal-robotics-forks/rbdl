@@ -261,15 +261,6 @@ RBDL_DLLAPI void CalcPointJacobian6D(const Model &model, ModelDatad &model_data,
           ((point_trans * model_data.X_base[j].inverse()).toMatrix() * model_data.multdof3_S[j])
               .block(0, 0, 6, 3);
     }
-    //    } else {
-    //      unsigned int k = model.mJoints[j].custom_joint_index;
-
-    //      G.block(0, q_index, 6, model.mCustomJoints[k]->mDoFCount)
-    //        = ((point_trans
-    //              * model_data.X_base[j].inverse()).toMatrix()
-    //            * model.mCustomJoints[k]->S).block(
-    //              0,0,6,model.mCustomJoints[k]->mDoFCount);
-    //    }
 
     j = model.lambda[j];
   }
@@ -282,6 +273,145 @@ void CalcPointJacobian6D(Model &model, const Math::VectorNd &Q, unsigned int bod
   CalcPointJacobian6D(model, *model.getModelData(), Q, body_id, point_position, G,
                       update_kinematics);
 }
+
+void CalcSpatialJacobian(const Model &model, ModelDatad &model_data, const VectorNd &Q,
+                         unsigned int body_id, MatrixNd &G, bool update_kinematics)
+{
+  LOG << "-------- " << __func__ << " --------" << std::endl;
+
+  // update the Kinematics if necessary
+  if (update_kinematics)
+  {
+    UpdateKinematicsCustom<double>(model, model_data, &Q, NULL, NULL);
+  }
+
+  assert(G.rows() == 6 && G.cols() == model.qdot_size);
+
+  unsigned int reference_body_id = body_id;
+
+  if (model.IsFixedBodyId(body_id))
+  {
+    unsigned int fbody_id = body_id - model.fixed_body_discriminator;
+
+    reference_body_id = model.mFixedBodies[fbody_id].mMovableParent;
+  }
+
+  unsigned int j = reference_body_id;
+
+  while (j != 0)
+  {
+    unsigned int q_index = model.mJoints[j].q_index;
+
+    // if(model.mJoints[j].mJointType != JointTypeCustom){
+    if (model.mJoints[j].mDoFCount == 1)
+    {
+      G.block(0, q_index, 6, 1) = (model_data.X_base[j].inverse().apply(model_data.S[j]));
+    }
+    else if (model.mJoints[j].mDoFCount == 3)
+    {
+      G.block(0, q_index, 6, 3) =
+          (model_data.X_base[j].inverse()).toMatrix() * model_data.multdof3_S[j];
+    }
+
+    j = model.lambda[j];
+  }
+}
+
+RBDL_DLLAPI void CalcRelativeBodySpatialJacobian(const Model &model, ModelDatad &model_data,
+                                                 const VectorNd &Q, unsigned int body_id,
+                                                 unsigned int respect_body_id,
+                                                 MatrixNd &G, bool update_kinematics)
+{
+  LOG << "-------- " << __func__ << " --------" << std::endl;
+
+  // update the Kinematics if necessary
+  if (update_kinematics)
+  {
+    UpdateKinematicsCustom<double>(model, model_data, &Q, NULL, NULL);
+  }
+
+  assert(G.rows() == 6 && G.cols() == model.qdot_size);
+
+  unsigned int reference_body_id = respect_body_id;
+
+  SpatialTransformd base_to_body;
+
+  if (model.IsFixedBodyId(body_id))
+  {
+    unsigned int fbody_id = body_id - model.fixed_body_discriminator;
+
+    reference_body_id = model.mFixedBodies[fbody_id].mMovableParent;
+
+    base_to_body =
+        model.mFixedBodies[fbody_id].mParentTransform * model_data.X_base[respect_body_id];
+  }
+  else
+  {
+    base_to_body = model_data.X_base[respect_body_id];
+  }
+
+  unsigned int j = body_id;
+
+  while (j != 0)
+  {
+    unsigned int q_index = model.mJoints[j].q_index;
+
+    if (model.mJoints[j].mDoFCount == 1)
+    {
+      G.block(0, q_index, 6, 1) =
+          base_to_body.apply(model_data.X_base[j].inverse().apply(model_data.S[j]));
+    }
+    else if (model.mJoints[j].mDoFCount == 3)
+    {
+      G.block(0, q_index, 6, 3) = (base_to_body * model_data.X_base[j].inverse()).toMatrix() *
+                                  model_data.multdof3_S[j];
+    }
+
+    j = model.lambda[j];
+  }
+}
+
+RBDL_DLLAPI void CalcPointJacobian6DRelative(const Model &model, ModelDatad &model_data,
+                                             const Math::VectorNd &Q, unsigned int body_id,
+                                             unsigned int respect_body_id,
+                                             const Math::Vector3d &point_position,
+                                             Math::MatrixNd &G, bool update_kinematics)
+{
+  if (update_kinematics)
+  {
+    RigidBodyDynamics::UpdateKinematicsCustom<double>(model, model_data, &Q, NULL, NULL);
+  }
+
+  Eigen::Vector3d p =
+      CalcBodyToBaseCoordinates(model, model_data, Q, body_id, point_position, false);
+
+  Eigen::Vector3d p_local =
+      CalcBaseToBodyCoordinates<double>(model, model_data, Q, respect_body_id, p, false);
+
+  SpatialTransformd point_trans = SpatialTransformd(Matrix3d::Identity(), p_local);
+
+
+  Eigen::MatrixXd body_jac(6, model.dof_count);
+  body_jac.setZero();
+  Eigen::MatrixXd respect_body_jac(6, model.dof_count);
+  respect_body_jac.setZero();
+
+  CalcRelativeBodySpatialJacobian(model, model_data, Q, body_id, respect_body_id, body_jac, false);
+  CalcRelativeBodySpatialJacobian(model, model_data, Q, respect_body_id, respect_body_id,
+                                  respect_body_jac, false);
+
+  G = point_trans.toMatrix() * (body_jac - respect_body_jac);
+}
+
+RBDL_DLLAPI void CalcPointJacobian6DRelative(Model &model, const Math::VectorNd &Q,
+                                             unsigned int body_id, unsigned int respect_body_id,
+                                             const Math::Vector3d &point_position,
+                                             Math::MatrixNd &G, bool update_kinematics)
+{
+  CalcPointJacobian6DRelative(model, *model.getModelData(), Q, body_id, respect_body_id,
+                              point_position, G, update_kinematics);
+}
+
 
 RBDL_DLLAPI void CalcPointJacobian6DBodyFrame(const Model &model, ModelDatad &model_data,
                                               const VectorNd &Q, unsigned int body_id,
@@ -328,23 +458,13 @@ RBDL_DLLAPI void CalcPointJacobian6DBodyFrame(const Model &model, ModelDatad &mo
           ((point_trans * model_data.X_base[j].inverse()).toMatrix() * model_data.multdof3_S[j])
               .block(0, 0, 6, 3);
     }
-    //    } else {
-    //      unsigned int k = model.mJoints[j].custom_joint_index;
-
-    //      G.block(0, q_index, 6, model.mCustomJoints[k]->mDoFCount)
-    //        = ((point_trans
-    //              * model_data.X_base[j].inverse()).toMatrix()
-    //            * model.mCustomJoints[k]->S).block(
-    //              0,0,6,model.mCustomJoints[k]->mDoFCount);
-    //    }
 
     j = model.lambda[j];
   }
 
-  Eigen::Vector3d zero;
-  zero.setZero();
-  Vector3d body_r =
-      CalcBodyToBaseCoordinates<double>(model, model_data, Q, body_id, zero, false);
+
+  Vector3d body_r = CalcBodyToBaseCoordinates<double>(model, model_data, Q, body_id,
+                                                      Eigen::Vector3d::Zero(), false);
   Matrix3d body_E = CalcBodyWorldOrientation<double>(model, model_data, Q, body_id, false);
   SpatialTransformd body_trans(body_E, body_r);
 
@@ -469,6 +589,134 @@ RBDL_DLLAPI Vector3d CalcPointVelocity(Model &model, const VectorNd &Q,
 {
   return CalcPointVelocity(model, *model.getModelData(), Q, QDot, body_id, point_position,
                            update_kinematics);
+}
+
+RBDL_DLLAPI Vector3d CalcPointVelocityRelative(const Model &model, ModelDatad &model_data,
+                                               const VectorNd &Q, const VectorNd &QDot,
+                                               unsigned int body_id, unsigned int respect_body_id,
+                                               const Vector3d &point_position,
+                                               bool update_kinematics)
+{
+  LOG << "-------- " << __func__ << " --------" << std::endl;
+  assert(model.IsBodyId(body_id));
+  assert(model.q_size == Q.size());
+  assert(model.qdot_size == QDot.size());
+
+  // Reset the velocity of the root body
+  model_data.v[0].setZero();
+
+  // update the Kinematics with zero acceleration
+  if (update_kinematics)
+  {
+    UpdateKinematicsCustom<double>(model, model_data, &Q, &QDot, NULL);
+  }
+
+  unsigned int reference_body_id = body_id;
+  Vector3d reference_point = point_position;
+
+  if (model.IsFixedBodyId(body_id))
+  {
+    unsigned int fbody_id = body_id - model.fixed_body_discriminator;
+    reference_body_id = model.mFixedBodies[fbody_id].mMovableParent;
+    Vector3d base_coords =
+        CalcBodyToBaseCoordinates(model, model_data, Q, body_id, point_position, false);
+    reference_point = CalcBaseToBodyCoordinates(model, model_data, Q, reference_body_id,
+                                                base_coords, false);
+  }
+
+  SpatialTransformd base_to_body;
+  if (model.IsFixedBodyId(body_id))
+  {
+    unsigned int fbody_id = body_id - model.fixed_body_discriminator;
+    reference_body_id = model.mFixedBodies[fbody_id].mMovableParent;
+    base_to_body =
+        model.mFixedBodies[fbody_id].mParentTransform * model_data.X_base[respect_body_id];
+  }
+  else
+  {
+    base_to_body = model_data.X_base[respect_body_id];
+  }
+
+  SpatialVectord body_vel =
+      base_to_body.apply(model_data.X_base[body_id].inverse().apply(model_data.v[body_id]));
+  SpatialVectord respect_body_vel = base_to_body.apply(
+      model_data.X_base[respect_body_id].inverse().apply(model_data.v[respect_body_id]));
+
+  SpatialVectord relative_vel = body_vel - respect_body_vel;
+
+  Eigen::Vector3d p =
+      CalcBodyToBaseCoordinates(model, model_data, Q, body_id, point_position, false);
+  Eigen::Vector3d p_local =
+      CalcBaseToBodyCoordinates<double>(model, model_data, Q, respect_body_id, p, false);
+  SpatialTransformd point_trans = SpatialTransformd(Matrix3d::Identity(), p_local);
+  SpatialVectord point_spatial_velocity = point_trans.apply(relative_vel);
+
+
+  return Vector3d(point_spatial_velocity[3], point_spatial_velocity[4],
+                  point_spatial_velocity[5]);
+}
+
+RBDL_DLLAPI SpatialVectord CalcPointVelocityRelative6D(
+    const Model &model, ModelDatad &model_data, const VectorNd &Q, const VectorNd &QDot,
+    unsigned int body_id, unsigned int respect_body_id, const Vector3d &point_position,
+    bool update_kinematics)
+{
+  LOG << "-------- " << __func__ << " --------" << std::endl;
+  assert(model.IsBodyId(body_id));
+  assert(model.q_size == Q.size());
+  assert(model.qdot_size == QDot.size());
+
+  // Reset the velocity of the root body
+  model_data.v[0].setZero();
+
+  // update the Kinematics with zero acceleration
+  if (update_kinematics)
+  {
+    UpdateKinematicsCustom<double>(model, model_data, &Q, &QDot, NULL);
+  }
+
+  unsigned int reference_body_id = body_id;
+  Vector3d reference_point = point_position;
+
+  if (model.IsFixedBodyId(body_id))
+  {
+    unsigned int fbody_id = body_id - model.fixed_body_discriminator;
+    reference_body_id = model.mFixedBodies[fbody_id].mMovableParent;
+    Vector3d base_coords =
+        CalcBodyToBaseCoordinates(model, model_data, Q, body_id, point_position, false);
+    reference_point = CalcBaseToBodyCoordinates(model, model_data, Q, reference_body_id,
+                                                base_coords, false);
+  }
+
+  SpatialTransformd base_to_body;
+  if (model.IsFixedBodyId(body_id))
+  {
+    unsigned int fbody_id = body_id - model.fixed_body_discriminator;
+    reference_body_id = model.mFixedBodies[fbody_id].mMovableParent;
+    base_to_body =
+        model.mFixedBodies[fbody_id].mParentTransform * model_data.X_base[respect_body_id];
+  }
+  else
+  {
+    base_to_body = model_data.X_base[respect_body_id];
+  }
+
+  SpatialVectord body_vel =
+      base_to_body.apply(model_data.X_base[body_id].inverse().apply(model_data.v[body_id]));
+  SpatialVectord respect_body_vel = base_to_body.apply(
+      model_data.X_base[respect_body_id].inverse().apply(model_data.v[respect_body_id]));
+
+  SpatialVectord relative_vel = body_vel - respect_body_vel;
+
+  Eigen::Vector3d p =
+      CalcBodyToBaseCoordinates(model, model_data, Q, body_id, point_position, false);
+  Eigen::Vector3d p_local =
+      CalcBaseToBodyCoordinates<double>(model, model_data, Q, respect_body_id, p, false);
+  SpatialTransformd point_trans = SpatialTransformd(Matrix3d::Identity(), p_local);
+  SpatialVectord point_spatial_velocity = point_trans.apply(relative_vel);
+
+
+  return point_spatial_velocity;
 }
 
 RBDL_DLLAPI Vector3d CalcPointAngularVelocity(const Model &model, ModelDatad &model_data,
