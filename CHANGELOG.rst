@@ -2,6 +2,16 @@
 Changelog for package rbdl
 ^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+* Merge branch 'inertia_id' into 'erbium-devel'
+  Inertia
+  See merge request control/rbdl!13
+* cleanup of the relative stuff
+* adding relative quantities
+* added relative computations
+* Contributors: Hilario Tome
+
 0.2.9 (2019-03-29)
 ------------------
 * Merge branch 'clang-fixes' into 'erbium-devel'
