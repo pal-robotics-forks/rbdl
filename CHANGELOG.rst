@@ -2,8 +2,8 @@
 Changelog for package rbdl
 ^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Forthcoming
------------
+0.2.10 (2019-07-24)
+-------------------
 * Merge branch 'inertia_id' into 'erbium-devel'
   Inertia
   See merge request control/rbdl!13
