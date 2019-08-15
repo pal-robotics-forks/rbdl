@@ -12,12 +12,11 @@
 #include <urdf_parser/urdf_parser.h>
 #include "ros/ros.h"
 
-typedef boost::shared_ptr<urdf::Link> LinkPtr;
-typedef const boost::shared_ptr<const urdf::Link> ConstLinkPtr;
-typedef boost::shared_ptr<urdf::Joint> JointPtr;
+typedef std::shared_ptr<urdf::Link> LinkPtr;
+typedef const std::shared_ptr<const urdf::Link> ConstLinkPtr;
+typedef std::shared_ptr<urdf::Joint> JointPtr;
 
 using namespace std;
-
 
 /* Check if the specified link is inside this urdf submodel */
 bool isLinkInUrdfModel(LinkPtr link, std::string tip)
@@ -305,7 +304,7 @@ bool construct_model_cuttips(Model &rbdl_model, ModelDatad &model_data, ConstLin
 
 // basic version with explicit root
 bool URDFReadFromURDF(Model *model, ModelDatad &model_data,
-                      const boost::shared_ptr<const urdf::Link> root,
+                      const std::shared_ptr<const urdf::Link> root,
                       const FloatingBaseType floating_base_type, const bool verbose)
 {
   int new_id = initialize_root(*model, model_data, root, floating_base_type);
@@ -334,7 +333,7 @@ bool URDFReadFromURDF(urdf::Model &urdf_model, Model *model, ModelDatad &model_d
                       const std::vector<std::string> &tip_links,
                       const FloatingBaseType floating_base_type, const bool verbose)
 {
-  boost::shared_ptr<const urdf::Link> root(urdf_model.getRoot());
+  std::shared_ptr<const urdf::Link> root(urdf_model.getRoot());
 
   int new_id = initialize_root(*model, model_data, root, floating_base_type);
 
@@ -351,7 +350,7 @@ bool URDFReadFromURDF(urdf::Model &urdf_model, Model *model, ModelDatad &model_d
 
 // basic version with extra info and explicit root
 bool URDFReadFromURDF(urdf::Model &urdf_model, Model *model, ModelDatad &model_data,
-                      const boost::shared_ptr<const urdf::Link> root,
+                      const std::shared_ptr<const urdf::Link> root,
                       const FloatingBaseType floating_base_type,
                       std::vector<std::string> &joint_names,
                       std::vector<double> &position_min, std::vector<double> &position_max,
@@ -770,7 +769,7 @@ bool parseExtraInformation(urdf::Model &urdf_model, Model *rbdl_model,
 
     std::string body_name = it->first;
 
-    boost::shared_ptr<urdf::Link> urdf_link;
+    std::shared_ptr<urdf::Link> urdf_link;
     urdf_model.getLink(body_name, urdf_link);
 
 

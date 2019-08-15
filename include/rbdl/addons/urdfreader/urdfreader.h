@@ -30,7 +30,7 @@ bool URDFReadFromString(const char *model_xml_string, Model *model,
 bool URDFReadFromURDF(urdf::Model &urdf_model, Model *model, ModelDatad &model_data,
                       const FloatingBaseType floatingBaseType, const bool verbose = false);
 bool URDFReadFromURDF(Model *model, ModelDatad &model_data,
-                      const boost::shared_ptr<const urdf::Link> root,
+                      const std::shared_ptr<const urdf::Link> root,
                       const FloatingBaseType floatingBaseType, const bool verbose = false);
 bool URDFReadFromURDF(urdf::Model &urdf_model, Model *model, ModelDatad &model_data,
                       const std::vector<std::string> &tip_links,
@@ -56,7 +56,7 @@ bool URDFReadFromString(const char *model_xml_string, Model *model,
                         std::vector<double> &max_effort, const bool verbose = false);
 
 bool URDFReadFromURDF(urdf::Model &urdf_model, Model *model, ModelDatad &model_data,
-                      const boost::shared_ptr<const urdf::Link> root,
+                      const std::shared_ptr<const urdf::Link> root,
                       const FloatingBaseType floatingBaseType,
                       std::vector<std::string> &joint_names,
                       std::vector<double> &position_min, std::vector<double> &position_max,
