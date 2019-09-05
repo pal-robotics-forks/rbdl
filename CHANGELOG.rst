@@ -2,6 +2,18 @@
 Changelog for package rbdl
 ^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+* Merge branch 'melodic-devel' into 'erbium-devel'
+  Melodic devel
+  See merge request control/rbdl!14
+* Fix build errors
+* Use urdf compatibility typedefs for kinetic/melodic compatibility
+* Fix float comparison
+* Add missing SYSTEM to include_directories
+* migrated to melodic
+* Contributors: Hilario Tome, Victor Lopez
+
 0.2.10 (2019-07-24)
 -------------------
 * Merge branch 'inertia_id' into 'erbium-devel'
