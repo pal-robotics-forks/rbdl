@@ -58,7 +58,6 @@ protected:
 
   unsigned int body_a_id, body_b_id, body_c_id, ref_body_id;
   Body body_a, body_b, body_c;
-  Joint joint_a, joint_b, joint_c;
 
   VectorNd Q;
   VectorNd QDot;
