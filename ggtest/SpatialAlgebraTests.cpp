@@ -554,7 +554,7 @@ TEST(SpatialAlgebraTests, TestSpatialRigidBodyInertiaCreateFromMatrix) {
   SpatialRigidBodyInertiad rbi;
   rbi.createFromMatrix (spatial_inertia);
 
-  EXPECT_EQ (mass, rbi.m);
+  EXPECT_DOUBLE_EQ (mass, rbi.m);
   EXPECT_TRUE(EIGEN_MATRIX_EQUAL_DOUBLE (Vector3d(mass * com), rbi.h));
   Matrix3d rbi_I_matrix (
       rbi.Ixx, rbi.Iyx, rbi.Izx,

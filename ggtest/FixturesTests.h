@@ -490,13 +490,13 @@ protected:
     return q_movable;
   }
 
-  RigidBodyDynamics::Math::MatrixNd CreateReducedInertiaMatrix(const RigidBodyDynamics::Math::MatrixNd &H_movable) {
-    assert (H_movable.rows() == model_movable->dof_count);
-    assert (H_movable.cols() == model_movable->dof_count);
+  RigidBodyDynamics::Math::MatrixNd CreateReducedInertiaMatrix(const RigidBodyDynamics::Math::MatrixNd &H_movable2) {
+    assert (H_movable2.rows() == model_movable->dof_count);
+    assert (H_movable2.cols() == model_movable->dof_count);
     RigidBodyDynamics::Math::MatrixNd H (model_fixed->dof_count, model_fixed->dof_count);
 
-    H (0,0) = H_movable(0,0); H (0,1) = H_movable(0,2);
-    H (1,0) = H_movable(2,0); H (1,1) = H_movable(2,2);
+    H (0,0) = H_movable2(0,0); H (0,1) = H_movable2(0,2);
+    H (1,0) = H_movable2(2,0); H (1,1) = H_movable2(2,2);
 
     return H;
   }

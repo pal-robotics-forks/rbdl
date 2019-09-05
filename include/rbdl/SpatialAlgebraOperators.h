@@ -263,7 +263,7 @@ struct RBDL_DLLAPI SpatialTransform
                         rbi.Izy, rbi.Izz) +
              VectorCrossMatrix<T>(r) * VectorCrossMatrix<T>(rbi.h) +
              (VectorCrossMatrix<T>(rbi.h - rbi.m * r) * VectorCrossMatrix<T>(r))) *
-            E.template transpose());
+            E.transpose());
   }
 
   /** Same as X^T I X
