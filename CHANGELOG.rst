@@ -2,8 +2,8 @@
 Changelog for package rbdl
 ^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Forthcoming
------------
+0.2.11 (2019-09-05)
+-------------------
 * Merge branch 'melodic-devel' into 'erbium-devel'
   Melodic devel
   See merge request control/rbdl!14
