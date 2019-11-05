@@ -41,9 +41,9 @@ struct RBDL_DLLAPI SpatialRigidBodyInertia
     , Izz(inertia(2, 2))
   {
   }
-  SpatialRigidBodyInertia<T>(T m, const Vector3<T> &h, const T &Ixx, const T &Iyx,
-                             const T &Iyy, const T &Izx, const T &Izy, const T &Izz)
-    : m(m), h(h), Ixx(Ixx), Iyx(Iyx), Iyy(Iyy), Izx(Izx), Izy(Izy), Izz(Izz)
+  SpatialRigidBodyInertia<T>(T _m, const Vector3<T> &_h, const T &_Ixx, const T &_Iyx,
+                             const T &_Iyy, const T &_Izx, const T &_Izy, const T &_Izz)
+    : m(_m), h(_h), Ixx(_Ixx), Iyx(_Iyx), Iyy(_Iyy), Izx(_Izx), Izy(_Izy), Izz(_Izz)
   {
   }
 
