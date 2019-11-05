@@ -243,26 +243,26 @@ TEST_F(FloatingBaseFixture, TestCalcPointVelocityCustom) {
         ),
       base);
 
-  VectorNd q = VectorNd::Zero (model->dof_count);
-  VectorNd qdot = VectorNd::Zero (model->dof_count);
-  VectorNd qddot = VectorNd::Zero (model->dof_count);
-  VectorNd tau = VectorNd::Zero (model->dof_count);
+  VectorNd Q = VectorNd::Zero (model->dof_count);
+  VectorNd QDot = VectorNd::Zero (model->dof_count);
+  VectorNd QDDot = VectorNd::Zero (model->dof_count);
+  VectorNd Tau = VectorNd::Zero (model->dof_count);
 
   unsigned int ref_body_id = base_body_id;
 
-  q[0] = 0.1;
-  q[1] = 1.1;
-  q[2] = 1.2;
-  q[3] = 1.3;
-  q[4] = 1.5;
-  q[5] = 1.7;
+  Q[0] = 0.1;
+  Q[1] = 1.1;
+  Q[2] = 1.2;
+  Q[3] = 1.3;
+  Q[4] = 1.5;
+  Q[5] = 1.7;
 
-  qdot[0] = 0.1;
-  qdot[1] = 1.1;
-  qdot[2] = 1.2;
-  qdot[3] = 1.3;
-  qdot[4] = 1.5;
-  qdot[5] = 1.7;
+  QDot[0] = 0.1;
+  QDot[1] = 1.1;
+  QDot[2] = 1.2;
+  QDot[3] = 1.3;
+  QDot[4] = 1.5;
+  QDot[5] = 1.7;
 
   // first we calculate the velocity when rotating around the Z axis
   Vector3d point_body_position (1., 0., 0.);
@@ -270,9 +270,9 @@ TEST_F(FloatingBaseFixture, TestCalcPointVelocityCustom) {
   Vector3d point_base_velocity;
   Vector3d point_base_velocity_reference;
 
-  ForwardDynamics(*model, *model_data, q, qdot, tau, qddot);
+  ForwardDynamics(*model, *model_data, Q, QDot, Tau, QDDot);
 
-  point_base_velocity = CalcPointVelocity (*model, *model_data, q, qdot, ref_body_id, point_body_position);
+  point_base_velocity = CalcPointVelocity (*model, *model_data, Q, QDot, ref_body_id, point_body_position);
 
   point_base_velocity_reference = Vector3d (
       -3.888503432977729e-01,
@@ -306,26 +306,26 @@ TEST_F(FloatingBaseFixture, TestCalcPointAccelerationNoQDDot) {
         ),
       base);
 
-  VectorNd q = VectorNd::Zero (model->dof_count);
-  VectorNd qdot = VectorNd::Zero (model->dof_count);
-  VectorNd qddot = VectorNd::Zero (model->dof_count);
-  VectorNd tau = VectorNd::Zero (model->dof_count);
+  VectorNd Q = VectorNd::Zero (model->dof_count);
+  VectorNd QDot = VectorNd::Zero (model->dof_count);
+  VectorNd QDDot = VectorNd::Zero (model->dof_count);
+  VectorNd Tau = VectorNd::Zero (model->dof_count);
 
   unsigned int ref_body_id = base_body_id;
 
-  q[0] = 0.1;
-  q[1] = 1.1;
-  q[2] = 1.2;
-  q[3] = 1.3;
-  q[4] = 1.5;
-  q[5] = 1.7;
+  Q[0] = 0.1;
+  Q[1] = 1.1;
+  Q[2] = 1.2;
+  Q[3] = 1.3;
+  Q[4] = 1.5;
+  Q[5] = 1.7;
 
-  qdot[0] = 0.1;
-  qdot[1] = 1.1;
-  qdot[2] = 1.2;
-  qdot[3] = 1.3;
-  qdot[4] = 1.5;
-  qdot[5] = 1.7;
+  QDot[0] = 0.1;
+  QDot[1] = 1.1;
+  QDot[2] = 1.2;
+  QDot[3] = 1.3;
+  QDot[4] = 1.5;
+  QDot[5] = 1.7;
 
   // first we calculate the velocity when rotating around the Z axis
   Vector3d point_body_position (-1.9, -1.8, 0.);
@@ -334,19 +334,19 @@ TEST_F(FloatingBaseFixture, TestCalcPointAccelerationNoQDDot) {
   Vector3d point_world_acceleration;
 
   // call ForwardDynamics to update the model
-  ForwardDynamics(*model, *model_data, q, qdot, tau, qddot);
-  qddot = VectorNd::Zero (qddot.size());
+  ForwardDynamics(*model, *model_data, Q, QDot, Tau, QDDot);
+  QDDot = VectorNd::Zero (QDDot.size());
 
-  qdot = qdot;
+  QDot = QDot;
 
-  point_world_position = CalcBodyToBaseCoordinates (*model, *model_data, q, ref_body_id, point_body_position, false);
-  point_world_velocity = CalcPointVelocity (*model, *model_data, q, qdot, ref_body_id, point_body_position);
+  point_world_position = CalcBodyToBaseCoordinates (*model, *model_data, Q, ref_body_id, point_body_position, false);
+  point_world_velocity = CalcPointVelocity (*model, *model_data, Q, QDot, ref_body_id, point_body_position);
 
   // we set the generalized acceleration to zero
 
   ClearLogOutput();
 
-  point_world_acceleration = CalcPointAcceleration (*model, *model_data, q, qdot, qddot, ref_body_id, point_body_position);
+  point_world_acceleration = CalcPointAcceleration (*model, *model_data, Q, QDot, QDDot, ref_body_id, point_body_position);
 
   Vector3d humans_point_position (
       -6.357089363622626e-01, -6.831041744630977e-01, 2.968974805916970e+00
@@ -399,10 +399,10 @@ TEST_F(FloatingBaseFixture, TestCalcPointAccelerationOnlyQDDot) {
         ),
       base);
 
-  VectorNd q = VectorNd::Zero (model->dof_count);
-  VectorNd qdot = VectorNd::Zero (model->dof_count);
-  VectorNd qddot = VectorNd::Zero (model->dof_count);
-  VectorNd tau = VectorNd::Zero (model->dof_count);
+  VectorNd Q = VectorNd::Zero (model->dof_count);
+  VectorNd QDot = VectorNd::Zero (model->dof_count);
+  VectorNd QDDot = VectorNd::Zero (model->dof_count);
+  VectorNd Tau = VectorNd::Zero (model->dof_count);
 
   unsigned int ref_body_id = base_body_id;
 
@@ -412,25 +412,25 @@ TEST_F(FloatingBaseFixture, TestCalcPointAccelerationOnlyQDDot) {
   Vector3d point_world_velocity;
   Vector3d point_world_acceleration;
 
-  ForwardDynamics(*model, *model_data, q, qdot, tau, qddot);
+  ForwardDynamics(*model, *model_data, Q, QDot, Tau, QDDot);
 
-  qddot = VectorNd::Zero (qddot.size());
+  QDDot = VectorNd::Zero (QDDot.size());
 
-  qddot[0] = 0.1;
-  qddot[1] = 1.1;
-  qddot[2] = 1.2;
-  qddot[3] = 1.3;
-  qddot[4] = 1.5;
-  qddot[5] = 1.7;
+  QDDot[0] = 0.1;
+  QDDot[1] = 1.1;
+  QDDot[2] = 1.2;
+  QDDot[3] = 1.3;
+  QDDot[4] = 1.5;
+  QDDot[5] = 1.7;
 
   //	cout << "ref_body_id = " << ref_body_id << endl;
   //	cout << "point_body_position = " << point_body_position << endl;
-  point_world_position = CalcBodyToBaseCoordinates (*model, *model_data, q, ref_body_id, point_body_position, false);
-  point_world_velocity = CalcPointVelocity (*model, *model_data, q, qdot, ref_body_id, point_body_position);
+  point_world_position = CalcBodyToBaseCoordinates (*model, *model_data, Q, ref_body_id, point_body_position, false);
+  point_world_velocity = CalcPointVelocity (*model, *model_data, Q, QDot, ref_body_id, point_body_position);
 
   ClearLogOutput();
 
-  point_world_acceleration = CalcPointAcceleration (*model, *model_data, q, qdot, qddot, ref_body_id, point_body_position);
+  point_world_acceleration = CalcPointAcceleration (*model, *model_data, Q, QDot, QDDot, ref_body_id, point_body_position);
 
   Vector3d humans_point_position (
       -1.900000000000000e+00, -1.800000000000000e+00, 0.000000000000000e+00
@@ -482,10 +482,10 @@ TEST_F(FloatingBaseFixture, TestCalcPointAccelerationFull) {
         ),
       base);
 
-  VectorNd q = VectorNd::Zero (model->dof_count);
-  VectorNd qdot = VectorNd::Zero (model->dof_count);
-  VectorNd qddot = VectorNd::Zero (model->dof_count);
-  VectorNd tau = VectorNd::Zero (model->dof_count);
+  VectorNd Q = VectorNd::Zero (model->dof_count);
+  VectorNd QDot = VectorNd::Zero (model->dof_count);
+  VectorNd QDDot = VectorNd::Zero (model->dof_count);
+  VectorNd Tau = VectorNd::Zero (model->dof_count);
 
   unsigned int ref_body_id = base_body_id;
 
@@ -495,37 +495,37 @@ TEST_F(FloatingBaseFixture, TestCalcPointAccelerationFull) {
   Vector3d point_world_velocity;
   Vector3d point_world_acceleration;
 
-  q[0] = 0.1;
-  q[1] = 1.1;
-  q[2] = 1.2;
-  q[3] = 1.3;
-  q[4] = 1.5;
-  q[5] = 1.7;
+  Q[0] = 0.1;
+  Q[1] = 1.1;
+  Q[2] = 1.2;
+  Q[3] = 1.3;
+  Q[4] = 1.5;
+  Q[5] = 1.7;
 
-  qdot[0] = 0.1;
-  qdot[1] = 1.1;
-  qdot[2] = 1.2;
-  qdot[3] = 1.3;
-  qdot[4] = 1.5;
-  qdot[5] = 1.7;
+  QDot[0] = 0.1;
+  QDot[1] = 1.1;
+  QDot[2] = 1.2;
+  QDot[3] = 1.3;
+  QDot[4] = 1.5;
+  QDot[5] = 1.7;
 
-  ForwardDynamics(*model, *model_data, q, qdot, tau, qddot);
+  ForwardDynamics(*model, *model_data, Q, QDot, Tau, QDDot);
 
-  qddot[0] = 0.1;
-  qddot[1] = 1.1;
-  qddot[2] = 1.2;
-  qddot[3] = 1.3;
-  qddot[4] = 1.5;
-  qddot[5] = 1.7;
+  QDDot[0] = 0.1;
+  QDDot[1] = 1.1;
+  QDDot[2] = 1.2;
+  QDDot[3] = 1.3;
+  QDDot[4] = 1.5;
+  QDDot[5] = 1.7;
 
   //	cout << "ref_body_id = " << ref_body_id << endl;
   //	cout << "point_body_position = " << point_body_position << endl;
-  point_world_position = CalcBodyToBaseCoordinates (*model, *model_data, q, ref_body_id, point_body_position, false);
-  point_world_velocity = CalcPointVelocity (*model, *model_data, q, qdot, ref_body_id, point_body_position);
+  point_world_position = CalcBodyToBaseCoordinates (*model, *model_data, Q, ref_body_id, point_body_position, false);
+  point_world_velocity = CalcPointVelocity (*model, *model_data, Q, QDot, ref_body_id, point_body_position);
 
   ClearLogOutput();
 
-  point_world_acceleration = CalcPointAcceleration (*model, *model_data, q, qdot, qddot, ref_body_id, point_body_position);
+  point_world_acceleration = CalcPointAcceleration (*model, *model_data, Q, QDot, QDDot, ref_body_id, point_body_position);
 
   Vector3d humans_point_position (
       -6.357089363622626e-01, -6.831041744630977e-01, 2.968974805916970e+00
