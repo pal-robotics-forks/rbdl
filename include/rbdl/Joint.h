@@ -378,7 +378,12 @@ struct RBDL_DLLAPI Joint
       for (unsigned int i = 0; i < mDoFCount; i++)
         mJointAxes[i] = joint.mJointAxes[i];
 
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wmaybe-uninitialized"
+// gcc 7.4.0 says joint.q_index may be uninitialized, even though
+// all constructors initialize it to 0. This disabled the warning/error
       q_index = joint.q_index;
+#pragma GCC diagnostic pop 
     }
     return *this;
   }
