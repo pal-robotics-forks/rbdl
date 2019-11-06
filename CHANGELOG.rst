@@ -2,8 +2,8 @@
 Changelog for package rbdl
 ^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Forthcoming
------------
+0.2.12 (2019-11-06)
+-------------------
 * Merge branch 'gcc-warning' into 'erbium-devel'
   Gcc warning
   See merge request control/rbdl!15
