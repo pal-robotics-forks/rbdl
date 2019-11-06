@@ -2,6 +2,16 @@
 Changelog for package rbdl
 ^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+* Merge branch 'gcc-warning' into 'erbium-devel'
+  Gcc warning
+  See merge request control/rbdl!15
+* disable false positives errors on tests
+* Disable shadowed variable
+* Disable gcc uninitialized
+* Contributors: Victor Lopez
+
 0.2.11 (2019-09-05)
 -------------------
 * Merge branch 'melodic-devel' into 'erbium-devel'
