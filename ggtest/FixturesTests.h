@@ -482,10 +482,12 @@ protected:
     assert (q_fixed.size() == model_fixed->dof_count);
 
     RigidBodyDynamics::Math::VectorNd q_movable (model_movable->dof_count);
-
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wnull-dereference"
     q_movable[0] = q_fixed[0];
     q_movable[1] = 0.;
     q_movable[2] = q_fixed[1];
+#pragma GCC diagnostic pop
 
     return q_movable;
   }
@@ -494,10 +496,11 @@ protected:
     assert (H_movable2.rows() == model_movable->dof_count);
     assert (H_movable2.cols() == model_movable->dof_count);
     RigidBodyDynamics::Math::MatrixNd H (model_fixed->dof_count, model_fixed->dof_count);
-
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wnull-dereference"
     H (0,0) = H_movable2(0,0); H (0,1) = H_movable2(0,2);
     H (1,0) = H_movable2(2,0); H (1,1) = H_movable2(2,2);
-
+#pragma GCC diagnostic pop
     return H;
   }
 
