@@ -8,9 +8,29 @@ using namespace Math;
 double CalcTotalMass(const Model &model){
   double totalMass = 0.;
   for(size_t i=0; i<model.mBodies.size(); ++i){
+    std::cerr << model.GetBodyName(i) << ": "  << i << std::endl;
     totalMass += model.mBodies[i].mMass;
   }
   return totalMass;
+}
+
+double CalcPartialMass(const Model &model, const std::string &body_1, const std::string &body_2)
+{
+  double partialMass = 0.;
+  bool body_1_detected = false;
+
+  for(size_t i=0; i<model.mBodies.size(); ++i){
+    if(model.GetBodyName(i) == body_1)
+      body_1_detected = true;
+    if(body_1_detected)
+      partialMass += model.mBodies[i].mMass;
+    if(model.GetBodyName(i) == body_2)
+      break;
+  }
+  if(body_1_detected)
+    return partialMass;
+
+  return (0);
 }
 
 // We have to acumulate the spatial transforms, it seems that the cross product of acumulationg the
