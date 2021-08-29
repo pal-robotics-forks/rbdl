@@ -99,6 +99,7 @@ public:
   ///  CompositeRigidBodyAlgorithm())
   std::vector<Math::SpatialRigidBodyInertia<T> > Ic;
   std::vector<Math::SpatialVector<T> > hc;
+  std::vector<Math::SpatialVector<T> > hdotc;
 
   template <typename C>
   ModelData<C> cast() const{

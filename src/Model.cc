@@ -81,6 +81,7 @@ Model::Model() : model_data_(new ModelDatad())
   model_data.Ic.push_back(rbi);
   model_data.I.push_back(rbi);
   model_data.hc.push_back(zero_spatial);
+  model_data.hdotc.push_back (zero_spatial);
 
   // Bodies
   model_data.X_lambda.push_back(SpatialTransformd());
@@ -149,6 +150,7 @@ Model::Model(ModelDatad &model_data)
   model_data.Ic.push_back(rbi);
   model_data.I.push_back(rbi);
   model_data.hc.push_back(zero_spatial);
+  model_data.hdotc.push_back (zero_spatial);
 
   // Bodies
   model_data.X_lambda.push_back(SpatialTransformd());
@@ -466,6 +468,7 @@ unsigned int Model::AddBody(ModelDatad &model_data, const unsigned int parent_id
   model_data.Ic.push_back(rbi);
   model_data.I.push_back(rbi);
   model_data.hc.push_back(SpatialVectord(0., 0., 0., 0., 0., 0.));
+  model_data.hdotc.push_back(SpatialVectord(0., 0., 0., 0., 0., 0.));
 
   if (mBodies.size() == fixed_body_discriminator)
   {

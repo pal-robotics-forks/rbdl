@@ -16,6 +16,8 @@ using namespace Math;
 
 double CalcTotalMass(const Model &model);
 
+double CalcPartialMass(const Model &model, const std::string &body_1, const std::string &body_2);
+
 template <typename T>
 Vector3<T> CalcCOM(const Model &model, ModelData<T> &model_data, const VectorN<T> &Q,
                    bool update_kinematics = true)
