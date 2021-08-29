@@ -2,8 +2,8 @@
 Changelog for package rbdl
 ^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Forthcoming
------------
+0.3.0 (2021-08-29)
+------------------
 * Merge branch 'kangaroo_wbc' into 'erbium-devel'
   Compute ZMP kinetimatically and partiall mass methods
   See merge request control/rbdl!16
