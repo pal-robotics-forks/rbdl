@@ -2,6 +2,14 @@
 Changelog for package rbdl
 ^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+* Merge branch 'kangaroo_wbc' into 'erbium-devel'
+  Compute ZMP kinetimatically and partiall mass methods
+  See merge request control/rbdl!16
+* Compute ZMP kinetimatically and partiall mass methods
+* Contributors: Adria Roig, victor
+
 0.2.12 (2019-11-06)
 -------------------
 * Merge branch 'gcc-warning' into 'erbium-devel'
