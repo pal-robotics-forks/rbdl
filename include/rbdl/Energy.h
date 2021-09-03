@@ -90,6 +90,8 @@ Math::SpatialVectord CalcEnergy_inefficient(const Model &model, ModelDatad &mode
                                             const Math::VectorNd &Q, const Math::VectorNd &QDot,
                                             bool update_kinematics = true,
                                             unsigned int method = 0);
+
+Math::Matrix3d calcGlobalInertiaTensorFromCOM(Model &model, const Math::VectorNd &Q, bool update_kinematics = true);
 }
 
 #endif

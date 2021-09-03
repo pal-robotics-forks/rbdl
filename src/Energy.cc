@@ -339,5 +339,37 @@ SpatialVectord CalcEnergy_inefficient(
 
 }
 
+Math::Matrix3d calcGlobalInertiaTensorFromCOM(Model &model, const Math::VectorNd &Q, bool update_kinematics)
+{
+    RigidBodyDynamics::Math::Matrix3d J_c = RigidBodyDynamics::Math::Matrix3d::Zero();
+
+    // compute CoM position with RBDL function
+    if(update_kinematics)
+        UpdateKinematics(model, Q, Math::VectorNd::Zero(model.dof_count), Math::VectorNd::Zero(model.dof_count));
+
+    Math::Vector3d r_c = CalcCOM(model, Q, update_kinematics);
+
+    // compute total interia around CoM
+    for (std::map<std::string, unsigned int>::iterator it = model.mBodyNameMap.begin();
+         it != model.mBodyNameMap.end(); it++)
+    {
+      unsigned int i = it->second;
+      if (model.IsFixedBodyId(i))
+        continue;
+
+      double mi = model.mBodies[i].mMass;
+      Math::Vector3d riCi = model.mBodies[i].mCenterOfMass;
+      Math::Matrix3d J_i = model.mBodies[i].mInertia;
+      Math::Vector3d r_ci = CalcBodyToBaseCoordinates(model, Q, i, riCi, false) - r_c;
+      Math::Matrix3d R_i = CalcBodyWorldOrientation(model, Q, i, false).transpose();
+      double rTr = r_ci.transpose() * r_ci;
+      Math::Matrix3d rrT = r_ci * r_ci.transpose();
+      Math::Matrix3d ji0 = R_i * J_i * R_i.transpose();
+      Math::Matrix3d J_ci = ji0 + (mi * (rTr * RigidBodyDynamics::Math::Matrix3d::Identity() - rrT));
+      J_c += J_ci;
+    }
+    return J_c;
+}
+
 
 }
