@@ -2,6 +2,18 @@
 Changelog for package rbdl
 ^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+* Merge branch 'dynamic_linearized_mpc' into 'erbium-devel'
+  Add global inertia matrix from COM method
+  See merge request control/rbdl!17
+* Merge branch 'update_ik_api_from_upstream' into 'erbium-devel'
+  Update new InverseKinematics with different constraints API
+  See merge request control/rbdl!18
+* Update new InverseKinematics with different constraints API
+* Add global inertia matrix from COM method
+* Contributors: Adria Roig, Sai Kishor Kothakota, saikishor
+
 0.3.0 (2021-08-29)
 ------------------
 * Merge branch 'kangaroo_wbc' into 'erbium-devel'
