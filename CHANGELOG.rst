@@ -2,8 +2,8 @@
 Changelog for package rbdl
 ^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Forthcoming
------------
+0.4.0 (2022-04-08)
+------------------
 * Merge branch 'dynamic_linearized_mpc' into 'erbium-devel'
   Add global inertia matrix from COM method
   See merge request control/rbdl!17
