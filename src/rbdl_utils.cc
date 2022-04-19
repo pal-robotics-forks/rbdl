@@ -10,6 +10,7 @@
 #include "rbdl/rbdl_math.h"
 #include "rbdl/Model.h"
 #include "rbdl/Kinematics.h"
+#include "rbdl/Energy.h"
 
 #include <sstream>
 #include <iomanip>
@@ -362,6 +363,67 @@ RBDL_DLLAPI void CalcZeroMomentPoint(Model &model, ModelDatad &model_data,
   // zmp = hdot_tot - distance * normal;
 
   return;
+}
+
+void CalcPointSpatialInertiaMatrix(Model &model, ModelDatad &model_data, const VectorNd &q,
+                                   const VectorNd &qdot, const Math::Vector3d &point_position,
+                                   Math::SpatialRigidBodyInertiad &inertia_matrix,
+                                   bool update_kinematics)
+{
+  if (update_kinematics)
+    UpdateKinematicsCustom<double>(model, model_data, &q, &qdot, NULL);
+
+  for (size_t i = 1; i < model.mBodies.size(); i++)
+  {
+    model_data.Ic[i] = model_data.I[i];
+  }
+
+  inertia_matrix = SpatialRigidBodyInertiad(0., Vector3d(0., 0., 0.), Matrix3d::Zero(3, 3));
+
+  for (size_t i = model.mBodies.size() - 1; i > 0; i--)
+  {
+    unsigned int lambda = model.lambda[i];
+
+    if (lambda != 0)
+    {
+      model_data.Ic[lambda] =
+          model_data.Ic[lambda] + model_data.X_lambda[i].applyTranspose(model_data.Ic[i]);
+    }
+    else
+    {
+      Math::SpatialTransformd tot_trans =
+          Xtrans(point_position).inverse() * model_data.X_lambda[i];
+      inertia_matrix = inertia_matrix + tot_trans.applyTranspose(model_data.Ic[i]);
+    }
+  }
+  LOG << "mass = " << inertia_matrix.m
+      << " com = " << (inertia_matrix.h / inertia_matrix.m).transpose()
+      << " I = " << inertia_matrix.toMatrix().block(0, 0, 3, 3) << std::endl;
+}
+
+void CalcPointSpatialInertiaMatrix(Model &model, const VectorNd &q, const VectorNd &qdot,
+                                   unsigned int body_id, const Vector3d &point_position,
+                                   SpatialRigidBodyInertiad &inertia_matrix, bool update_kinematics)
+{
+  if (update_kinematics)
+    UpdateKinematicsCustom<double>(model, *model.getModelData(), &q, &qdot, NULL);
+
+  const Vector3d point_world =
+      CalcBodyToBaseCoordinates(model, q, body_id, point_position, false);
+  const Vector3d base_world = CalcBodyToBaseCoordinates(model, q, 0, Vector3d::Zero(), false);
+  CalcPointSpatialInertiaMatrix(model, *model.getModelData(), q, qdot,
+                                point_world - base_world, inertia_matrix, false);
+}
+
+void CalcCentroidalInertiaMatrix(Model &model, const VectorNd &q, const VectorNd &qdot,
+                                 SpatialRigidBodyInertiad &inertia_matrix, bool update_kinematics)
+{
+  if (update_kinematics)
+    UpdateKinematicsCustom<double>(model, *model.getModelData(), &q, &qdot, NULL);
+  const Vector3d com_pos_world = CalcCOM(model, q, false);
+  const Vector3d base_world = CalcBodyToBaseCoordinates(model, q, 0, Vector3d::Zero(), false);
+  CalcPointSpatialInertiaMatrix(model, *model.getModelData(), q, qdot,
+                                com_pos_world - base_world, inertia_matrix, false);
 }
 }
 }
