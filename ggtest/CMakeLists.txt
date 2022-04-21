@@ -58,7 +58,7 @@ if(CATKIN_ENABLE_TESTING)
  #catkin_add_gtest(GTestTwolegModelTests TwolegModelTests.cpp)
  #target_link_libraries(GTestTwolegModelTests ${catkin_LIBRARIES} rbdl)
 
- #catkin_add_gtest(GTestUtilsTests UtilsTests.cpp)
- #target_link_libraries(GTestUtilsTests ${catkin_LIBRARIES} rbdl)
+ catkin_add_gtest(GTestUtilsTests UtilsTests.cpp)
+ target_link_libraries(GTestUtilsTests ${catkin_LIBRARIES} rbdl)
 
 endif()
