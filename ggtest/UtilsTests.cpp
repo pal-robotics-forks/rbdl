@@ -162,37 +162,42 @@ TEST_F (TwoArms12DoF, TestAngularMomentumSimple) {
 
 TEST(UtilsTests, TestSpatialInteria) {
   Model model;
-  Matrix3d inertia = Matrix3d::Zero(3,3);
-  inertia(0,0) = 1.1;
-  inertia(1,1) = 2.2;
-  inertia(2,2) = 3.3;
+  Matrix3d inertia = Matrix3d::Zero(3, 3);
+  inertia(0, 0) = 1.1;
+  inertia(1, 1) = 2.2;
+  inertia(2, 2) = 3.3;
 
-  Body body (0.5, Vector3d (1., 0., 0.), inertia);
-  Joint joint (
-      SpatialVectord (1., 0., 0., 0., 0., 0.),
-      SpatialVectord (0., 1., 0., 0., 0., 0.),
-      SpatialVectord (0., 0., 1., 0., 0., 0.)
-      );
+  Body body(0.5, Vector3d(1., 0., 0.), inertia);
+  Joint joint(SpatialVectord(1., 0., 0., 0., 0., 0.), SpatialVectord(0., 1., 0., 0., 0., 0.),
+              SpatialVectord(0., 0., 1., 0., 0., 0.));
 
-  model.AppendBody (*model.getModelData(), Xtrans (Vector3d(0., 0., 0.)), joint, body);
+  model.AppendBody(*model.getModelData(), Xtrans(Vector3d(0., 0., 0.)), joint, body);
 
   VectorNd q = VectorNd::Zero(model.q_size);
   VectorNd qdot_zero = VectorNd::Zero(model.qdot_size);
-  VectorNd qdot_nonzero = VectorNd::Zero(model.qdot_size);
-  qdot_nonzero.setRandom();
+  VectorNd qdot_nonzero_1 = VectorNd::Zero(model.qdot_size);
+  VectorNd qdot_nonzero_2 = VectorNd::Zero(model.qdot_size);
+  VectorNd qdot_nonzero_3 = VectorNd::Zero(model.qdot_size);
+  qdot_nonzero_1.setRandom();
+  qdot_nonzero_2.setRandom();
+  qdot_nonzero_3.setRandom();
 
   // Computed with the info inside CalcCenterOfMass method
-  Matrix3d world_inertia = Matrix3d::Zero(3,3);
-  world_inertia(0,0) = 1.1;
-  world_inertia(1,1) = 2.7;
-  world_inertia(2,2) = 3.8;
+  Matrix3d world_inertia = Matrix3d::Zero(3, 3);
+  world_inertia(0, 0) = 1.1;
+  world_inertia(1, 1) = 2.7;
+  world_inertia(2, 2) = 3.8;
   double mass;
   Vector3d com;
   Vector3d angular_momentum;
+  Vector3d computed_angular_momentum;
 
-  for (const VectorNd& qdot : { qdot_zero, qdot_nonzero })
+  for (const VectorNd& qdot : { qdot_zero, qdot_nonzero_1, qdot_nonzero_2, qdot_nonzero_3 })
   {
-    // Computation of Inertia along CoM
+    // Test to compute Inertia and Angular Momentum along CoM and a different point
+
+    // Compute Angular Momentum with standard method
+    Utils::CalcCenterOfMass(model, q, qdot, mass, com, NULL, &angular_momentum);
 
     // Main method for the compuration of inertia along CoM
     Eigen::Matrix3d com_inertia = calcGlobalInertiaTensorFromCOM(model, q, true);
@@ -201,39 +206,43 @@ TEST(UtilsTests, TestSpatialInteria) {
     // Computation at Center of Mass with a specific method
     SpatialRigidBodyInertiad computed_com_inertia =
         SpatialRigidBodyInertiad(0., Vector3d(0., 0., 0.), Matrix3d::Zero(3, 3));
-    Utils::CalcCentroidalInertiaMatrix(model, q, qdot, computed_com_inertia, true);
+    Utils::CalcCentroidalInertiaMatrix(model, q, qdot, computed_com_inertia,
+                                       &computed_angular_momentum, true);
     EXPECT_TRUE(EIGEN_MATRIX_NEAR(inertia,
                                   computed_com_inertia.toMatrix().block(0, 0, 3, 3), 1e-8));
     EXPECT_TRUE(EIGEN_MATRIX_NEAR(Eigen::Vector3d::Zero(), computed_com_inertia.h, 1e-8));
+    EXPECT_TRUE(EIGEN_MATRIX_NEAR(angular_momentum, computed_angular_momentum, 1e-8));
     EXPECT_NEAR(body.mMass, computed_com_inertia.m, 1e-8);
 
     // Computation at a point same as the center of mass
     computed_com_inertia =
         SpatialRigidBodyInertiad(0., Vector3d(0., 0., 0.), Matrix3d::Zero(3, 3));
     Utils::CalcPointSpatialInertiaMatrix(model, *model.getModelData(), q, qdot,
-                                         body.mCenterOfMass, computed_com_inertia, true);
+                                         body.mCenterOfMass, computed_com_inertia,
+                                         &computed_angular_momentum, true);
     EXPECT_TRUE(EIGEN_MATRIX_NEAR(inertia,
                                   computed_com_inertia.toMatrix().block(0, 0, 3, 3), 1e-8));
     Math::Vector3d computed_com_pos = computed_com_inertia.h / computed_com_inertia.m;
     EXPECT_TRUE(EIGEN_MATRIX_NEAR(Eigen::Vector3d::Zero(), computed_com_pos, 1e-8));
+    EXPECT_TRUE(EIGEN_MATRIX_NEAR(angular_momentum, computed_angular_momentum, 1e-8));
     EXPECT_NEAR(body.mMass, computed_com_inertia.m, 1e-8);
 
     // Computation with respect to world
     computed_com_inertia =
         SpatialRigidBodyInertiad(0., Vector3d(0., 0., 0.), Matrix3d::Zero(3, 3));
     Utils::CalcPointSpatialInertiaMatrix(model, *model.getModelData(), q, qdot,
-                                         Math::Vector3d(0, 0, 0), computed_com_inertia, true);
+                                         Math::Vector3d(0, 0, 0), computed_com_inertia,
+                                         &computed_angular_momentum, true);
     EXPECT_TRUE(EIGEN_MATRIX_NEAR(world_inertia,
                                   computed_com_inertia.toMatrix().block(0, 0, 3, 3), 1e-8));
     computed_com_pos = computed_com_inertia.h / computed_com_inertia.m;
+    // Check with standard formulation of Angular Momentum = Inertia * Angular Velocity
+    EXPECT_TRUE(EIGEN_MATRIX_NEAR(computed_com_inertia.toMatrix().block(0, 0, 3, 3) * qdot,
+                                  computed_angular_momentum, 1e-8));
     EXPECT_TRUE(EIGEN_MATRIX_NEAR(body.mCenterOfMass,
                                   computed_com_inertia.h / computed_com_inertia.m, 1e-8));
     EXPECT_NEAR(body.mMass, computed_com_inertia.m, 1e-8);
   }
-
-  qdot_nonzero << 1., 0., 0.;
-  Utils::CalcCenterOfMass(model, q, qdot_nonzero, mass, com, NULL, &angular_momentum);
-  EXPECT_EQ(Vector3d(1.1, 0., 0.), angular_momentum);
 }
 
 int main( int argc, char** argv)

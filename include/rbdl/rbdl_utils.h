@@ -77,23 +77,24 @@ RBDL_DLLAPI void CalcZeroMomentPoint(Model &model, ModelDatad &model_data,
                                      const Math::Vector3d &point = Math::Vector3d(0., 0., 0.),
                                      bool update_kinematics = true);
 
-/** \brief Computed the Spatial Inertia Matrix of a given point position (w.r.t base_link) */
-RBDL_DLLAPI void CalcPointSpatialInertiaMatrix(Model &model, ModelDatad &model_data,
-                                               const Math::VectorNd &q,
-                                               const Math::VectorNd &qdot,
-                                               const Math::Vector3d &point_position,
-                                               Math::SpatialRigidBodyInertiad &inertia_matrix,
-                                               bool update_kinematics = true);
+/** \brief Computed the Spatial Inertia Matrix of a given point position (w.r.t base_link)
+ */
+RBDL_DLLAPI void CalcPointSpatialInertiaMatrix(
+    Model &model, ModelDatad &model_data, const Math::VectorNd &q, const Math::VectorNd &qdot,
+    const Math::Vector3d &point_position, Math::SpatialRigidBodyInertiad &inertia_matrix,
+    Math::Vector3d *angular_momentum, bool update_kinematics = true);
 
 void CalcPointSpatialInertiaMatrix(Model &model, const Math::VectorNd &q,
                                    const Math::VectorNd &qdot, unsigned int body_id,
                                    const Math::Vector3d &point_position,
                                    Math::SpatialRigidBodyInertiad &inertia_matrix,
+                                   Math::Vector3d *angular_momentum,
                                    bool update_kinematics = true);
 
 void CalcCentroidalInertiaMatrix(Model &model, const Math::VectorNd &q,
                                  const Math::VectorNd &qdot,
                                  Math::SpatialRigidBodyInertiad &inertia_matrix,
+                                 Math::Vector3d *angular_momentum,
                                  bool update_kinematics = true);
 }
 }
