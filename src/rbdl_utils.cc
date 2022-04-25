@@ -220,7 +220,8 @@ RBDL_DLLAPI void CalcCenterOfMass(const Model &model, ModelDatad &model_data,
   mass = Itot.m;
   com = Itot.h / mass;
   LOG << "mass = " << mass << " com = " << com.transpose()
-      << " htot = " << htot.transpose() << std::endl;
+      << " htot = " << htot.transpose()
+      << " I = " << Itot.toMatrix().block(0, 0, 3, 3) << std::endl;
 
   if (com_velocity)
     *com_velocity = Vector3d(htot[3] / mass, htot[4] / mass, htot[5] / mass);

@@ -243,6 +243,82 @@ TEST(UtilsTests, TestSpatialInteria) {
                                   computed_com_inertia.h / computed_com_inertia.m, 1e-8));
     EXPECT_NEAR(body.mMass, computed_com_inertia.m, 1e-8);
   }
+
+  // Addition of new body
+  Matrix3d inertia_1 = Matrix3d::Zero(3, 3);
+  inertia_1(0, 0) = 2.2;
+  inertia_1(1, 1) = 4.4;
+  inertia_1(2, 2) = 6.6;
+  Body body_1(2.0, Vector3d(1., 0., 0.), inertia_1);
+  Joint joint_1(JointTypeRevoluteX);
+  model.AppendBody(*model.getModelData(), Xtrans(Vector3d(1., 0., 0.)), joint_1, body_1);
+  q = VectorNd::Zero(model.q_size);
+  qdot_zero = VectorNd::Zero(model.qdot_size);
+  qdot_nonzero_1 = VectorNd::Zero(model.qdot_size);
+  qdot_nonzero_2 = VectorNd::Zero(model.qdot_size);
+  qdot_nonzero_3 = VectorNd::Zero(model.qdot_size);
+  qdot_nonzero_1.setRandom();
+  qdot_nonzero_2.setRandom();
+  qdot_nonzero_3.setRandom();
+
+  // Computed with the info inside CalcCenterOfMass method
+  world_inertia(0, 0) = 3.3;
+  world_inertia(1, 1) = 15.1;
+  world_inertia(2, 2) = 18.4;
+
+  Matrix3d combined_inertia;
+  combined_inertia.setZero();
+  combined_inertia(0,0) = 3.3;
+  combined_inertia(1,1) = 7;
+  combined_inertia(2,2) = 10.3;
+
+  for (const VectorNd& qdot : { qdot_zero, qdot_nonzero_1, qdot_nonzero_2, qdot_nonzero_3 })
+  {
+    // Test to compute Inertia and Angular Momentum along CoM and a different point
+
+    // Compute Angular Momentum with standard method
+    Utils::CalcCenterOfMass(model, q, qdot, mass, com, NULL, &angular_momentum);
+
+    // Main method for the compuration of inertia along CoM
+    Eigen::Matrix3d com_inertia = calcGlobalInertiaTensorFromCOM(model, q, true);
+    EXPECT_TRUE(EIGEN_MATRIX_NEAR(combined_inertia, com_inertia, 1e-8));
+
+    // Computation at Center of Mass with a specific method
+    SpatialRigidBodyInertiad computed_com_inertia =
+        SpatialRigidBodyInertiad(0., Vector3d(0., 0., 0.), Matrix3d::Zero(3, 3));
+    Utils::CalcCentroidalInertiaMatrix(model, q, qdot, computed_com_inertia,
+                                       &computed_angular_momentum, true);
+    EXPECT_TRUE(EIGEN_MATRIX_NEAR(combined_inertia,
+                                  computed_com_inertia.toMatrix().block(0, 0, 3, 3), 1e-8));
+    EXPECT_TRUE(EIGEN_MATRIX_NEAR(Eigen::Vector3d::Zero(), computed_com_inertia.h, 1e-8));
+    EXPECT_TRUE(EIGEN_MATRIX_NEAR(angular_momentum, computed_angular_momentum, 1e-8));
+    EXPECT_NEAR(mass, computed_com_inertia.m, 1e-8);
+
+    // Computation at a point same as the center of mass
+    computed_com_inertia =
+        SpatialRigidBodyInertiad(0., Vector3d(0., 0., 0.), Matrix3d::Zero(3, 3));
+    Utils::CalcPointSpatialInertiaMatrix(model, *model.getModelData(), q, qdot,
+                                         com, computed_com_inertia,
+                                         &computed_angular_momentum, true);
+    EXPECT_TRUE(EIGEN_MATRIX_NEAR(combined_inertia,
+                                  computed_com_inertia.toMatrix().block(0, 0, 3, 3), 1e-8));
+    Math::Vector3d computed_com_pos = computed_com_inertia.h / computed_com_inertia.m;
+    EXPECT_TRUE(EIGEN_MATRIX_NEAR(Eigen::Vector3d::Zero(), computed_com_pos, 1e-8));
+    EXPECT_TRUE(EIGEN_MATRIX_NEAR(angular_momentum, computed_angular_momentum, 1e-8));
+    EXPECT_NEAR(mass, computed_com_inertia.m, 1e-8);
+
+    // Computation with respect to world
+    computed_com_inertia =
+        SpatialRigidBodyInertiad(0., Vector3d(0., 0., 0.), Matrix3d::Zero(3, 3));
+    Utils::CalcPointSpatialInertiaMatrix(model, *model.getModelData(), q, qdot,
+                                         Math::Vector3d(0, 0, 0), computed_com_inertia,
+                                         &computed_angular_momentum, true);
+    EXPECT_TRUE(EIGEN_MATRIX_NEAR(world_inertia,
+                                  computed_com_inertia.toMatrix().block(0, 0, 3, 3), 1e-8));
+    EXPECT_TRUE(EIGEN_MATRIX_NEAR(com,
+                                  computed_com_inertia.h / computed_com_inertia.m, 1e-8));
+    EXPECT_NEAR(mass, computed_com_inertia.m, 1e-8);
+  }
 }
 
 int main( int argc, char** argv)
