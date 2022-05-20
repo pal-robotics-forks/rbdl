@@ -350,10 +350,8 @@ Math::Matrix3d calcGlobalInertiaTensorFromCOM(Model &model, const Math::VectorNd
     Math::Vector3d r_c = CalcCOM(model, Q, update_kinematics);
 
     // compute total interia around CoM
-    for (std::map<std::string, unsigned int>::iterator it = model.mBodyNameMap.begin();
-         it != model.mBodyNameMap.end(); it++)
+    for (size_t i = 0; i < model.mBodies.size(); i++)
     {
-      unsigned int i = it->second;
       if (model.IsFixedBodyId(i))
         continue;
 
