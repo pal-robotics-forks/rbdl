@@ -152,40 +152,55 @@ void construct_model(Model *rbdl_model, ModelPtr urdf_model,
                          root_link,
                          root->name);
 
-  // depth first traversal: push the first child onto our joint_index_stack
-  joint_index_stack.push(0);
+  std::string name = "gripper_link";
+  std::string base_link_name = "base_footprint";
+  std::vector<std::string> joint_names_aux;
 
-  while (link_stack.size() > 0) {
-    LinkPtr cur_link = link_stack.top();
-
-    unsigned int joint_idx = joint_index_stack.top();
-
-    // Add any child bodies and increment current joint index if we still
-    // have child joints to process.
-    if (joint_idx < cur_link->child_joints.size()) {
-      JointPtr cur_joint = cur_link->child_joints[joint_idx];
-
-      // increment joint index
-      joint_index_stack.pop();
-      joint_index_stack.push(joint_idx + 1);
-
-      link_stack.push(link_map[cur_joint->child_link_name]);
-      joint_index_stack.push(0);
-
-      if (verbose) {
-        for (unsigned int i = 1; i < joint_index_stack.size() - 1; i++) {
-          cout << "  ";
-        }
-        cout << "joint '" << cur_joint->name << "' child link '" <<
-          link_stack.top()->name << "' type = " << cur_joint->type << endl;
-      }
-
-      joint_names.push_back(cur_joint->name);
-    } else {
-      link_stack.pop();
-      joint_index_stack.pop();
-    }
+  while(name != base_link_name)
+  {
+      joint_names_aux.push_back(link_map[name]->parent_joint->name);
+      name = link_map[name]->getParent()->name;
   }
+  for(size_t i = joint_names_aux.size() - 1; i > 0; i--)
+  {
+      joint_names.push_back(joint_names_aux[i]);
+      std::cerr << joint_names_aux[i] << std::endl;
+  }
+
+  // depth first traversal: push the first child onto our joint_index_stack
+//  joint_index_stack.push(0);
+
+//  while (link_stack.size() > 0) {
+//    LinkPtr cur_link = link_stack.top();
+
+//    unsigned int joint_idx = joint_index_stack.top();
+
+//    // Add any child bodies and increment current joint index if we still
+//    // have child joints to process.
+//    if (joint_idx < cur_link->child_joints.size()) {
+//      JointPtr cur_joint = cur_link->child_joints[joint_idx];
+
+//      // increment joint index
+//      joint_index_stack.pop();
+//      joint_index_stack.push(joint_idx + 1);
+
+//      link_stack.push(link_map[cur_joint->child_link_name]);
+//      joint_index_stack.push(0);
+
+//      if (verbose) {
+//        for (unsigned int i = 1; i < joint_index_stack.size() - 1; i++) {
+//          cout << "  ";
+//        }
+//        cout << "joint '" << cur_joint->name << "' child link '" <<
+//          link_stack.top()->name << "' type = " << cur_joint->type << endl;
+//      }
+
+//      joint_names.push_back(cur_joint->name);
+//    } else {
+//      link_stack.pop();
+//      joint_index_stack.pop();
+//    }
+//  }
 
   unsigned int j;
   for (j = 0; j < joint_names.size(); j++) {
