@@ -496,6 +496,14 @@ public:
 
 private:
   boost::shared_ptr<ModelDatad> model_data_;
+
+  /**
+   * @brief updateInertiaMatrixForBody Update the inner inertia matrix (I and Ic)
+   * stored in the model for the given body id.
+   * To use when the inertia of a body have been updated manually
+   * @param id the id of the body to update
+   */
+  void updateInertiaMatrixForBody(const unsigned int id);
 };
 
 /** @} */
