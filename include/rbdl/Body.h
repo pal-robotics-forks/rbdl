@@ -306,6 +306,11 @@ struct RBDL_DLLAPI FixedBody {
 
     return fbody;
   }
+
+  Body toBody()
+  {
+    return Body(mMass, mCenterOfMass, mInertia);
+  }
 };
 
 }
