@@ -594,7 +594,7 @@ unsigned int Model::GetBodyId(const char *body_name, const ModelDatad &model_dat
   return it->second;
 }
 
-void Model::updateInertiaMatrixForBody(const unsigned int id)
+void Model::UpdateInertiaMatrixForBody(const unsigned int id)
 {
   unsigned int body_id(id);
   if(IsFixedBodyId(id))
@@ -610,7 +610,8 @@ void Model::updateInertiaMatrixForBody(const unsigned int id)
   I[body_id] = rbi;
 }
 
-void Model::setBodyMass(const unsigned int id, const double mass)
+
+void Model::SetBodyMass(const unsigned int id, const double mass)
 {
   if(IsFixedBodyId(id))
   {
@@ -620,19 +621,19 @@ void Model::setBodyMass(const unsigned int id, const double mass)
     // Then update the fixed body inertia
     // Finally, merge it again in the parent body
     FixedBody& fixedbody(mFixedBodies[id - fixed_body_discriminator]);
-    mBodies[fixedbody.mMovableParent].Separate(fixedbody.mParentTransform, fixedbody.toBody());
+    mBodies[fixedbody.mMovableParent].Separate(fixedbody.mParentTransform, fixedbody.ToBody());
     fixedbody.mMass = mass;
-    mBodies[fixedbody.mMovableParent].Join(fixedbody.mParentTransform, fixedbody.toBody());
+    mBodies[fixedbody.mMovableParent].Join(fixedbody.mParentTransform, fixedbody.ToBody());
   }
   else
   {
     mBodies[id].mMass = mass;
   }
-  updateInertiaMatrixForBody(id);
+  UpdateInertiaMatrixForBody(id);
 }
 
 
-void Model::setBodyInertia(const unsigned int id, const Math::Matrix3d &inertia)
+void Model::SetBodyInertia(const unsigned int id, const Math::Matrix3d &inertia)
 {
   if(IsFixedBodyId(id))
   {
@@ -642,19 +643,19 @@ void Model::setBodyInertia(const unsigned int id, const Math::Matrix3d &inertia)
     // Then update the fixed body inertia
     // Finally, merge it again in the parent body
     FixedBody& fixedbody(mFixedBodies[id - fixed_body_discriminator]);
-    mBodies[fixedbody.mMovableParent].Separate(fixedbody.mParentTransform, fixedbody.toBody());
+    mBodies[fixedbody.mMovableParent].Separate(fixedbody.mParentTransform, fixedbody.ToBody());
     fixedbody.mInertia = inertia;
-    mBodies[fixedbody.mMovableParent].Join(fixedbody.mParentTransform, fixedbody.toBody());
+    mBodies[fixedbody.mMovableParent].Join(fixedbody.mParentTransform, fixedbody.ToBody());
   }
   else
   {
     mBodies[id].mInertia = inertia;
   }
-  updateInertiaMatrixForBody(id);
+  UpdateInertiaMatrixForBody(id);
 }
 
 
-void Model::setBodyCenterOfMass(const unsigned int id, const Math::Vector3d &com)
+void Model::SetBodyCenterOfMass(const unsigned int id, const Math::Vector3d &com)
 {
   if(IsFixedBodyId(id))
   {
@@ -664,19 +665,19 @@ void Model::setBodyCenterOfMass(const unsigned int id, const Math::Vector3d &com
     // Then update the fixed body inertia
     // Finally, merge it again in the parent body
     FixedBody& fixedbody(mFixedBodies[id - fixed_body_discriminator]);
-    mBodies[fixedbody.mMovableParent].Separate(fixedbody.mParentTransform, fixedbody.toBody());
+    mBodies[fixedbody.mMovableParent].Separate(fixedbody.mParentTransform, fixedbody.ToBody());
     fixedbody.mCenterOfMass = com;
-    mBodies[fixedbody.mMovableParent].Join(fixedbody.mParentTransform, fixedbody.toBody());
+    mBodies[fixedbody.mMovableParent].Join(fixedbody.mParentTransform, fixedbody.ToBody());
   }
   else
   {
     mBodies[id].mCenterOfMass = com;
   }
-  updateInertiaMatrixForBody(id);
+  UpdateInertiaMatrixForBody(id);
 }
 
 
-void Model::setBodyInertialParameters(const unsigned int id, const double mass,
+void Model::SetBodyInertialParameters(const unsigned int id, const double mass,
                                const Math::Matrix3d &inertia, const Math::Vector3d &com)
 {
   if(IsFixedBodyId(id))
@@ -687,11 +688,11 @@ void Model::setBodyInertialParameters(const unsigned int id, const double mass,
     // Then update the fixed body inertia
     // Finally, merge it again in the parent body
     FixedBody& fixedbody(mFixedBodies[id - fixed_body_discriminator]);
-    mBodies[fixedbody.mMovableParent].Separate(fixedbody.mParentTransform, fixedbody.toBody());
+    mBodies[fixedbody.mMovableParent].Separate(fixedbody.mParentTransform, fixedbody.ToBody());
     fixedbody.mMass = mass;
     fixedbody.mInertia = inertia;
     fixedbody.mCenterOfMass = com;
-    mBodies[fixedbody.mMovableParent].Join(fixedbody.mParentTransform, fixedbody.toBody());
+    mBodies[fixedbody.mMovableParent].Join(fixedbody.mParentTransform, fixedbody.ToBody());
   }
   else
   {
@@ -699,5 +700,5 @@ void Model::setBodyInertialParameters(const unsigned int id, const double mass,
     mBodies[id].mInertia = inertia;
     mBodies[id].mCenterOfMass = com;
   }
-  updateInertiaMatrixForBody(id);
+  UpdateInertiaMatrixForBody(id);
 }
