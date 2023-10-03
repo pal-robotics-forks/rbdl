@@ -494,9 +494,6 @@ public:
     return model_data_.get();
   }
 
-private:
-  boost::shared_ptr<ModelDatad> model_data_;
-
   /**
    * @brief updateInertiaMatrixForBody Update the inner inertia matrix (I and Ic)
    * stored in the model for the given body id.
@@ -539,6 +536,11 @@ private:
    */
   void SetBodyInertialParameters(const unsigned int id, const double mass,
                                  const Math::Matrix3d &inertia, const Math::Vector3d &com);
+
+private:
+  boost::shared_ptr<ModelDatad> model_data_;
+
+
 };
 
 /** @} */
