@@ -603,11 +603,11 @@ void Model::UpdateInertiaMatrixForBody(const unsigned int id)
   }
 
   const Body &body(mBodies[body_id]);
-  Math::SpatialRigidBodyInertia rbi =
-      Math::SpatialRigidBodyInertia::createFromMassComInertiaC(
+  Math::SpatialRigidBodyInertiad rbi =
+      Math::SpatialRigidBodyInertiad::createFromMassComInertiaC(
           body.mMass, body.mCenterOfMass, body.mInertia);
-  Ic[body_id] = rbi;
-  I[body_id] = rbi;
+  model_data_->Ic[body_id] = rbi;
+  model_data_->I[body_id] = rbi;
 }
 
 

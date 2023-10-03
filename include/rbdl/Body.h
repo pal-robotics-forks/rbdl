@@ -100,14 +100,14 @@ struct RBDL_DLLAPI Body {
    * @param initial_body
    * @return the inertia of initial body transformed
    */
-  static Math::Matrix3d TransformInertiaToBodyFrame(const Math::SpatialTransform &transform,
+  static Math::Matrix3d TransformInertiaToBodyFrame(const Math::SpatialTransformd &transform,
                                                     const Body &initial_body)
   {
     Math::Vector3d initial_com = transform.E.transpose() * initial_body.mCenterOfMass +
                                transform.r;
 
-    Math::SpatialRigidBodyInertia initial_rbi =
-      Math::SpatialRigidBodyInertia::createFromMassComInertiaC (initial_body.mMass,
+    Math::SpatialRigidBodyInertiad initial_rbi =
+      Math::SpatialRigidBodyInertiad::createFromMassComInertiaC (initial_body.mMass,
           initial_body.mCenterOfMass, initial_body.mInertia);
 
     Math::Matrix3d inertia_initial = initial_rbi.toMatrix().block<3,3>(0,0);
@@ -178,8 +178,8 @@ struct RBDL_DLLAPI Body {
     // this body
     // 4. Sum the two inertias
     // 5. Transform the summed inertia to the new COM
-    Math::SpatialRigidBodyInertia this_rbi =
-      Math::SpatialRigidBodyInertia::createFromMassComInertiaC (mMass, mCenterOfMass,
+    Math::SpatialRigidBodyInertiad this_rbi =
+      Math::SpatialRigidBodyInertiad::createFromMassComInertiaC (mMass, mCenterOfMass,
           mInertia);
 
     Math::Matrix3d inertia_other_com_rotated_this_origin = TransformInertiaToBodyFrame(transform, other_body);
@@ -209,25 +209,23 @@ struct RBDL_DLLAPI Body {
    * other body.
    * \param other_body The other body that will be separated with *this.
    */
-  void Separate(const Math::SpatialTransform &transform, const Body &other_body)
+  void Separate(const Math::SpatialTransformd &transform, const Body &other_body)
   {
-#ifndef RBDL_USE_CASADI_MATH
     // nothing to do if we join a massles body to the current.
     if (other_body.mMass == 0. && other_body.mInertia == Math::Matrix3d::Zero())
     {
       return;
     }
-#endif
 
-    Math::Scalar other_mass = other_body.mMass;
-    Math::Scalar new_mass = mMass - other_mass;
+    double other_mass = other_body.mMass;
+    double new_mass = mMass - other_mass;
 
-#ifndef RBDL_USE_CASADI_MATH
     if (new_mass == 0.)
     {
-      throw Errors::RBDLError("Error: cannot separate bodies as both have zero mass!\n");
+      std::cerr << "Error: cannot separate bodies as both have zero mass!" << std::endl;
+      assert(false);
+      abort();
     }
-#endif
 
     Math::Vector3d other_com =
         transform.E.transpose() * other_body.mCenterOfMass + transform.r;
@@ -245,8 +243,8 @@ struct RBDL_DLLAPI Body {
     // 4. Substract the two inertias
     // 5. Transform the new inertia to the new COM
 
-    Math::SpatialRigidBodyInertia this_rbi =
-        Math::SpatialRigidBodyInertia::createFromMassComInertiaC(mMass, mCenterOfMass, mInertia);
+    Math::SpatialRigidBodyInertiad this_rbi =
+        Math::SpatialRigidBodyInertiad::createFromMassComInertiaC(mMass, mCenterOfMass, mInertia);
 
     Math::Matrix3d inertia_other_com_rotated_this_origin =
         TransformInertiaToBodyFrame(transform, other_body);
