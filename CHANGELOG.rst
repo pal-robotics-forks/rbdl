@@ -2,6 +2,32 @@
 Changelog for package rbdl
 ^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+* Merge branch 'gripper_additional_mass' into 'erbium-devel'
+  Add API to update body inertial parameters at runtime -
+  See merge request control/rbdl!21
+* Model: move new methods to update bodies inertia to public
+* Fix differences between main rbdl branch and PAL's fork
+* updated intertial api function names to comply with the rest of rbdl function names
+* Add unit test to change inertia of fixed bodies in model
+* Methods to update body inertia now correctly work for fixed bodies
+* Add unit test to check the update of body inertial parameters
+* Add methods in Model to update body inertial parameters correctly
+* Add unit test for Body::Separate method
+* Factorize duplicated code beetwen Body::Join and Body::Separate in another method
+* Add a Body::Separate method to remove the effect of a body inertial parameters that was previously joined
+* Add method Model::updateInertiaMatrixForBody
+* Merge branch 'centroial_inertia_matrix' into 'erbium-devel'
+  added the methods to compute the spatial and centroidal inertia matrix
+  See merge request control/rbdl!19
+* added more tests for computation of spatial inertia and momentum
+* added a new argument to compute the angular momentum and also updated tests
+* added tests for computation of Inertia of the body
+* use mBodies instead of the mBodyNameMap
+* added the methods to compute the spatial and centroidal inertia matrix
+* Contributors: Adria Roig, Pierre Fernbach, Sai Kishor Kothakota, ju6ge
+
 0.4.0 (2022-04-08)
 ------------------
 * Merge branch 'dynamic_linearized_mpc' into 'erbium-devel'
