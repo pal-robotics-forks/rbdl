@@ -494,8 +494,53 @@ public:
     return model_data_.get();
   }
 
+  /**
+   * @brief updateInertiaMatrixForBody Update the inner inertia matrix (I and Ic)
+   * stored in the model for the given body id.
+   * To use when the inertia of a body have been updated manually
+   * @param id the id of the body to update
+   */
+  void UpdateInertiaMatrixForBody(const unsigned int id);
+
+  /**
+   * @brief setBodyMass Set the mass of a body and update the inertia matrix corresponding
+   * to this body in the model
+   * @param id the id of the body to update
+   * @param mass the new mass
+   */
+  void SetBodyMass(const unsigned int id, const double mass);
+
+  /**
+   * @brief setBodyInertia Set the inertia of a body and update the inertia matrix
+   * corresponding to this body in the model
+   * @param id the id of the body to update
+   * @param inertia the new inertia matrix
+   */
+  void SetBodyInertia(const unsigned int id, const Math::Matrix3d &inertia);
+
+  /**
+   * @brief setBodyCenterOfMass Set the center of mass of a body and update the inertia
+   * matrix corresponding to this body in the model
+   * @param id the id of the body to update
+   * @param com the new center of mass position
+   */
+  void SetBodyCenterOfMass(const unsigned int id, const Math::Vector3d &com);
+
+  /**
+   * @brief setBodyInertialParameters Set the inertial parameters of a body and update
+   * the inertia matrix corresponding to this body in the model
+   * @param id the id of the body to update
+   * @param mass the new mass
+   * @param inertia the new inertia matrix
+   * @param com the new center of mass position
+   */
+  void SetBodyInertialParameters(const unsigned int id, const double mass,
+                                 const Math::Matrix3d &inertia, const Math::Vector3d &com);
+
 private:
   boost::shared_ptr<ModelDatad> model_data_;
+
+
 };
 
 /** @} */

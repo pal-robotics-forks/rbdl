@@ -161,8 +161,8 @@ cdef extern from "<rbdl/Model.h>" namespace "RigidBodyDynamics":
                 unsigned int body_id,
                 const Quaternion &quat,
                 VectorNd &q)
-
         vector[unsigned int] _lambda
+
         vector[unsigned int] lambda_q
 #        vector[vector[unsigned int]] mu
 

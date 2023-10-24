@@ -90,6 +90,50 @@ struct RBDL_DLLAPI Body {
     mInertia (inertia_C),
     mIsVirtual (false) { }
 
+  /**
+   * @brief transformInertiaToBodyFrame transform the inertia of initial_body to the frame of a target_body
+   * This is done in 3 steps:
+   *  1. Transform the inertia from the initial body origin to it's COM
+   *  2. Rotate the inertia of the given transform
+   *  3. Transform inertia of initial_body of the given transform
+   * @param transform the transformation from tje target body to the initial body
+   * @param initial_body
+   * @return the inertia of initial body transformed
+   */
+  static Math::Matrix3d TransformInertiaToBodyFrame(const Math::SpatialTransformd &transform,
+                                                    const Body &initial_body)
+  {
+    Math::Vector3d initial_com = transform.E.transpose() * initial_body.mCenterOfMass +
+                               transform.r;
+
+    Math::SpatialRigidBodyInertiad initial_rbi =
+      Math::SpatialRigidBodyInertiad::createFromMassComInertiaC (initial_body.mMass,
+          initial_body.mCenterOfMass, initial_body.mInertia);
+
+    Math::Matrix3d inertia_initial = initial_rbi.toMatrix().block<3,3>(0,0);
+    LOG << "inertia_initial = " << std::endl << inertia_initial << std::endl;
+
+    // 1. Transform the inertia from initial origin to initial COM
+    Math::Matrix3d initial_com_cross = Math::VectorCrossMatrix(
+                                       initial_body.mCenterOfMass);
+    Math::Matrix3d inertia_initial_com = inertia_initial - initial_body.mMass * initial_com_cross
+                                       * initial_com_cross.transpose();
+    LOG << "inertia_initial_com = " << std::endl << inertia_initial_com << std::endl;
+
+    // 2. Rotate the inertia that it is aligned to the frame of this body
+    Math::Matrix3d inertia_initial_com_rotated = transform.E.transpose() *
+        inertia_initial_com * transform.E;
+    LOG << "inertia_initial_com_rotated = " << std::endl << inertia_initial_com_rotated
+        << std::endl;
+
+    // 3. Transform inertia of initial_body to the origin of the frame of the target body
+    Math::Matrix3d inertia_initial_com_rotated_this_origin = Math::parallel_axis (
+          inertia_initial_com_rotated, initial_body.mMass, initial_com);
+    LOG << "inertia_initial_com_rotated_this_origin = " << std::endl <<
+        inertia_initial_com_rotated_this_origin << std::endl;
+    return inertia_initial_com_rotated_this_origin;
+  }
+
   /** \brief Joins inertial parameters of two bodies to create a composite
    * body.
    *
@@ -134,25 +178,11 @@ struct RBDL_DLLAPI Body {
     // this body
     // 4. Sum the two inertias
     // 5. Transform the summed inertia to the new COM
+    Math::SpatialRigidBodyInertiad this_rbi =
+      Math::SpatialRigidBodyInertiad::createFromMassComInertiaC (mMass, mCenterOfMass,
+          mInertia);
 
-    Math::SpatialRigidBodyInertiad other_rbi = Math::SpatialRigidBodyInertiad::createFromMassComInertiaC (other_body.mMass, other_body.mCenterOfMass, other_body.mInertia);
-    Math::SpatialRigidBodyInertiad this_rbi = Math::SpatialRigidBodyInertiad::createFromMassComInertiaC (mMass, mCenterOfMass, mInertia);
-
-    Math::Matrix3d inertia_other = other_rbi.toMatrix().block<3,3>(0,0);
-    LOG << "inertia_other = " << std::endl << inertia_other << std::endl;
-
-    // 1. Transform the inertia from other origin to other COM
-    Math::Matrix3d other_com_cross = Math::VectorCrossMatrix(other_body.mCenterOfMass);
-    Math::Matrix3d inertia_other_com = inertia_other - other_mass * other_com_cross * other_com_cross.transpose();
-    LOG << "inertia_other_com = " << std::endl << inertia_other_com << std::endl;
-
-    // 2. Rotate the inertia that it is aligned to the frame of this body
-    Math::Matrix3d inertia_other_com_rotated = transform.E.transpose() * inertia_other_com * transform.E;
-    LOG << "inertia_other_com_rotated = " << std::endl << inertia_other_com_rotated << std::endl;
-
-    // 3. Transform inertia of other_body to the origin of the frame of this body
-    Math::Matrix3d inertia_other_com_rotated_this_origin = Math::parallel_axis (inertia_other_com_rotated, other_mass, other_com);
-    LOG << "inertia_other_com_rotated_this_origin = " << std::endl << inertia_other_com_rotated_this_origin << std::endl;
+    Math::Matrix3d inertia_other_com_rotated_this_origin = TransformInertiaToBodyFrame(transform, other_body);
 
     // 4. Sum the two inertias
     Math::Matrix3d inertia_summed = Math::Matrix3d (this_rbi.toMatrix().block<3,3>(0,0)) + inertia_other_com_rotated_this_origin;
@@ -166,6 +196,72 @@ struct RBDL_DLLAPI Body {
     LOG << "new_inertia  = " << std::endl << new_inertia << std::endl;
 
     *this = Body (new_mass, new_com, new_inertia);
+  }
+
+  /**
+   * @brief Separate inertial parameters of two bodies that were creating a composite
+   * body.
+   *
+   * This function can be used to Separate inertial parameters of two bodies
+   * that were previously joined as a composite body.
+   *
+   * \param transform The frame transformation from the current body to the
+   * other body.
+   * \param other_body The other body that will be separated with *this.
+   */
+  void Separate(const Math::SpatialTransformd &transform, const Body &other_body)
+  {
+    // nothing to do if we join a massles body to the current.
+    if (other_body.mMass == 0. && other_body.mInertia == Math::Matrix3d::Zero())
+    {
+      return;
+    }
+
+    double other_mass = other_body.mMass;
+    double new_mass = mMass - other_mass;
+
+    if (new_mass == 0.)
+    {
+      std::cerr << "Error: cannot separate bodies as both have zero mass!" << std::endl;
+      assert(false);
+      abort();
+    }
+
+    Math::Vector3d other_com =
+        transform.E.transpose() * other_body.mCenterOfMass + transform.r;
+    Math::Vector3d new_com = (1 / new_mass) * (mMass * mCenterOfMass - other_mass * other_com);
+
+    LOG << "other_com = " << std::endl << other_com.transpose() << std::endl;
+    LOG << "rotation = " << std::endl << transform.E << std::endl;
+
+    // We have to transform the inertia of other_body to current COM (before separation).
+    // This is done in 4 steps:
+    // 1. Transform the inertia from other origin to other COM
+    // 2. Rotate the inertia that it is aligned to the frame of this body
+    // 3. Transform inertia of other_body to the origin of the frame of
+    // this body
+    // 4. Substract the two inertias
+    // 5. Transform the new inertia to the new COM
+
+    Math::SpatialRigidBodyInertiad this_rbi =
+        Math::SpatialRigidBodyInertiad::createFromMassComInertiaC(mMass, mCenterOfMass, mInertia);
+
+    Math::Matrix3d inertia_other_com_rotated_this_origin =
+        TransformInertiaToBodyFrame(transform, other_body);
+
+    // 4. Substract the two inertias
+    Math::Matrix3d inertia_substracted = Math::Matrix3d(this_rbi.toMatrix().block<3, 3>(0, 0)) -
+                                         inertia_other_com_rotated_this_origin;
+    LOG << "inertia_substracted  = " << std::endl << inertia_substracted << std::endl;
+
+    // 5. Transform the summed inertia to the new COM
+    Math::Matrix3d new_inertia =
+        inertia_substracted - new_mass * Math::VectorCrossMatrix(new_com) *
+                                  Math::VectorCrossMatrix(new_com).transpose();
+
+    mMass = new_mass;
+    mCenterOfMass = new_com;
+    mInertia = new_inertia;
   }
 
   ~Body() {};
@@ -207,6 +303,11 @@ struct RBDL_DLLAPI FixedBody {
     fbody.mInertia = body.mInertia;
 
     return fbody;
+  }
+
+  Body ToBody()
+  {
+    return Body(mMass, mCenterOfMass, mInertia);
   }
 };
 
