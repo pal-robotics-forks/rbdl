@@ -2,8 +2,8 @@
 Changelog for package rbdl
 ^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Forthcoming
------------
+0.4.1 (2023-10-24)
+------------------
 * Merge branch 'gripper_additional_mass' into 'erbium-devel'
   Add API to update body inertial parameters at runtime -
   See merge request control/rbdl!21
