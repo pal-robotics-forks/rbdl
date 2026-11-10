@@ -116,8 +116,8 @@ Body get_rbdl_body(ConstLinkPtr &urdf_link, bool is_root_link)
 {
   // assemble the body
   urdf::Vector3 link_inertial_rpy_temp;
-  Vector3d link_inertial_position;
-  Vector3d link_inertial_rpy;
+  Vector3d link_inertial_position = Vector3d::Zero();
+  Vector3d link_inertial_rpy = Vector3d::Zero();
   Matrix3d link_inertial_inertia = Matrix3d::Zero();
   double link_inertial_mass = 0.;
 

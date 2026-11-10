@@ -183,3 +183,28 @@ TEST_CASE(__FILE__"_CenterOfMass_WithPartialDualTipLinks", ""){
 
   CHECK_THAT(mass, IsClose(25.6646010822,TEST_PREC, TEST_PREC));
 }
+
+TEST_CASE(__FILE__"_FloatingBaseRootWithoutInertial", ""){
+  const char *urdf =
+    "<robot name=\"r\">"
+    "  <link name=\"root\"/>"
+    "  <joint name=\"j\" type=\"revolute\">"
+    "    <axis xyz=\"0 0 1\"/>"
+    "    <limit lower=\"-1\" upper=\"1\" effort=\"1\" velocity=\"1\"/>"
+    "    <parent link=\"root\"/>"
+    "    <child link=\"child\"/>"
+    "  </joint>"
+    "  <link name=\"child\">"
+    "    <inertial>"
+    "      <mass value=\"1\"/>"
+    "      <inertia ixx=\"1\" ixy=\"0\" ixz=\"0\" iyy=\"1\" iyz=\"0\" izz=\"1\"/>"
+    "    </inertial>"
+    "  </link>"
+    "</robot>";
+  Model model;
+  REQUIRE(URDFReadFromString(urdf, &model, true));
+
+  const Vector3d &com = model.mBodies[model.GetBodyId("root")].mCenterOfMass;
+  INFO("root center of mass: " << com.transpose());
+  CHECK(com.isZero(0.));
+}
